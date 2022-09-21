@@ -1,33 +1,28 @@
 const whats = require('../../components/whatsapp');
 const sheet = require('../../components/google/sheets');
 const phone = require('../../lib/phonenumber');
+const api = require('../../enums/api');
 const { app } = whats;
 
-let contatos = [];
-sheet.getValues('Contatos').then((result) => {
-  contatos = result;
-});
-
-let grupos = [];
-let txtGrupos = '';
-sheet.getValues('Grupos').then((result) => {
-  grupos = result;
-  txtGrupos = grupos
-    .map((el) => el._GRUPOS)
-    .join(', ')
-    .toLowerCase();
-});
-const api = {
-  id: '120363042441548855@g.us',
-  confirmed: true,
-  sendMessage(text) {
-    app.sendMessage(this.id, `API: ${text}`);
-  },
-  reply(msg, text) {
-    msg.reply(`API: ${text}`);
-  },
-  cmd(_msg) {},
+/**
+ * Criar uma regex
+ * @param {String} regex
+ * @returns function
+ */
+const regex = (regex) => {
+  return (text) => {
+    return new RegExp(regex, 'gi').exec(text);
+  };
 };
+
+/**
+ * É vazio
+ * @param {String} str
+ * @returns Boolean
+ */
+function isEmpty(str) {
+  return !str || str.length === 0;
+}
 
 // eslint-disable-next-line require-await
 async function createMsgGoogleGroups(msg) {
@@ -37,40 +32,42 @@ async function createMsgGoogleGroups(msg) {
       if (msg.to === api.id) {
         let isRun = true;
         // Encaminhamento de mensagens nos grupos Google cotnatos
-        const rgEncaminharMensagem = /(mensagem |msg )(para |)(.*)$/gi;
+        const rgEncaminharMensagem = /(send |mensagem |msg )(para |)(.*)$/gi;
         if (msg.body.match(rgEncaminharMensagem)) {
           try {
             isRun = false;
+            const contatos = await sheet.getValues('Contatos');
+
+            const grupos = await sheet.getValues('Grupos');
+            const txtGrupos = grupos.map((el) => el._GRUPOS).join(', ');
             const result = rgEncaminharMensagem
               .exec(msg.body)[3]
               .trim()
               .toLowerCase();
-            console.log('Result::', result);
-            const gp = grupos.find((el) =>
-              el._GRUPOS.toLowerCase().includes(result)
-            )._GRUPOS;
-            if (!gp || !txtGrupos.includes(gp.toLowerCase())) {
+            let isGroupValid = regex(result);
+            const grupo =
+              grupos.find((el) => isGroupValid(el._GRUPOS))?._GRUPOS || '';
+            if (isEmpty(grupo) || !regex(grupo)(txtGrupos)) {
               api.reply(
                 msg,
-                `Grupo ${gp} inválido! \nGrupos disponíveis: ${txtGrupos}`
+                `Grupo ${
+                  grupo || result
+                } inválido! \nGrupos disponíveis: ${txtGrupos}`
               );
               return false;
             }
-            api.reply(msg, `Ok, encaminharemos novas mensagens para ${gp}!`);
+            isGroupValid = regex(grupo);
             setTimeout(() => {
               try {
-                api.reply(msg, `Paramos de receber suas mensagens para ${gp}`);
+                api.reply(
+                  msg,
+                  `Paramos de receber novas mensagens para ${grupo}!`
+                );
                 api.cmd = () => {};
               } catch (e) {}
             }, 5 * 60 * 1000);
             const newCotatos = contatos
-              .filter((el) => {
-                try {
-                  return el._GRUPOS.toLowerCase().includes(gp.toLowerCase());
-                } catch (e) {
-                  return false;
-                }
-              })
+              .filter((el) => isGroupValid(el._GRUPOS))
               .map((el) => {
                 return {
                   ...el,
@@ -80,6 +77,12 @@ async function createMsgGoogleGroups(msg) {
                 };
               })
               .filter((el) => el.tel.length > 0);
+
+            if (newCotatos.length === 0) {
+              api.reply(msg, `Nenhum contato para o grupo ${grupo}!`);
+              return false;
+            }
+            api.reply(msg, `Ok, encaminharemos novas mensagens para ${grupo}!`);
 
             api.cmd = function (msg) {
               newCotatos.forEach((el) => {
