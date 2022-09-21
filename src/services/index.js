@@ -1,4 +1,4 @@
-const message = require('./mensagens');
+const message = require('./messagens');
 
 module.exports = {
   message,

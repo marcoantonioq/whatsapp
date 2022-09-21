@@ -1,6 +1,6 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-const credenciais = require('./credenciais.json');
-const arquivo = require('./arquivo.json');
+const credenciais = require('../../../config/credenciais.json');
+const arquivo = require('../../../config/arquivo.json');
 
 const getDoc = async () => {
   const doc = new GoogleSpreadsheet(arquivo.id);
@@ -14,9 +14,14 @@ const getDoc = async () => {
 };
 
 const getRows = async (plan) => {
+  const doc = await getDoc();
+  const sheet = doc.sheetsByTitle[plan];
+  return await sheet.getRows();
+};
+
+const getValues = async (plan) => {
   try {
     const doc = await getDoc();
-    console.log(doc.title);
     const sheet = doc.sheetsByTitle[plan];
     const rows = await sheet.getRows();
     const headerValues = rows[0]._sheet.headerValues;
@@ -53,5 +58,6 @@ const replaceInRow = async (message, row) => {
 module.exports = {
   getDoc,
   getRows,
+  getValues,
   replaceInRow,
 };

@@ -1,3 +1,5 @@
+config/arquivo.json
+config/credenciais.json
 # Logs
 logs
 *.log
@@ -131,3 +133,4 @@ dist
 Footer
 .wwebjs_auth
 botpress
+src
