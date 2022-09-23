@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const api = require('./src/routes/api');
+// eslint-disable-next-line no-unused-vars
 const services = require('./src/services');
-console.log('Inicializado serviços: ', services);
 
 const app = express();
 

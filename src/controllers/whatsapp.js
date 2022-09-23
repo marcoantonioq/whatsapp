@@ -1,6 +1,6 @@
-const whats = require('../components/whatsapp');
-const phone = require('../lib/phonenumber');
-// const google = require('./components/google');
+// const whats = require('../services/whatsapp');
+// const phone = require('../lib/phonenumber');
+// const google = require('./lib/google');
 
 exports.index = (req, res) => {
   res.json({
@@ -11,18 +11,17 @@ exports.index = (req, res) => {
 };
 
 exports.send = async (req, res) => {
-  const { tel, msg } = req.body;
-  try {
-    await whats.app.sendMessage(phone.format(tel), msg);
-  } catch (e) {
-    console.log('Whatsapp não inicializado!');
-  }
-
-  res.json({
-    status: 'Sucesso',
-    message: 'A lista...',
-    data: [],
-  });
+  // const { tel, msg } = req.body;
+  // try {
+  //   await whats.app.sendMessage(phone.format(tel), msg);
+  // } catch (e) {
+  //   console.log('Whatsapp não inicializado!');
+  // }
+  // res.json({
+  //   status: 'Sucesso',
+  //   message: 'A lista...',
+  //   data: [],
+  // });
 };
 
 // const msg = `A paz de Deus 😃

@@ -1,5 +1,6 @@
-const message = require('./messagens');
+// const store = require('../store');
+const whatsapp = require('./whatsapp');
 
 module.exports = {
-  message,
+  whatsapp,
 };

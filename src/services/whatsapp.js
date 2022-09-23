@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 const what = require('whatsapp-web.js');
-const settings = require('../../../config/global');
-// eslint-disable-next-line no-unused-vars
+const settings = require('../../config/global');
+const store = require('../store');
 
 const app = new what.Client({
   authStrategy: new what.LocalAuth({
@@ -10,25 +10,33 @@ const app = new what.Client({
   ...settings.whatsapp,
 });
 
+app.initialize();
+
 app.on('loading_screen', (percent, message) => {
   console.log('WhatsApp: LOADING SCREEN', percent, message);
 });
 
 app.on('qr', (qr) => {
-  // NOTE: This event will not be fired if a session is specified.
-  console.log('WhatsApp: QR RECEIVED', qr);
+  store.commit('qr', qr);
 });
 
 app.on('authenticated', () => {
-  console.log('WhatsApp: AUTHENTICATED');
+  store.commit('authenticated');
 });
 
 app.on('auth_failure', (msg) => {
-  // Fired if session restore was unsuccessful
-  console.error('WhatsApp: AUTHENTICATION FAILURE', msg);
+  store.commit('auth_failure');
+});
+
+app.on('message_create', (msg) => {
+  if (msg.body.startsWith('API:')) {
+    return true;
+  }
+  store.commit('message_create', msg);
 });
 
 app.on('message', async (msg) => {
+  store.commit('message', msg);
   if (msg.body === '!ping reply') {
     msg.reply('pong');
   } else if (msg.body === '!ping') {
@@ -39,9 +47,9 @@ app.on('message', async (msg) => {
       msg.from,
       `
             *Connection info*
-            User name: ${info.pushname}
-            My number: ${info.wid.user}
-            Platform: ${info.platform}
+            Nome: ${info.pushname}
+            Telefone: ${info.wid.user}
+            Plataforma: ${info.platform}
         `
     );
   } else if (msg.body === '!pin') {
@@ -92,27 +100,28 @@ app.on('message', async (msg) => {
 
 app.on('group_join', (notification) => {
   // User has joined or been added to the group.
-  console.log('join', notification);
-  notification.reply('User joined.');
+  // console.log('join', notification);
+  // notification.reply('User joined.');
 });
 
 app.on('group_leave', (notification) => {
   // User has left or been kicked from the group.
-  console.log('leave', notification);
-  notification.reply('User left.');
+  // console.log('leave', notification);
+  // notification.reply('User left.');
 });
 
 app.on('disconnected', (reason) => {
-  console.log('WhatsApp: Client was logged out', reason);
+  store.commit('disconnected');
 });
 
 app.on('ready', () => {
-  console.log('WhatsApp: READY');
+  store.commit('ready');
 });
 
-app.initialize();
-
-module.exports = {
+const whatsapp = {
   ...what,
   app,
 };
+
+store.commit('what_init', whatsapp);
+module.exports = whatsapp;
