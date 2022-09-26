@@ -1,25 +1,7 @@
+/* eslint-disable require-await */
 /* eslint-disable no-console */
 const phone = require('../lib/phonenumber');
 const sheet = require('../lib/google/sheets');
-
-const contatos = {};
-
-sheet.getRows('Contatos').then((result) => {
-  result.forEach((el) => {
-    (el._TELEFONES || '')
-      .split(',')
-      .map((tel) => phone.format(tel.trim()))
-      .forEach((tel) => {
-        contatos[tel] = el._NOME;
-      });
-  });
-});
-
-sheet.getRows('Save').then((result) => {
-  result.forEach((el) => {
-    contatos[phone.format(el['Phone 1 - Value'])] = el.Name;
-  });
-});
 
 /**
  * Criar uma regex
@@ -60,21 +42,23 @@ const whatsapp = {
    * Envia mensagens agendados na planilha Contatos aba Contatos coluna _MSG
    * @param {Whatsapp} msg Whatsapp msg
    */
-  // eslint-disable-next-line require-await
   async createMsgGoogleContacts(state) {
     try {
       const { app } = state.whatsapp;
-      const myInterval = setInterval(async () => {
+      const myInterval = setInterval(() => {
         try {
-          const contatos = await sheet.getRows('Contatos');
+          const contatos = state.contatos.values;
           contatos
             .filter((el) => el._MSG)
             .forEach((el) => {
               el._TELEFONES
                 .split(',')
                 .map((tel) => phone.format(tel.trim()))
-                .forEach(async (tel) => {
-                  app.sendMessage(tel, await sheet.replaceInRow(el._MSG, el));
+                .forEach((tel) => {
+                  app.sendMessage(
+                    tel,
+                    state.contatos.replaceInRow(el._MSG, el)
+                  );
                   el._MSG = '';
                   el.save();
                 });
@@ -110,7 +94,7 @@ const whatsapp = {
               isRun = false;
               const { contatos } = state;
 
-              const grupos = await sheet.getValues('Grupos');
+              const grupos = state.contatos.groups;
               const txtGrupos = grupos.map((el) => el._GRUPOS).join(', ');
               const result = rgEncaminharMensagem
                 .exec(msg.body)[3]
@@ -266,10 +250,15 @@ const whatsapp = {
     try {
       const contact = await msg.getContact();
       const chat = await msg.getChat();
+      const contatos = state.contatos.values;
       // console.log('Contact: ', contact);
       // console.log('Chat: ', chat);
 
-      if (!contatos[contact.id._serialized]) {
+      const isSaved = contatos.find((el) =>
+        el._TELEFONES.includes(contact.id._serialized.replace('@c.us', ''))
+      );
+
+      if (!isSaved) {
         const groups = new Groups();
         const doc = await sheet.getDoc();
         const plan = doc.sheetsByTitle.Save;

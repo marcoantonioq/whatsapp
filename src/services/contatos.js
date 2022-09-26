@@ -3,8 +3,17 @@ const store = require('../store');
 
 const contatos = {
   store: [],
+  rows: [],
+  groups: [],
   get values() {
-    return this.store;
+    const headerValues = this.rows[0]._sheet.headerValues;
+    return this.rows.map(({ _rawData }) => {
+      const entries = _rawData.map((val, id) => {
+        return [headerValues[id], val];
+      });
+      const data = new Map(entries);
+      return Object.fromEntries(data);
+    });
   },
   set values(contact) {
     this.store.push(contact);
@@ -12,6 +21,10 @@ const contatos = {
   async update() {
     const contatos = await sheet.getValues('Contatos');
     this.store = contatos;
+    const rows = await sheet.getRows('Contatos');
+    this.rows = rows;
+    const groups = await sheet.getRows('Grupos');
+    this.groups = groups;
     return this;
   },
   replaceInRow(message, row) {
