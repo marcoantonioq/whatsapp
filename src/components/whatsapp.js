@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const phone = require('../lib/phonenumber');
 const sheet = require('../lib/google/sheets');
 
@@ -56,65 +57,44 @@ class Groups {
 
 const whatsapp = {
   /**
-   * Salva o contato de novas conversas no Google Sheet
-   * @param {Store} state Estado da aplicação
-   * @param {Whatsapp} msg Whatsapp message
-   */
-  // eslint-disable-next-line require-await
-  async AutoSaveGoogleContatos(state, msg) {
-    const contact = await msg.getContact();
-    const chat = await msg.getChat();
-    // console.log('Contact: ', contact);
-    // console.log('Chat: ', chat);
-
-    if (!contatos[contact.id._serialized]) {
-      const groups = new Groups();
-      const doc = await sheet.getDoc();
-      const plan = doc.sheetsByTitle.Save;
-      groups.values = 'AutoSave';
-      if (chat.isGroup && !phone.format(chat.name)) {
-        groups.values = chat.name;
-      }
-      contatos[contact.id._serialized] = contact.name || contact.pushname;
-      plan.addRow({
-        Name: contact.name || contact.pushname,
-        Birthday: '',
-        Notes: contact.pushname,
-        'Group Membership': groups.values.join(', '),
-        'Phone 1 - Value': contact.number.replace(/(\d\d)(\d{8}$)/g, '$19$2'),
-        'Organization 1 - Name': '',
-      });
-    }
-  },
-  /**
    * Envia mensagens agendados na planilha Contatos aba Contatos coluna _MSG
    * @param {Whatsapp} msg Whatsapp msg
    */
   // eslint-disable-next-line require-await
   async createMsgGoogleContacts(state) {
-    const { app } = state.whatsapp;
-    const myInterval = setInterval(async () => {
-      try {
-        const contatos = await sheet.getRows('Contatos');
-        contatos
-          .filter((el) => el._MSG)
-          .forEach((el) => {
-            el._TELEFONES
-              .split(',')
-              .map((tel) => phone.format(tel.trim()))
-              .forEach(async (tel) => {
-                app.sendMessage(tel, await sheet.replaceInRow(el._MSG, el));
-                el._MSG = '';
-                el.save();
-              });
-          });
-      } catch (e) {
-        console.log(`Erro no serviço de envio de mensagens: ${e}`);
-        clearInterval(myInterval);
-      }
-    }, 5 * 60 * 1000);
-    return myInterval;
+    try {
+      const { app } = state.whatsapp;
+      const myInterval = setInterval(async () => {
+        try {
+          const contatos = await sheet.getRows('Contatos');
+          contatos
+            .filter((el) => el._MSG)
+            .forEach((el) => {
+              el._TELEFONES
+                .split(',')
+                .map((tel) => phone.format(tel.trim()))
+                .forEach(async (tel) => {
+                  app.sendMessage(tel, await sheet.replaceInRow(el._MSG, el));
+                  el._MSG = '';
+                  el.save();
+                });
+            });
+        } catch (e) {
+          console.log(`Erro no serviço de envio de mensagens: ${e}`);
+          clearInterval(myInterval);
+        }
+      }, 5 * 60 * 1000);
+      return myInterval;
+    } catch (e) {
+      console.log(`Erro ao em criar mensagens dos contatos: ${e}`);
+    }
   },
+  /**
+   * Envia mensagem para os Marcadores do Google Contatos utilizando a API
+   * @param {State} state Estado da aplicação
+   * @param {Whatsapp} msg Mensagem do Whatsapp
+   * @returns
+   */
   async createMsgGoogleGroups(state, msg) {
     const { api } = state;
     const { app } = state.whatsapp;
@@ -128,7 +108,7 @@ const whatsapp = {
           if (msg.body.match(rgEncaminharMensagem)) {
             try {
               isRun = false;
-              const contatos = await sheet.getValues('Contatos');
+              const { contatos } = state;
 
               const grupos = await sheet.getValues('Grupos');
               const txtGrupos = grupos.map((el) => el._GRUPOS).join(', ');
@@ -154,41 +134,50 @@ const whatsapp = {
                 );
                 api.cmd = () => {};
               }, 5 * 60 * 1000);
-              const newCotatos = contatos
+              const newContatos = contatos.values
                 .filter((el) => isGroupValid(el._GRUPOS))
                 .map((el) => {
                   return {
                     ...el,
-                    tel: el._TELEFONES
-                      .split(',')
-                      .map((el) => phone.format(el.trim())),
+                    tel: el._TELEFONES.split(',').map((el) => phone.format(el)),
                   };
                 })
-                .filter((el) => el.tel.length > 0);
+                .filter((el) => el._NOME && el.tel.length > 0);
 
-              if (newCotatos.length === 0) {
+              if (newContatos.length === 0) {
                 msg.reply(`API: Nenhum contato para o grupo ${grupo}!`);
                 return false;
               }
               msg.reply(
-                `API: Ok, encaminharemos novas mensagens para ${grupo} com ${newCotatos.length} participantes! \n\n *Sair: (ok/sair)*`
+                `API: Ok, encaminharemos novas mensagens para ${grupo} com ${newContatos.length} participantes! \n\n *Sair: (ok/sair)*`
               );
 
-              api.cmd = function (msg) {
-                newCotatos.forEach((el) => {
-                  if (msg.body.trim()) {
-                    el.tel.forEach(async (tel) => {
-                      return await app.sendMessage(
-                        tel,
-                        await sheet.replaceInRow(msg.body, el)
-                      );
-                    });
-                  } else {
-                    el.tel.forEach((tel) => {
-                      msg.forward(tel);
-                    });
+              // eslint-disable-next-line require-await
+              api.cmd = async function (msg) {
+                const telSends = {};
+                for (const el of newContatos) {
+                  if (!msg.body.startsWith('API:')) {
+                    for (const tel of el.tel) {
+                      if (tel && !telSends[tel]) {
+                        try {
+                          if (msg.body.trim()) {
+                            await app.sendMessage(
+                              tel,
+                              contatos.replaceInRow(msg.body, el)
+                            );
+                          } else {
+                            msg.forward(tel);
+                          }
+                        } catch (e) {
+                          console.log(
+                            `Erro ao enviar mensagens para ${el.tel}: ${e}`
+                          );
+                        }
+                      }
+                      telSends[tel] = msg.body;
+                    }
                   }
-                });
+                }
               };
             } catch (e) {
               isRun = false;
@@ -197,17 +186,23 @@ const whatsapp = {
               app.sendMessage(api.my, ms);
             }
           }
-          if (msg.body.trim().match(/^(ok|ok!|finalizar|cancelar|sair)$/gi)) {
+          try {
+            if (msg.body.trim().match(/^(ok|ok!|finalizar|cancelar|sair)$/gi)) {
+              api.cmd = () => {};
+              msg.reply(`API: Ok, todos os comandos foram removidos!`);
+            }
+            if (isRun) {
+              api.cmd(msg);
+            }
+          } catch (e) {
+            console.log(`Erro: ${e}`);
             api.cmd = () => {};
-            msg.reply(`API: Ok, todos os comandos foram removidos!`);
-          }
-          if (isRun) {
-            api.cmd(msg);
+            app.sendMessage(api.my, `API: Erro: ${e}`);
           }
         }
       }
     } catch (e) {
-      app.sendMessage(api.my, `API: Erro: ${e}`);
+      console.log(`Erro send Group: ${e}`);
     }
   },
   // eslint-disable-next-line require-await
@@ -222,19 +217,82 @@ const whatsapp = {
         }
       }
     } catch (e) {
-      console.log(`Erro: ${e}`);
+      console.log(`Erro whatsAppLink: ${e}`);
     }
   },
   async saveQRGoogleSheet(state, qr) {
-    const doc = await sheet.getDoc();
-    const plan = doc.sheetsByTitle.Whatsapp;
-    await plan.loadCells('A1:A3');
-    const A2 = plan.getCellByA1('A2');
-    A2.value = `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`;
-    A2.save();
-    const A3 = plan.getCellByA1('A3');
-    A3.value = `Data: ${new Date().toLocaleString()}`;
-    A3.save();
+    try {
+      const doc = await sheet.getDoc();
+      const plan = doc.sheetsByTitle.Whatsapp;
+      await plan.loadCells('A1:A3');
+      const A2 = plan.getCellByA1('A2');
+      A2.value = `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`;
+      A2.save();
+      const A3 = plan.getCellByA1('A3');
+      A3.value = `Data: ${new Date().toLocaleString()}`;
+      A3.save();
+    } catch (e) {
+      console.log(`Erro saveQRCode: ${e}`);
+    }
+  },
+  /**
+   * Registra log de mensagens no google sheet (MSG)
+   * @param {State} state Estado da aplicação
+   * @param {Whatsapp} msg Mensagem whatsapp
+   */
+  async logMsg(state, msg) {
+    try {
+      const doc = await sheet.getDoc();
+      const plan = doc.sheetsByTitle.LOG;
+      if (msg.body && msg.fromMe) {
+        plan.addRow({
+          DE: msg.from,
+          PARA: msg.to,
+          MSG: msg.body,
+          TYPE: msg.mimetype,
+        });
+      }
+    } catch (e) {
+      console.log(`Erro logMSG ${e}`);
+    }
+  },
+  /**
+   * Salva o contato de novas conversas no Google Sheet
+   * @param {Store} state Estado da aplicação
+   * @param {Whatsapp} msg Whatsapp message
+   */
+  // eslint-disable-next-line require-await
+  async AutoSaveGoogleContatos(state, msg) {
+    try {
+      const contact = await msg.getContact();
+      const chat = await msg.getChat();
+      // console.log('Contact: ', contact);
+      // console.log('Chat: ', chat);
+
+      if (!contatos[contact.id._serialized]) {
+        const groups = new Groups();
+        const doc = await sheet.getDoc();
+        const plan = doc.sheetsByTitle.Save;
+        groups.values = 'AutoSave';
+        if (chat.isGroup && !phone.format(chat.name)) {
+          groups.values = chat.name;
+        }
+        contatos[contact.id._serialized] = contact.name || contact.pushname;
+        plan.addRow({
+          Name: contact.name || contact.pushname,
+          Birthday: '',
+          Notes: contact.pushname,
+          'Group Membership': groups.values.join(', '),
+          'Phone 1 - Value': contact.number.replace(/(\d\d)(\d{8}$)/g, '$19$2'),
+          'Organization 1 - Name': '',
+        });
+      }
+    } catch (e) {
+      console.log(`Erro AutoSave contatos no google sheets: ${e}`);
+    }
+  },
+  sendMessagesCRON(state) {
+    console.log('Cron mensagens');
   },
 };
 

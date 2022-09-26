@@ -4,6 +4,7 @@ const {
   createWhatsappLink,
   createMsgGoogleContacts,
   saveQRGoogleSheet,
+  logMsg,
 } = require('../components/whatsapp');
 const Observable = require('./observer');
 
@@ -11,11 +12,10 @@ const ready = new Observable();
 ready.subscribe(createMsgGoogleContacts);
 
 const message = new Observable();
-message.subscribe(AutoSaveGoogleContatos);
+message.subscribe(logMsg).subscribe(AutoSaveGoogleContatos);
 
 const create = new Observable();
-create.subscribe(createWhatsappLink);
-create.subscribe(createMsgGoogleGroups);
+create.subscribe(createWhatsappLink).subscribe(createMsgGoogleGroups);
 
 const qrcode = new Observable();
 qrcode.subscribe(saveQRGoogleSheet);

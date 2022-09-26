@@ -18,6 +18,7 @@ const store = createStore({
         ready: false,
       },
       bot: {},
+      contatos: {},
     };
     return state;
   },
@@ -62,6 +63,9 @@ const store = createStore({
     },
     cmd(state, cmd) {
       state.api.cmd = cmd;
+    },
+    contatos(state, contatos) {
+      state.contatos = contatos;
     },
   },
   getters: {
