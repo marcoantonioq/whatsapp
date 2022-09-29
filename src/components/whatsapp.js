@@ -64,13 +64,13 @@ const whatsapp = {
                 });
             });
         } catch (e) {
-          console.log(`Erro no serviço de envio de mensagens: ${e}`);
+          state.logger.erro(`Erro no serviço de envio de mensagens: ${e}`);
           clearInterval(myInterval);
         }
       }, 5 * 60 * 1000);
       return myInterval;
     } catch (e) {
-      console.log(`Erro ao em criar mensagens dos contatos: ${e}`);
+      state.logger.erro(`Erro ao em criar mensagens dos contatos: ${e}`);
     }
   },
   /**
@@ -104,8 +104,9 @@ const whatsapp = {
               const grupo =
                 grupos.find((el) => isGroupValid(el._GRUPOS))?._GRUPOS || '';
               if (isEmpty(grupo) || !regex(grupo)(txtGrupos)) {
-                msg.reply(
-                  `API: Grupo ${
+                state.api.reply(
+                  msg,
+                  `Grupo ${
                     grupo || result
                   } inválido! \nGrupos disponíveis: ${txtGrupos}`
                 );
@@ -113,8 +114,9 @@ const whatsapp = {
               }
               isGroupValid = regex(grupo);
               setTimeout(() => {
-                msg.reply(
-                  `API: Paramos encaminhar mensagens msg para ${grupo}!`
+                state.api.reply(
+                  msg,
+                  `Paramos encaminhar mensagens msg para ${grupo}!`
                 );
                 api.cmd = () => {};
               }, 5 * 60 * 1000);
@@ -129,10 +131,14 @@ const whatsapp = {
                 .filter((el) => el._NOME && el.tel.length > 0);
 
               if (newContatos.length === 0) {
-                msg.reply(`API: Nenhum contato para o grupo ${grupo}!`);
+                state.api.reply(
+                  msg,
+                  `API: Nenhum contato para o grupo ${grupo}!`
+                );
                 return false;
               }
-              msg.reply(
+              state.api.reply(
+                msg,
                 `API: Ok, encaminharemos novas mensagens para ${grupo} com ${newContatos.length} participantes! \n\n *Sair: (ok/sair)*`
               );
 
@@ -153,7 +159,7 @@ const whatsapp = {
                             msg.forward(tel);
                           }
                         } catch (e) {
-                          console.log(
+                          state.logger.erro(
                             `Erro ao enviar mensagens para ${el.tel}: ${e}`
                           );
                         }
@@ -166,8 +172,8 @@ const whatsapp = {
             } catch (e) {
               isRun = false;
               const ms = `API: Erro ao processar mensagem: ${e}`;
-              console.log(ms);
-              app.sendMessage(api.my, ms);
+              state.logger.error(ms);
+              state.api.sendMessage(ms);
             }
           }
           try {
@@ -179,14 +185,17 @@ const whatsapp = {
               api.cmd(msg);
             }
           } catch (e) {
-            console.log(`Erro: ${e}`);
+            const ms = `Erro: ${e}`;
             api.cmd = () => {};
-            app.sendMessage(api.my, `API: Erro: ${e}`);
+            state.logger.error(ms);
+            state.api.sendMessage(ms);
           }
         }
       }
     } catch (e) {
-      console.log(`Erro send Group: ${e}`);
+      const ms = `Erro: send Group: ${e}`;
+      state.logger.error(ms);
+      state.api.sendMessage(ms);
     }
   },
   // eslint-disable-next-line require-await
@@ -201,7 +210,9 @@ const whatsapp = {
         }
       }
     } catch (e) {
-      console.log(`Erro whatsAppLink: ${e}`);
+      const ms = `Erro whatsAppLink: ${e}`;
+      state.logger.error(ms);
+      state.api.sendMessage(ms);
     }
   },
   async saveQRGoogleSheet(state, qr) {
@@ -216,7 +227,9 @@ const whatsapp = {
       A3.value = `Data: ${new Date().toLocaleString()}`;
       A3.save();
     } catch (e) {
-      console.log(`Erro saveQRCode: ${e}`);
+      const ms = `Erro saveQRCode: ${e}`;
+      state.logger.error(ms);
+      state.api.sendMessage(ms);
     }
   },
   /**
@@ -237,7 +250,7 @@ const whatsapp = {
         });
       }
     } catch (e) {
-      console.log(`Erro logMSG ${e}`);
+      state.logger.error(`Erro logMSG ${e}`);
     }
   },
   /**
@@ -277,11 +290,11 @@ const whatsapp = {
         });
       }
     } catch (e) {
-      console.log(`Erro AutoSave contatos no google sheets: ${e}`);
+      state.logger.erro(`Erro AutoSave contatos no google sheets: ${e}`);
     }
   },
   sendMessagesCRON(state) {
-    console.log('Cron mensagens');
+    state.logger.log('Cron mensagens');
   },
 };
 

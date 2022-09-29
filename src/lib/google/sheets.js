@@ -33,7 +33,7 @@ const getValues = async (plan) => {
       return Object.fromEntries(data);
     });
   } catch (e) {
-    console.log(`\nErro ao ler planilha de contatos: ${e}`);
+    throw new Error(`\nErro ao ler planilha de contatos: ${e}`);
   }
 };
 
