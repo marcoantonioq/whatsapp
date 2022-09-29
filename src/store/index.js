@@ -31,7 +31,7 @@ const store = createStore({
       state.api.status.authenticated = true;
     },
     ready(state) {
-      state.logger.log('READY...');
+      state.logger.info('READY...');
       state.api.status.ready = true;
       ready.notify(state);
     },

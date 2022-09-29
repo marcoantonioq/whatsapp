@@ -19,10 +19,7 @@
     "whatsapp-web.js": "^1.17.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.19.3",
     "@babel/eslint-parser": "^7.16.3",
-    "@babel/node": "^7.19.1",
-    "@babel/preset-env": "^7.19.3",
     "@nuxtjs/eslint-config": "^8.0.0",
     "@nuxtjs/eslint-module": "^3.0.2",
     "@nuxtjs/vuetify": "^1.12.3",
@@ -35,8 +32,6 @@
   },
   "nodemonConfig": {
     "watch": [
-      "index.js",
-      "server.js",
       "src",
       "config"
     ],
@@ -44,7 +39,6 @@
       "out/*"
     ],
     "ext": "js,json",
-    "verbose": true,
-    "delay": 2000
+    "verbose": true
   }
 }

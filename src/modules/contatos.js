@@ -1,4 +1,5 @@
 const sheet = require('../lib/google/sheets');
+const logger = require('./logging');
 
 const contatos = {
   store: [],
@@ -18,12 +19,16 @@ const contatos = {
     this.store.push(contact);
   },
   async update() {
-    const contatos = await sheet.getValues('Contatos');
-    this.store = contatos;
-    const rows = await sheet.getRows('Contatos');
-    this.rows = rows;
-    const groups = await sheet.getRows('Grupos');
-    this.groups = groups;
+    try {
+      const contatos = await sheet.getValues('Contatos');
+      this.store = contatos;
+      const rows = await sheet.getRows('Contatos');
+      this.rows = rows;
+      const groups = await sheet.getRows('Grupos');
+      this.groups = groups;
+    } catch (e) {
+      logger.error(`Erro ao atualizar contatos: ${e}`);
+    }
     return this;
   },
   replaceInRow(message, row) {

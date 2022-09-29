@@ -71,4 +71,5 @@ function error(message) {
   appendFile(msg);
 }
 
-module.exports = { log, info, debug, warn, error, setPrefix };
+const logger = { log, info, debug, warn, error, setPrefix };
+module.exports = logger;
