@@ -1,5 +1,4 @@
 const sheet = require('../lib/google/sheets');
-const store = require('../store');
 
 const contatos = {
   store: [],
@@ -35,5 +34,4 @@ const contatos = {
 contatos.update();
 setInterval(contatos.update, 30 * 60 * 1000);
 
-store.commit('contatos', contatos);
 module.exports = contatos;

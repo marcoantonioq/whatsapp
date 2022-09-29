@@ -15,7 +15,7 @@ exports.send = async (req, res) => {
   // try {
   //   await whats.app.sendMessage(phone.format(tel), msg);
   // } catch (e) {
-  //   console.log('Whatsapp não inicializado!');
+  //   state.logger.log('Whatsapp não inicializado!');
   // }
   // res.json({
   //   status: 'Sucesso',
