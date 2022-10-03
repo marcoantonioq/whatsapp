@@ -21,36 +21,6 @@ const store = createStore({
     what_init(state, whatsapp) {
       state.whatsapp = whatsapp;
     },
-    qr(state, qr) {
-      qrcode.notify(state, qr);
-    },
-    auth_failure(state) {
-      state.api.status.auth_failure = true;
-    },
-    authenticated(state) {
-      state.api.status.authenticated = true;
-    },
-    ready(state) {
-      state.logger.info('READY...');
-      state.api.status.ready = true;
-      ready.notify(state);
-    },
-    disconnected(state) {
-      state.api.status.ready = false;
-    },
-    message(state, msg) {
-      message.notify(state, msg);
-    },
-    message_create(state, msg) {
-      try {
-        if (msg.body.startsWith('API:')) {
-          return true;
-        }
-        create.notify(state, msg);
-      } catch (e) {
-        state.api.sendMessage(`Erro no processamento ao criar mensagem: ${e}`);
-      }
-    },
     cmd(state, cmd) {
       state.api.cmd = cmd;
     },
@@ -73,26 +43,35 @@ const store = createStore({
 const { app, what } = store.state.whatsapp;
 
 app.on('qr', (qr) => {
-  store.commit('qr', qr);
+  qrcode.notify(store.state, qr);
 });
 
 app.on('authenticated', () => {
-  store.commit('authenticated');
+  store.state.api.status.authenticated = true;
 });
 
 app.on('auth_failure', (msg) => {
-  store.commit('auth_failure');
+  store.state.api.status.auth_failure = true;
 });
 
 app.on('message_create', (msg) => {
   if (msg.body.startsWith('API:')) {
     return true;
   }
-  store.commit('message_create', msg);
+  try {
+    if (msg.body.startsWith('API:')) {
+      return true;
+    }
+    create.notify(store.state, msg);
+  } catch (e) {
+    store.state.api.sendMessage(
+      `Erro no processamento ao criar mensagem: ${e}`
+    );
+  }
 });
 
 app.on('message', async (msg) => {
-  store.commit('message', msg);
+  message.notify(store.state, msg);
   if (msg.body === '!ping reply') {
     msg.reply('pong');
   } else if (msg.body === '!ping') {
@@ -155,23 +134,21 @@ app.on('message', async (msg) => {
 });
 
 app.on('group_join', (notification) => {
-  // User has joined or been added to the group.
-  // console.log('join', notification);
-  // notification.reply('User joined.');
+  store.state.whatsapp.groupJoin(store.state, notification);
 });
 
 app.on('group_leave', (notification) => {
-  // User has left or been kicked from the group.
-  // console.log('leave', notification);
-  // notification.reply('User left.');
+  store.state.whatsapp.groupLeave(store.state, notification);
 });
 
 app.on('disconnected', (reason) => {
-  store.commit('disconnected');
+  store.state.api.status.ready = false;
 });
 
 app.on('ready', () => {
-  store.commit('ready');
+  store.state.logger.log('READY...');
+  store.state.api.status.ready = true;
+  ready.notify(store.state);
 });
 
 module.exports = store;

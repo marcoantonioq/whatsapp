@@ -6,7 +6,7 @@ const {
   createMsgGoogleContacts,
   saveQRGoogleSheet,
   logMsg,
-} = require('../components/whatsapp');
+} = require('../modules/whatsapp');
 const Observable = require('./observer');
 
 const ready = new Observable();

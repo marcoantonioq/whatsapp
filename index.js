@@ -1,16 +1,8 @@
-/* eslint-disable no-unused-vars */
-const { logger } = require('./src/modules');
-
 // const express = require('express');
 // const bodyParser = require('body-parser');
 // const api = require('./src/routes/api');
-// eslint-disable-next-line no-unused-vars
-try {
-  logger.info(`${new Date().toLocaleDateString()}: Iniciando store!`);
-  const store = require('./src/store');
-} catch (e) {
-  logger.error(`Erro ao iniciar store: ${e}`);
-}
+// // eslint-disable-next-line no-unused-vars
+const store = require('./src/store');
 
 // const app = express();
 

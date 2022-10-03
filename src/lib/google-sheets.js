@@ -1,6 +1,8 @@
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-const credenciais = require('../../../config/credenciais.json');
-const arquivo = require('../../../config/arquivo.json');
+const credenciais = require('../../config/credenciais.json');
+const arquivo = require('../../config/arquivo.json');
+
+const logging = require('../modules/logging');
 
 const getDoc = async () => {
   const doc = new GoogleSpreadsheet(arquivo.id);
@@ -33,7 +35,7 @@ const getValues = async (plan) => {
       return Object.fromEntries(data);
     });
   } catch (e) {
-    throw new Error(`\nErro ao ler planilha de contatos: ${e}`);
+    logging.log(`\nErro ao ler planilha de contatos: ${e}`);
   }
 };
 
@@ -46,7 +48,7 @@ const replaceInRow = async (message, row) => {
         return acc.replaceAll(coluna, row[coluna]);
       }, message);
   } catch (e) {
-    console.log('Error convert text: ', e);
+    logging.log('Error convert text: ', e);
     return message;
   }
 };
