@@ -14,8 +14,9 @@ const ready = new Observable();
 ready.subscribe(createMsgGoogleContacts).subscribe(sendRead);
 
 const message = new Observable();
-message.subscribe(logMsg);
-// .subscribe(AutoSaveGoogleContatos);
+message
+  // .subscribe(logMsg);
+  .subscribe(AutoSaveGoogleContatos);
 
 const create = new Observable();
 create.subscribe(createWhatsappLink).subscribe(createMsgGoogleGroups);

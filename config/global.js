@@ -3,7 +3,7 @@ const settings = {
     clientId: 'MARCO',
     puppeteer: {
       executablePath: '/usr/bin/google-chrome-stable',
-      headless: false,
+      headless: true,
       args: [
         '--disable-default-apps',
         '--disable-extensions',

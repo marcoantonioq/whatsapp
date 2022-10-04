@@ -1,5 +1,5 @@
 const sheet = require('../lib/google-sheets');
-const logger = require('./logging');
+const logger = require('./logger');
 
 const contatos = {
   store: [],
