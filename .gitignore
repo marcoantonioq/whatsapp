@@ -133,3 +133,4 @@ dist
 Footer
 .wwebjs_auth
 botpress
+package-lock.json
