@@ -1,6 +1,6 @@
 const whatsapp = require('./whatsapp');
 const contatos = require('./contatos');
-const logger = require('./logging');
+const logger = require('./logger');
 const api = require('./api');
 
 module.exports = {

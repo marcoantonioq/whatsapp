@@ -18,17 +18,8 @@ const store = createStore({
     increment(state) {
       state.count++;
     },
-    what_init(state, whatsapp) {
-      state.whatsapp = whatsapp;
-    },
-    cmd(state, cmd) {
-      state.api.cmd = cmd;
-    },
     contatos(state, contatos) {
       state.contatos = contatos;
-    },
-    logger(state, logger) {
-      state.logger = logger;
     },
   },
   getters: {
