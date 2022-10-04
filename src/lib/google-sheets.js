@@ -2,23 +2,32 @@ const { GoogleSpreadsheet } = require('google-spreadsheet');
 const credenciais = require('../../config/credenciais.json');
 const arquivo = require('../../config/arquivo.json');
 
-const logging = require('../modules/logging');
+const logger = require('../modules/logger');
 
 const getDoc = async () => {
-  const doc = new GoogleSpreadsheet(arquivo.id);
+  try {
+    const doc = new GoogleSpreadsheet(arquivo.id);
 
-  await doc.useServiceAccountAuth({
-    client_email: credenciais.client_email,
-    private_key: credenciais.private_key.replace(/\\n/g, '\n'),
-  });
-  await doc.loadInfo();
-  return doc;
+    await doc.useServiceAccountAuth({
+      client_email: credenciais.client_email,
+      private_key: credenciais.private_key.replace(/\\n/g, '\n'),
+    });
+    await doc.loadInfo();
+    return doc;
+  } catch (e) {
+    logger.log(`\nErro ao ler planilha de contatos: ${e}`);
+  }
 };
 
 const getRows = async (plan) => {
-  const doc = await getDoc();
-  const sheet = doc.sheetsByTitle[plan];
-  return await sheet.getRows();
+  try {
+    const doc = await getDoc();
+    const sheet = doc.sheetsByTitle[plan];
+    return await sheet.getRows();
+  } catch (e) {
+    logger.log(`\nErro ao ler planilha de contatos: ${e}`);
+    return [];
+  }
 };
 
 const getValues = async (plan) => {
@@ -35,7 +44,7 @@ const getValues = async (plan) => {
       return Object.fromEntries(data);
     });
   } catch (e) {
-    logging.log(`\nErro ao ler planilha de contatos: ${e}`);
+    logger.log(`\nErro ao ler planilha de contatos: ${e}`);
   }
 };
 
@@ -48,7 +57,7 @@ const replaceInRow = async (message, row) => {
         return acc.replaceAll(coluna, row[coluna]);
       }, message);
   } catch (e) {
-    logging.log('Error convert text: ', e);
+    logger.log('Error convert text: ', e);
     return message;
   }
 };

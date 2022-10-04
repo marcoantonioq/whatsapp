@@ -12,8 +12,6 @@ const app = new what.Client({
   ...settings.whatsapp,
 });
 
-app.initialize();
-
 app.on('loading_screen', (percent, message) => {
   console.log('WhatsApp: LOADING SCREEN', percent, message);
 });
@@ -173,7 +171,7 @@ const whatsapp = {
                               contatos.replaceInRow(msg.body, el)
                             );
                           } else {
-                            msg.forward(tel);
+                            await msg.forward(tel);
                           }
                         } catch (e) {
                           state.logger.erro(
@@ -241,7 +239,7 @@ const whatsapp = {
       A2.value = `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`;
       A2.save();
       const A3 = plan.getCellByA1('A3');
-      A3.value = `Data: ${new Date().toLocaleString()}`;
+      A3.value = `${new Date().toLocaleString()}`;
       A3.save();
     } catch (e) {
       const ms = `Erro saveQRCode: ${e}`;
@@ -307,7 +305,8 @@ const whatsapp = {
         });
       }
     } catch (e) {
-      state.logger.erro(`Erro AutoSave contatos no google sheets: ${e}`);
+      console.log(state.logger);
+      state.logger.log(`Erro AutoSave contatos no google sheets: ${e}`);
     }
   },
   sendMessagesCRON(state) {
@@ -321,14 +320,25 @@ const whatsapp = {
   async groupLeave(state, notification) {
     const { name: chatName } = await notification.getChat();
     const contact = await notification.getContact();
-    state.api.sendMessage(
-      `${contact.name || contact.pushname} (${
-        notification.author.replace('@c.us', '') || ''
-      }) ${notification.type} => ${notification.id.participant.replace(
-        '@c.us',
-        ''
-      )} no grupo ${chatName}!`
-    );
+    if (
+      [
+        'CCB Goiás!',
+        'RJM-Cidade de Goiás✅',
+        'ADM CCB - Cidade de Goiás',
+        'Orquestra Cidade de Goiás',
+        'Irmandade Uvá',
+        'API',
+      ].includes(chatName)
+    ) {
+      state.api.sendMessage(
+        `${contact.name || contact.pushname} (${
+          notification.author.replace('@c.us', '') || ''
+        }) ${notification.type} => ${notification.id.participant.replace(
+          '@c.us',
+          ''
+        )} no grupo ${chatName}!`
+      );
+    }
   },
   /**
    * O usuário adicionado ao grupo
@@ -338,30 +348,39 @@ const whatsapp = {
   async groupJoin(state, notification) {
     const { name: chatName } = await notification.getChat();
     const contact = await notification.getContact();
-    state.api.sendMessage(
-      `${contact.name || contact.pushname} (${
-        notification.author.replace('@c.us', '') || ''
-      }) ${notification.type} => ${notification.id.participant.replace(
-        '@c.us',
-        ''
-      )} no grupo ${chatName}!`
-    );
-    // if (
-    //   [
-    //     'CCB Goiás!',
-    //     'RJM-Cidade de Goiás✅',
-    //     'ADM CCB - Cidade de Goiás',
-    //     'Orquestra Cidade de Goiás',
-    //     'Irmandade Uvá',
-    //     'API',
-    //   ].includes(chatName)
-    // ) {
-    //   state.whatsapp.app.sendMessage(
-    //     notification.id.participant,
-    //     `Seja muito bem vindo ao grupo ${chatName} 😃`
-    //   );
-    // }
+    if (
+      [
+        'CCB Goiás!',
+        'RJM-Cidade de Goiás✅',
+        'ADM CCB - Cidade de Goiás',
+        'Orquestra Cidade de Goiás',
+        'Irmandade Uvá',
+        'API',
+      ].includes(chatName)
+    ) {
+      state.api.sendMessage(
+        `${contact.name || contact.pushname} (${
+          notification.author.replace('@c.us', '') || ''
+        }) ${notification.type} => ${notification.id.participant.replace(
+          '@c.us',
+          ''
+        )} no grupo ${chatName}!`
+      );
+      // state.whatsapp.app.sendMessage(
+      //   notification.id.participant,
+      //   `Seja muito bem vindo ao grupo ${chatName} 😃`
+      // );
+    }
+  },
+  /**
+   * Whatsapp iniciado
+   * @param {Object} state - {@link state} object
+   */
+  sendRead(state) {
+    state.api.sendMessage(`Aplicação iniciada!`);
   },
 };
+
+app.initialize();
 
 module.exports = whatsapp;
