@@ -18,7 +18,7 @@ const logger = {
             return err;
           }
         });
-      } catch (error) {}
+      } catch (error) { }
     }
   },
   /**

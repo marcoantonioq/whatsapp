@@ -4,6 +4,7 @@ const what = require('whatsapp-web.js');
 const settings = require('../../config/global');
 const sheet = require('../lib/google-sheets');
 const phone = require('../lib/phonenumber');
+const qrcode = require('qrcode-terminal');
 
 const app = new what.Client({
   authStrategy: new what.LocalAuth({
@@ -121,8 +122,7 @@ const whatsapp = {
               if (isEmpty(grupo) || !regex(grupo)(txtGrupos)) {
                 state.api.reply(
                   msg,
-                  `Grupo ${
-                    grupo || result
+                  `Grupo ${grupo || result
                   } inválido! \nGrupos disponíveis: ${txtGrupos}`
                 );
                 return false;
@@ -133,7 +133,7 @@ const whatsapp = {
                   msg,
                   `Paramos encaminhar mensagens msg para ${grupo}!`
                 );
-                api.cmd = () => {};
+                api.cmd = () => { };
               }, 5 * 60 * 1000);
               const newContatos = contatos.values
                 .filter((el) => isGroupValid(el._GRUPOS))
@@ -193,7 +193,7 @@ const whatsapp = {
           }
           try {
             if (msg.body.trim().match(/^(ok|ok!|finalizar|cancelar|sair)$/gi)) {
-              api.cmd = () => {};
+              api.cmd = () => { };
               msg.reply(`API: Ok, todos os comandos foram removidos!`);
             }
             if (isRun) {
@@ -201,7 +201,7 @@ const whatsapp = {
             }
           } catch (e) {
             const ms = `Erro: ${e}`;
-            api.cmd = () => {};
+            api.cmd = () => { };
             state.logger.error(ms);
             state.api.sendMessage(ms);
           }
@@ -229,6 +229,9 @@ const whatsapp = {
       state.logger.error(ms);
       state.api.sendMessage(ms);
     }
+  },
+  async qrCodeGenrateConsole(state, qr) {
+    qrcode.generate(qr, { small: true });
   },
   async saveQRGoogleSheet(state, qr) {
     try {
@@ -305,7 +308,6 @@ const whatsapp = {
         });
       }
     } catch (e) {
-      console.log(state.logger);
       state.logger.log(`Erro AutoSave contatos no google sheets: ${e}`);
     }
   },
@@ -331,8 +333,7 @@ const whatsapp = {
       ].includes(chatName)
     ) {
       state.api.sendMessage(
-        `${contact.name || contact.pushname} (${
-          notification.author.replace('@c.us', '') || ''
+        `${contact.name || contact.pushname} (${notification.author.replace('@c.us', '') || ''
         }) ${notification.type} => ${notification.id.participant.replace(
           '@c.us',
           ''
@@ -359,8 +360,7 @@ const whatsapp = {
       ].includes(chatName)
     ) {
       state.api.sendMessage(
-        `${contact.name || contact.pushname} (${
-          notification.author.replace('@c.us', '') || ''
+        `${contact.name || contact.pushname} (${notification.author.replace('@c.us', '') || ''
         }) ${notification.type} => ${notification.id.participant.replace(
           '@c.us',
           ''

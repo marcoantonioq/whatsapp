@@ -20,6 +20,7 @@ const contatos = {
   },
   async update() {
     try {
+      console.log('Atualizar Contatos!')
       const contatos = await sheet.getValues('Contatos');
       this.store = contatos;
       const rows = await sheet.getRows('Contatos');
@@ -50,6 +51,6 @@ const contatos = {
 };
 
 contatos.update();
-setInterval(contatos.update, 30 * 60 * 1000);
+setInterval(contatos.update, (12 * 60) * 60 * 1000);
 
 module.exports = contatos;

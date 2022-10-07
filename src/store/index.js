@@ -1,6 +1,8 @@
 const { createStore } = require('vuex');
+const { Message, MessageMedia } = require('whatsapp-web.js');
 const { ready, message, create, qrcode } = require('../observers');
 const { whatsapp, contatos, logger, api } = require('../modules');
+const database = require('./database');
 
 const store = createStore({
   state() {
@@ -15,15 +17,13 @@ const store = createStore({
     return state;
   },
   mutations: {
-    increment(state) {
-      state.count++;
-    },
     contatos(state, contatos) {
+      console.log('Contatos alterados: ', state.contatos)
       state.contatos = contatos;
     },
   },
   getters: {
-    counter: (state) => state.count,
+    contatos: (state) => state.contatos,
   },
   actions: {
     decrement: ({ commit }) => commit('decrement'),
@@ -41,14 +41,30 @@ app.on('authenticated', () => {
   store.state.api.status.authenticated = true;
 });
 
-app.on('auth_failure', (msg) => {
+app.on('auth_failure', () => {
   store.state.api.status.auth_failure = true;
 });
 
-app.on('message_create', (msg) => {
-  if (msg.body.startsWith('API:')) {
-    return true;
+app.on('message_create', async (msg) => {
+  if (!msg.body.startsWith('API:')) {
+    if (msg.to === store.state.api.id) {
+      // if (msg.hasMedia) {
+      //   // console.log(`Msg: ${JSON.stringify(msg)}`)
+      //   const media = await msg.downloadMedia();
+      //   console.log(media)
+      //   const ds = JSON.parse(JSON.stringify(media))
+      //   const media2 = new MessageMedia(ds.mimetype, ds.data)
+      //   await app.sendMessage('556284972385@c.us', media2, { caption: msg.body })
+      // }
+      // database.msgCreated(msg).then(result => {
+      //   console.log(`msg criada salva: ${result}`)
+      // }).catch(err => {
+      //   console.log("erro: ", err)
+      // })
+    }
   }
+
+
   try {
     if (msg.body.startsWith('API:')) {
       return true;
@@ -132,14 +148,28 @@ app.on('group_leave', (notification) => {
   store.state.whatsapp.groupLeave(store.state, notification);
 });
 
-app.on('disconnected', (reason) => {
+// eslint-disable-next-line no-unused-vars
+app.on('disconnected', (_reason) => {
   store.state.api.status.ready = false;
 });
 
 app.on('ready', () => {
-  store.state.logger.log('READY...');
+  // store.state.logger.log('READY...');
   store.state.api.status.ready = true;
   ready.notify(store.state);
+  const { toSends } = database.data
+  console.log(`Mensagens para enviar: ${toSends.length}`)
+  // toSends.forEach(async msg => {
+  //   if (msg.type === "image") {
+  //     var media = await new MessageMedia(msg.mimetype, msg.body, "Aviso")
+  //     await app.sendMessage("556284972385@c.us", media, { caption: msg.caption })
+  //   }
+  //   if (msg.type === "chat") {
+  //     await app.sendMessage("556284972385@c.us", msg.body)
+  //   }
+  //   // await new MessageMedia(msg)
+  //   // app.sendMessage(msg)
+  // })
 });
 
 module.exports = store;

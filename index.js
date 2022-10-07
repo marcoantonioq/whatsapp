@@ -2,7 +2,7 @@
 // const bodyParser = require('body-parser');
 // const api = require('./src/routes/api');
 // // eslint-disable-next-line no-unused-vars
-const store = require('./src/store');
+require('./src/store');
 
 // const app = express();
 

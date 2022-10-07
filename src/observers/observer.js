@@ -23,7 +23,13 @@ class Observable {
   // atualiza todos os objetos inscritos / Elementos DOM
   // e passa alguns dados para cada um deles
   notify(state, data) {
-    this.observers.forEach((observer) => observer(state, data));
+    this.observers.forEach((observer) => {
+      try {
+        observer(state, data)
+      } catch (e) {
+        console.log(`Erro: ${e}`)
+      }
+    });
     return this;
   }
 }
