@@ -4,6 +4,11 @@ const Messages = require('./messages');
 
 database.sync();
 
+const db = {
+    database,
+    Messages,
+}
+
 // const resultadoCreate = Messages.create({
 //     from: 'from',
 //     to: 'to',
@@ -11,6 +16,4 @@ database.sync();
 // })
 // console.log(resultadoCreate);
 
-module.exports = {
-    database, Messages
-}
+module.exports = db

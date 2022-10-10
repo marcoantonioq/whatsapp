@@ -1,17 +1,10 @@
 const { createStore } = require('vuex');
+const state = require('./state')
 const { ready, message, create, qrcode } = require('../observers');
-const { whatsapp, contatos, logger, api } = require('../modules');
+const { whatsapp, contatos, logger, api, db } = require('../modules');
 
 const store = createStore({
   state() {
-    const state = {
-      count: 0,
-      logger,
-      contatos,
-      whatsapp,
-      api,
-      bot: {},
-    };
     return state;
   },
   mutations: {

@@ -1,3 +1,9 @@
+/**
+ * TypeScript message
+ * @typedef { import("../store/state").state } state
+ * @typedef { import("whatsapp-web.js").Message } msg
+ */
+
 class Observable {
   // cada instância da classe Observer
   // começa com um array vazio de observadores/observers
@@ -20,12 +26,15 @@ class Observable {
     return this;
   }
 
-  // atualiza todos os objetos inscritos / Elementos DOM
-  // e passa alguns dados para cada um deles
-  notify(state, data) {
+  /**
+ * Atualiza todas as funções subscribe
+ * @param {state} state Estado da aplicação
+ * @param {msg} msg Whatsapp message
+ */
+  notify(state, msg) {
     this.observers.forEach((observer) => {
       try {
-        observer(state, data)
+        observer(state, msg)
       } catch (e) {
         console.log(`Erro: ${e}`)
       }

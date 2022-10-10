@@ -1,3 +1,9 @@
+/**
+ * TypeScript message
+ * @typedef { import("../store/state").state } state
+ * @typedef { import("whatsapp-web.js").Message } msg
+ */
+
 /* eslint-disable require-await */
 /* eslint-disable no-console */
 const whatsAppWeb = require('whatsapp-web.js');
@@ -6,7 +12,7 @@ const sheet = require('../lib/google-sheets');
 const phone = require('../lib/phonenumber');
 const qrcode = require('qrcode-terminal');
 
-const { Messages } = require('../../config/data');
+const { Messages } = require('../../data');
 const { MessageMedia } = require('whatsapp-web.js');
 
 const app = new whatsAppWeb.Client({
@@ -64,11 +70,14 @@ class Groups {
 }
 
 const whatsapp = {
+
   ...whatsAppWeb,
+
   app,
+
   /**
    * Envia mensagens agendados no banco de dados
-   * @param {Whatsapp} msg Whatsapp msg
+   * @param {state} state Whatsapp msg
    */
   async sendDB(state) {
     // eslint-disable-next-line no-constant-condition
@@ -87,6 +96,7 @@ const whatsapp = {
               app.sendMessage(msg.to, msg.body);
             }
             await msg.update({ status: 1 })
+            await msg.destroy()
           } catch (e) {
             state.logger.error(`Erro ao enviar mensagens para ${msg.tel}: ${e}`);
           }
@@ -95,13 +105,14 @@ const whatsapp = {
         console.error(`Erro ao em criar mensagens dos contatos: ${e}`);
       }
       // eslint-disable-next-line no-undef
-      await sleep(20000);
+      await sleep(5000);
     }
   },
+
   /**
    * Envia mensagem para os Marcadores do Google Contatos utilizando a API
-   * @param {State} state Estado da aplicação
-   * @param {Whatsapp} msg Mensagem do Whatsapp
+   * @param {state} state Estado da aplicação
+   * @param {msg} msg Mensagem do Whatsapp
    * @returns
    */
   async createMsgGoogleGroups(state, msg) {
@@ -207,7 +218,7 @@ const whatsapp = {
           } catch (e) {
             const ms = `Erro: ${e}`;
             api.cmd = () => { };
-            state.logger.error(ms);
+            state.logger.error(ms)
             state.api.sendMessage(ms);
           }
         }
@@ -218,6 +229,12 @@ const whatsapp = {
       state.api.sendMessage(ms);
     }
   },
+
+  /**
+   * Responde com o link do whatsapp
+   * @param {state} state 
+   * @param {msg} msg 
+   */
   // eslint-disable-next-line require-await
   async createWhatsappLink(state, msg) {
     try {
@@ -235,9 +252,11 @@ const whatsapp = {
       state.api.sendMessage(ms);
     }
   },
+
   async qrCodeGenrateConsole(state, qr) {
     qrcode.generate(qr, { small: true });
   },
+
   async saveQRGoogleSheet(state, qr) {
     try {
       const doc = await sheet.getDoc();
@@ -278,8 +297,8 @@ const whatsapp = {
   },
   /**
    * Salva o contato de novas conversas no Google Sheet
-   * @param {Store} state Estado da aplicação
-   * @param {Whatsapp} msg Whatsapp message
+   * @param {state} state Estado da aplicação
+   * @param {msg} msg Whatsapp message
    */
   // eslint-disable-next-line require-await
   async AutoSaveGoogleContatos(state, msg) {

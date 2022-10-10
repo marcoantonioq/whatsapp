@@ -9,7 +9,7 @@ const {
   sendRead,
   qrCodeGenrateConsole,
 } = require('../modules/whatsapp');
-const Observable = require('./observer');
+const Observable = require('./observerWhatsapp');
 
 const ready = new Observable()
   .subscribe(() => {

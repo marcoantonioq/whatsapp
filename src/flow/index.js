@@ -1,21 +1,25 @@
+const filterAPI = (el) => el.msg.to === '120363042441548855@g.us' ? el : null;
+
 const flows = [
     {
         name: "createMsgsToGroup",
         nodes: [
-            (el) => {
-                const paraAPI = el.msg.to === '120363042441548855@g.us'
+            filterAPI,
+            function enviarMSG(el) {
                 const enviarMSG = el.msg.body.match(/(send |mensagem |msg )(para |)(.*)$/gi)
-                if (paraAPI && enviarMSG) {
+                if (enviarMSG) {
                     el.msg = 'msg1 de teste /'
                     return el;
                 }
             },
             (el) => {
                 el.msg = `msg2 + ${el.msg}`
-                el.exec = (msg) => console.log(msg)
                 el.value = 1
+                el.run = () => {
+                    console.log(el)
+                }
                 return el;
-            }
+            },
         ]
     },
 ]
@@ -27,13 +31,20 @@ const mock = {
     }
 }
 
-const result = flows[0].nodes.reduce((data, func) => {
-    if (data) {
-        return func(data)
-    }
-    throw 'Não aplica!'
-}, mock)
+const result = flows.map(flow => {
+    return flow.nodes.reduce((data, func) => {
+        if (data) {
+            return func(data)
+        }
+    }, mock)
+})
 
-console.log(`Result: ${JSON.stringify(result)}`);
+result.forEach(async el => {
+    try {
+        el.run()
+    } catch (e) {
+        console.log(`Erros flows: ${e}`)
+    }
+})
 
 module.exports = flows
