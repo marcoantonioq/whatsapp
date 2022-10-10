@@ -3,7 +3,7 @@ const {
   AutoSaveGoogleContatos,
   createMsgGoogleGroups,
   createWhatsappLink,
-  createMsgGoogleContacts,
+  sendDB,
   saveQRGoogleSheet,
   // logMsg,
   sendRead,
@@ -11,19 +11,24 @@ const {
 } = require('../modules/whatsapp');
 const Observable = require('./observer');
 
-const ready = new Observable();
-ready.subscribe(createMsgGoogleContacts).subscribe(sendRead);
+const ready = new Observable()
+  .subscribe(() => {
+    console.log("READY....")
+  })
+  .subscribe(sendDB)
 
 const message = new Observable();
 // message
 // .subscribe(logMsg);
 // .subscribe(AutoSaveGoogleContatos);
 
-const create = new Observable();
-create.subscribe(createWhatsappLink).subscribe(createMsgGoogleGroups);
+const create = new Observable()
+  .subscribe(createWhatsappLink)
+  .subscribe(createMsgGoogleGroups);
 
-const qrcode = new Observable();
-qrcode.subscribe(saveQRGoogleSheet).subscribe(qrCodeGenrateConsole)
+const qrcode = new Observable()
+  .subscribe(saveQRGoogleSheet)
+  .subscribe(qrCodeGenrateConsole)
 
 module.exports = {
   message,

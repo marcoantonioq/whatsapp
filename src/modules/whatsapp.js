@@ -1,13 +1,16 @@
 /* eslint-disable require-await */
 /* eslint-disable no-console */
-const what = require('whatsapp-web.js');
+const whatsAppWeb = require('whatsapp-web.js');
 const settings = require('../../config/global');
 const sheet = require('../lib/google-sheets');
 const phone = require('../lib/phonenumber');
 const qrcode = require('qrcode-terminal');
 
-const app = new what.Client({
-  authStrategy: new what.LocalAuth({
+const { Messages } = require('../../config/data');
+const { MessageMedia } = require('whatsapp-web.js');
+
+const app = new whatsAppWeb.Client({
+  authStrategy: new whatsAppWeb.LocalAuth({
     clientId: settings.whatsapp.clientId,
   }),
   ...settings.whatsapp,
@@ -16,6 +19,15 @@ const app = new what.Client({
 app.on('loading_screen', (percent, message) => {
   console.log('WhatsApp: LOADING SCREEN', percent, message);
 });
+
+/**
+ * Time 
+ * @param {time} ms 
+ * @returns 
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 /**
  * Criar uma regex
@@ -52,41 +64,38 @@ class Groups {
 }
 
 const whatsapp = {
-  ...what,
+  ...whatsAppWeb,
   app,
   /**
-   * Envia mensagens agendados na planilha Contatos aba Contatos coluna _MSG
+   * Envia mensagens agendados no banco de dados
    * @param {Whatsapp} msg Whatsapp msg
    */
-  async createMsgGoogleContacts(state) {
-    try {
-      const { app } = state.whatsapp;
-      const myInterval = setInterval(() => {
-        try {
-          const contatos = state.contatos.values;
-          contatos
-            .filter((el) => el._MSG)
-            .forEach((el) => {
-              el._TELEFONES
-                .split(',')
-                .map((tel) => phone.format(tel.trim()))
-                .forEach((tel) => {
-                  app.sendMessage(
-                    tel,
-                    state.contatos.replaceInRow(el._MSG, el)
-                  );
-                  el._MSG = '';
-                  el.save();
-                });
-            });
-        } catch (e) {
-          state.logger.erro(`Erro no serviço de envio de mensagens: ${e}`);
-          clearInterval(myInterval);
+  async sendDB(state) {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      try {
+        const { app } = state.whatsapp;
+        const msgs = await Messages.findAll({
+          where: { group: 'SEND', status: false }
+        })
+        for (const msg of msgs) {
+          try {
+            if (msg.hasMedia) {
+              const media = new MessageMedia(msg.mimetype, msg.data)
+              await app.sendMessage(msg.to, media, { caption: msg.body })
+            } else {
+              app.sendMessage(msg.to, msg.body);
+            }
+            await msg.update({ status: 1 })
+          } catch (e) {
+            state.logger.error(`Erro ao enviar mensagens para ${msg.tel}: ${e}`);
+          }
         }
-      }, 5 * 60 * 1000);
-      return myInterval;
-    } catch (e) {
-      state.logger.erro(`Erro ao em criar mensagens dos contatos: ${e}`);
+      } catch (e) {
+        console.error(`Erro ao em criar mensagens dos contatos: ${e}`);
+      }
+      // eslint-disable-next-line no-undef
+      await sleep(20000);
     }
   },
   /**
@@ -97,13 +106,12 @@ const whatsapp = {
    */
   async createMsgGoogleGroups(state, msg) {
     const { api } = state;
-    const { app } = state.whatsapp;
     try {
       if (msg.fromMe) {
         // API
         if (msg.to === api.id) {
           let isRun = true;
-          // Encaminhamento de mensagens nos grupos Google cotnatos
+          // Encaminhamento de mensagens nos grupos Google contatos
           const rgEncaminharMensagem = /(send |mensagem |msg )(para |)(.*)$/gi;
           if (msg.body.match(rgEncaminharMensagem)) {
             try {
@@ -160,24 +168,21 @@ const whatsapp = {
               // eslint-disable-next-line require-await
               api.cmd = async function (msg) {
                 const telSends = {};
+                let data, mimetype;
+                // eslint-disable-next-line no-unused-vars
+                const { from, to, body, notifyName, self, caption, type, hasMedia } = msg
+                if (hasMedia) {
+                  const media = await msg.downloadMedia();
+                  data = media.data
+                  mimetype = media.mimetype
+                  // const media2 = new MessageMedia(ds.mimetype, ds.data)
+                  // await app.sendMessage('556284972385@c.us', media2, { caption: msg.body })
+                }
                 for (const el of newContatos) {
                   if (!msg.body.startsWith('API:')) {
                     for (const tel of el.tel) {
                       if (tel && !telSends[tel]) {
-                        try {
-                          if (msg.body.trim()) {
-                            await app.sendMessage(
-                              tel,
-                              contatos.replaceInRow(msg.body, el)
-                            );
-                          } else {
-                            await msg.forward(tel);
-                          }
-                        } catch (e) {
-                          state.logger.erro(
-                            `Erro ao enviar mensagens para ${el.tel}: ${e}`
-                          );
-                        }
+                        Messages.create({ from, to: tel, group: 'SEND', body, notifyName, self, caption, mimetype, type, data, hasMedia })
                       }
                       telSends[tel] = msg.body;
                     }
@@ -371,13 +376,6 @@ const whatsapp = {
       //   `Seja muito bem vindo ao grupo ${chatName} 😃`
       // );
     }
-  },
-  /**
-   * Whatsapp iniciado
-   * @param {Object} state - {@link state} object
-   */
-  sendRead(state) {
-    state.api.sendMessage(`Aplicação iniciada!`);
   },
 };
 

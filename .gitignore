@@ -135,3 +135,4 @@ Footer
 botpress
 package-lock.json
 data.json
+database.sqlite
