@@ -2,7 +2,9 @@
 // const bodyParser = require('body-parser');
 // const api = require('./src/routes/api');
 // // eslint-disable-next-line no-unused-vars
-require('./src/store');
+const store = require('./src/store');
+const servicesWhatsapp = require('./src/services/whatsapp')
+servicesWhatsapp(store.state)
 
 // const app = express();
 

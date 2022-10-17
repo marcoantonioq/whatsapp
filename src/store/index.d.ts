@@ -1,6 +1,24 @@
 import what from 'whatsapp-web.js'
+import { Observable } from '../observers';
 
-interface whatsapp extends what.Client, what { }
+interface APP {
+    app: what.Client
+}
+
+interface IObservers {
+    message: Observable;
+    ready: Observable;
+    create: Observable;
+    qrCode: Observable;
+    group: Observable;
+    disconnected: Observable;
+}
+
+interface whatsAppWeb extends what {
+
+}
+
+interface whatsapp extends APP, IObservers, whatsAppWeb { }
 
 export type state = {
     count: Number,
@@ -17,18 +35,6 @@ export type state = {
         store: Array.<{ _NOME: String, _NOTAS: String, _TELEFONES: String, _DATES: String, _GRUPOS: String, _ID: String }>,
         rows: Array.<{ _NOME: String, _NOTAS: String, _TELEFONES: String, _DATES: String, _GRUPOS: String, _ID: String }>,
         groups: Array.<{ _GRUPOS: String }>,
-    },
-    api: {
-        id: String,
-        my: String,
-        confirmed: Boolean,
-        sendMessage: Function,
-        reply: Function,
-        status: {
-            authenticated: Boolean,
-            auth_failure: Boolean,
-            ready: Boolean
-        }
     },
     whatsapp: whatsapp
 };

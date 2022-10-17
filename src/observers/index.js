@@ -1,38 +1,38 @@
-/* eslint-disable no-unused-vars */
-const {
-  AutoSaveGoogleContatos,
-  createMsgGoogleGroups,
-  createWhatsappLink,
-  sendDB,
-  saveQRGoogleSheet,
-  // logMsg,
-  sendRead,
-  qrCodeGenrateConsole,
-} = require('../modules/whatsapp');
-const Observable = require('./observerWhatsapp');
+class Observable {
+  // cada instância da classe Observer
+  // começa com um array vazio de observadores/observers
+  // que reagem a uma mudança de estado
+  constructor() {
+    this.observers = [];
+  }
 
-const ready = new Observable()
-  .subscribe(() => {
-    console.log("READY....")
-  })
-  .subscribe(sendDB)
+  // adicione a capacidade de inscrever um novo objeto / Elemento DOM
+  // essencialmente, adicione algo ao array de observadores
+  subscribe(f) {
+    this.observers.push(f);
+    return this;
+  }
 
-const message = new Observable();
-// message
-// .subscribe(logMsg);
-// .subscribe(AutoSaveGoogleContatos);
+  // adicione a capacidade de cancelar a inscrição de um objeto em particular
+  // essencilamente, remove algum item do array de observadores
+  unsubscribe(f) {
+    this.observers = this.observers.filter((subscriber) => subscriber !== f);
+    return this;
+  }
 
-const create = new Observable()
-  .subscribe(createWhatsappLink)
-  .subscribe(createMsgGoogleGroups);
+  /**
+ * Atualiza todas as funções subscribe
+ */
+  notify(params) {
+    this.observers.forEach((observer) => {
+      try {
+        observer(params)
+      } catch (e) {
+        console.log(`Erro: ${e}`)
+      }
+    });
+    return this;
+  }
+}
 
-const qrcode = new Observable()
-  .subscribe(saveQRGoogleSheet)
-  .subscribe(qrCodeGenrateConsole)
-
-module.exports = {
-  message,
-  ready,
-  create,
-  qrcode,
-};
+module.exports = Observable;

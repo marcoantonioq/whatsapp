@@ -3,22 +3,19 @@ const fs = require('fs');
 
 const logger = {
   appendFile(msg, file = 'log') {
-    if (
-      typeof process !== 'undefined' &&
-      process.versions != null &&
-      process.versions.node != null
-    ) {
-      try {
-        const date = new Date().toISOString().split('T')[0];
-        // eslint-disable-next-line no-undef
-        fs.appendFile(`out/log/${file}-${date}.txt`, `\n${msg}`, (err) => {
-          if (err) {
-            // eslint-disable-next-line no-console
-            console.log('Error write file: ', err);
-            return err;
-          }
-        });
-      } catch (error) { }
+    try {
+      const date = new Date().toISOString().split('T')[0];
+      // eslint-disable-next-line no-undef
+      const [mm, ss] = new Date().toISOString().split('T')[1].split(':');
+      fs.appendFile(`out/log/${file}-${date}.txt`, `\n${mm}:${ss}\t${msg}`, (err) => {
+        if (err) {
+          // eslint-disable-next-line no-console
+          console.log('Error write file: ', err);
+          return err;
+        }
+      });
+    } catch (error) {
+      console.log("Erro files logger!")
     }
   },
   /**

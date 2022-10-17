@@ -1,19 +1,16 @@
 //index.js
-const database = require('./db');
-const Messages = require('./messages');
+const database = require("./db");
+const Messages = require("./messages");
+const Contatos = require("./contatos");
+const Groups = require("./groups");
 
 database.sync();
 
 const db = {
-    database,
-    Messages,
-}
+  database,
+  Messages,
+  Contatos,
+  Groups,
+};
 
-// const resultadoCreate = Messages.create({
-//     from: 'from',
-//     to: 'to',
-//     body: 'Texto body'
-// })
-// console.log(resultadoCreate);
-
-module.exports = db
+module.exports = db;
