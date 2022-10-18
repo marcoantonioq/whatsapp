@@ -6,7 +6,7 @@
 
 const whatsAppWeb = require('whatsapp-web.js');
 const settings = require('../../config/global');
-const Observable = require('../observers')
+const Observable = require('../observers');
 
 function init() {
   const observers = {
@@ -16,7 +16,7 @@ function init() {
     qrCode: new Observable(),
     group: new Observable(),
     disconnected: new Observable(),
-  }
+  };
   const app = new whatsAppWeb.Client({
     authStrategy: new whatsAppWeb.LocalAuth({
       clientId: settings.whatsapp.clientId,
@@ -37,9 +37,10 @@ function init() {
       if (msg.body.startsWith('API:')) {
         return true;
       }
+      console.log('Mensagem recebida: ', msg);
       observers.create.notify(msg);
     } catch (e) {
-      console.log(`Erro no processamento ao criar mensagem: ${e}`)
+      console.log(`Erro no processamento ao criar mensagem: ${e}`);
     }
   });
 
@@ -51,15 +52,15 @@ function init() {
   });
 
   app.on('group_join', (notification) => {
-    observers.group.notify(notification)
+    observers.group.notify(notification);
   });
 
   app.on('group_leave', (notification) => {
-    observers.group.notify(notification)
+    observers.group.notify(notification);
   });
 
   app.on('disconnected', (reason) => {
-    observers.disconnected.notify(reason)
+    observers.disconnected.notify(reason);
   });
 
   app.on('ready', () => {
@@ -68,12 +69,12 @@ function init() {
 
   new Promise(function (resolve, reject) {
     try {
-      app.initialize()
-      resolve('init')
+      app.initialize();
+      resolve('init');
     } catch (e) {
       reject(Error(`Erro: ${e}`));
     }
-  })
+  });
 
   return {
     ...whatsAppWeb,

@@ -1,6 +1,7 @@
 const { createStore } = require('vuex');
 const { whatsapp, contatos, logger, db } = require('../modules');
 
+require('../services/whatsapp');
 
 const store = createStore({
   state() {
@@ -15,7 +16,7 @@ const store = createStore({
   },
   mutations: {
     contatos(state, contatos) {
-      console.log('Contatos alterados: ', state.contatos)
+      console.log('Contatos alterados: ', state.contatos);
       state.contatos = contatos;
     },
   },

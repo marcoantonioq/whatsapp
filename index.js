@@ -3,8 +3,8 @@
 // const api = require('./src/routes/api');
 // // eslint-disable-next-line no-unused-vars
 const store = require('./src/store');
-const servicesWhatsapp = require('./src/services/whatsapp')
-servicesWhatsapp(store.state)
+const servicesWhatsapp = require('./src/services/whatsapp');
+servicesWhatsapp(store.state);
 
 // const app = express();
 
