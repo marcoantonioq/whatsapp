@@ -1,9 +1,10 @@
 const settings = {
   whatsapp: {
+    // clientId: 'CAE',
     clientId: 'MARCO',
     puppeteer: {
       executablePath: '/usr/bin/google-chrome-stable',
-      headless: true,
+      headless: false,
       args: [
         '--disable-default-apps',
         '--disable-extensions',

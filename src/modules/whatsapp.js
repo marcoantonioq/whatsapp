@@ -4,9 +4,9 @@
  * @typedef { import("whatsapp-web.js").Message } msg
  */
 
-const whatsAppWeb = require('whatsapp-web.js');
-const settings = require('../../config/global');
-const Observable = require('../observers');
+const whatsAppWeb = require("whatsapp-web.js");
+const settings = require("../../config/global");
+const Observable = require("../observers");
 
 function init() {
   const observers = {
@@ -23,57 +23,49 @@ function init() {
     }),
     ...settings.whatsapp,
   });
+  app.initialize();
 
-  app.on('loading_screen', (percent, message) => {
-    console.log('WhatsApp: LOADING SCREEN', percent, message);
+  app.on("loading_screen", (percent, message) => {
+    console.log("WHATSAPP: LOADING SCREEN", percent, message);
   });
 
-  app.on('qr', (qr) => {
+  app.on("qr", (qr) => {
     observers.qrCode.notify(qr);
   });
 
-  app.on('message_create', async (msg) => {
+  app.on("message_create", (msg) => {
     try {
-      if (msg.body.startsWith('API:')) {
+      if (msg.body.startsWith("API:")) {
         return true;
       }
-      console.log('Mensagem recebida: ', msg);
       observers.create.notify(msg);
     } catch (e) {
       console.log(`Erro no processamento ao criar mensagem: ${e}`);
     }
   });
 
-  app.on('message', async (msg) => {
-    if (msg.body.startsWith('API:')) {
+  app.on("message", async (msg) => {
+    if (msg.body.startsWith("API:")) {
       return true;
     }
     observers.message.notify(msg);
   });
 
-  app.on('group_join', (notification) => {
+  app.on("group_join", (notification) => {
     observers.group.notify(notification);
   });
 
-  app.on('group_leave', (notification) => {
+  app.on("group_leave", (notification) => {
     observers.group.notify(notification);
   });
 
-  app.on('disconnected', (reason) => {
+  app.on("disconnected", (reason) => {
+    console.log("disconnected");
     observers.disconnected.notify(reason);
   });
 
-  app.on('ready', () => {
+  app.on("ready", () => {
     observers.ready.notify();
-  });
-
-  new Promise(function (resolve, reject) {
-    try {
-      app.initialize();
-      resolve('init');
-    } catch (e) {
-      reject(Error(`Erro: ${e}`));
-    }
   });
 
   return {

@@ -5,12 +5,13 @@
  * @typedef { import("whatsapp-web.js").GroupNotification } notification
  */
 
-const sheet = require('../lib/google-sheets');
-const phone = require('../lib/phonenumber');
-const qrConsole = require('qrcode-terminal');
+const sheet = require("../lib/google-sheets");
+const phone = require("../lib/phonenumber");
+const qrConsole = require("qrcode-terminal");
+const msgs = require("./msg");
 
-const db = require('../../data');
-const { MessageMedia } = require('whatsapp-web.js');
+const db = require("../../data");
+const { MessageMedia } = require("whatsapp-web.js");
 
 /**
  * Time
@@ -28,7 +29,7 @@ function sleep(ms) {
  */
 const regex = (regex) => {
   return (text) => {
-    return new RegExp(regex, 'gi').exec(text);
+    return new RegExp(regex, "gi").exec(text);
   };
 };
 
@@ -62,8 +63,8 @@ class Groups {
  */
 const factoryAPI = (state) => {
   return {
-    id: '120363042441548855@g.us',
-    my: '556284972385@g.us',
+    id: "120363042441548855@g.us",
+    my: "556284972385@g.us",
     confirmed: true,
     sendMessage(text) {
       state.whatsapp.app.sendMessage(this.id, `API: ${text}`);
@@ -86,25 +87,25 @@ const factoryAPI = (state) => {
  */
 function init(state) {
   const api = factoryAPI(state);
+  const { app } = state.whatsapp;
 
-  console.log('Iniciando serviços de WhatsApp...');
+  console.log("Iniciando serviços de WhatsApp...");
 
   state.whatsapp.ready.subscribe(async () => {
-    console.log('READY...');
-    api.sendMessage(`Como posso ajudar?`);
+    console.log("READY...");
+    await sleep(5000);
     // eslint-disable-next-line no-constant-condition
     while (true) {
       // eslint-disable-next-line no-undef
-      await sleep(5000);
       try {
         const { app } = state.whatsapp;
         const msgs = await db.Messages.findAll({
-          where: { group: 'SEND', status: false },
+          where: { group: "SEND", status: false },
         });
         for (const msg of msgs) {
           try {
             if (msg.hasMedia) {
-              if (msg.type === 'ptt') {
+              if (msg.type === "ptt") {
                 const media = new MessageMedia(msg.mimetype, msg.data);
                 await app.sendMessage(msg.to, media, {
                   sendAudioAsVoice: true,
@@ -153,7 +154,7 @@ function init(state) {
                 const gpInformado = rgEncaminharMensagem
                   .exec(msg.body)[3]
                   .trim()
-                  .split(',')
+                  .split(",")
                   .map((el) => el.trim().toUpperCase());
                 const grupos = state.contatos.groups
                   .filter((el) =>
@@ -162,21 +163,21 @@ function init(state) {
                     )
                   )
                   .map((el) => el._GRUPOS);
-                if (!grupos || isEmpty(grupos.join(''))) {
+                if (!grupos || isEmpty(grupos.join(""))) {
                   api.reply(
                     msg,
                     `Grupo ${gpInformado.join(
-                      ', '
+                      ", "
                     )} inválido! \nGrupos disponíveis: ${state.contatos.groups
                       .map((el) => el._GRUPOS)
-                      .join(', ')}`
+                      .join(", ")}`
                   );
                   return false;
                 }
                 setTimeout(() => {
                   api.reply(
                     msg,
-                    `Paramos encaminhar msg para ${grupos.join(', ')} `
+                    `Paramos encaminhar msg para ${grupos.join(", ")} `
                   );
                   api.cmd = () => {};
                 }, 5 * 60 * 1000);
@@ -186,7 +187,7 @@ function init(state) {
                     return {
                       ...el,
                       tel: el._TELEFONES
-                        .split(',')
+                        .split(",")
                         .map((el) => phone.format(el)),
                     };
                   })
@@ -197,14 +198,14 @@ function init(state) {
                 if (newContatos.length === 0) {
                   api.reply(
                     msg,
-                    `Nenhum contato para o grupo ${grupos.join(', ')}!`
+                    `Nenhum contato para o grupo ${grupos.join(", ")}!`
                   );
                   return false;
                 }
                 api.reply(
                   msg,
                   `Ok, encaminharemos novas mensagens para ${grupos.join(
-                    ', '
+                    ", "
                   )} com ${
                     newContatos.length
                   } participantes! \n\n *Sair: (ok/sair)*`
@@ -214,7 +215,7 @@ function init(state) {
                   msg,
                   `API: participantes ${newContatos
                     .map((el) => el._NOME)
-                    .join(', ')}! \n\n *Sair: (ok/sair)*`
+                    .join(", ")}! \n\n *Sair: (ok/sair)*`
                 );
 
                 // eslint-disable-next-line require-await
@@ -237,13 +238,13 @@ function init(state) {
                     mimetype = media.mimetype;
                   }
                   for (const el of newContatos) {
-                    if (!msg.body.startsWith('API:')) {
+                    if (!msg.body.startsWith("API:")) {
                       for (const tel of el.tel) {
                         if (tel && !telSends[tel]) {
                           db.Messages.create({
                             from,
                             to: tel,
-                            group: 'SEND',
+                            group: "SEND",
                             body,
                             notifyName,
                             self,
@@ -299,12 +300,13 @@ function init(state) {
      */
     // eslint-disable-next-line require-await
     async (msg) => {
+      console.log(msg.to, msg.body);
       try {
         if (msg.fromMe) {
           if (msg.to === api.id) {
             const contact = phone.format(msg.body);
             if (contact) {
-              api.reply(msg, `https://wa.me/${contact.replace(/@.*/gi, '')} `);
+              api.reply(msg, `https://wa.me/${contact.replace(/@.*/gi, "")} `);
             }
           }
         }
@@ -335,11 +337,11 @@ function init(state) {
       try {
         const doc = await sheet.getDoc();
         const plan = doc.sheetsByTitle.Whatsapp;
-        await plan.loadCells('A1:A3');
-        const A2 = plan.getCellByA1('A2');
+        await plan.loadCells("A1:A3");
+        const A2 = plan.getCellByA1("A2");
         A2.value = `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`;
         A2.save();
-        const A3 = plan.getCellByA1('A3');
+        const A3 = plan.getCellByA1("A3");
         A3.value = `${new Date().toLocaleString()}`;
         A3.save();
       } catch (e) {
@@ -365,28 +367,28 @@ function init(state) {
         // console.log('Chat: ', chat);
 
         const isSaved = contatos.find((el) =>
-          el._TELEFONES.includes(contact.id._serialized.replace('@c.us', ''))
+          el._TELEFONES.includes(contact.id._serialized.replace("@c.us", ""))
         );
 
         if (!isSaved) {
           const groups = new Groups();
           const doc = await sheet.getDoc();
           const plan = doc.sheetsByTitle.Save;
-          groups.values = 'AutoSave';
+          groups.values = "AutoSave";
           if (chat.isGroup && !phone.format(chat.name)) {
             groups.values = chat.name;
           }
           contatos[contact.id._serialized] = contact.name || contact.pushname;
           plan.addRow({
             Name: contact.name || contact.pushname,
-            Birthday: '',
+            Birthday: "",
             Notes: contact.pushname,
-            'Group Membership': groups.values.join(', '),
-            'Phone 1 - Value': contact.number.replace(
+            "Group Membership": groups.values.join(", "),
+            "Phone 1 - Value": contact.number.replace(
               /(\d\d)(\d{8}$)/g,
-              '$19$2'
+              "$19$2"
             ),
-            'Organization 1 - Name': '',
+            "Organization 1 - Name": "",
           });
         }
       } catch (e) {
@@ -405,20 +407,20 @@ function init(state) {
       const contact = await notification.getContact();
       if (
         [
-          'CCB Goiás!',
-          'RJM-Cidade de Goiás✅',
-          'ADM CCB - Cidade de Goiás',
-          'Orquestra Cidade de Goiás',
-          'Irmandade Uvá',
-          'API',
+          "CCB Goiás!",
+          "RJM-Cidade de Goiás✅",
+          "ADM CCB - Cidade de Goiás",
+          "Orquestra Cidade de Goiás",
+          "Irmandade Uvá",
+          "API",
         ].includes(chatName)
       ) {
         api.sendMessage(
           `${contact.name || contact.pushname} (${
-            notification.author.replace('@c.us', '') || ''
+            notification.author.replace("@c.us", "") || ""
           }) ${notification.type} => ${notification.id.participant.replace(
-            '@c.us',
-            ''
+            "@c.us",
+            ""
           )} no grupo ${chatName}!`
         );
       }
@@ -435,20 +437,20 @@ function init(state) {
       const contact = await notification.getContact();
       if (
         [
-          'CCB Goiás!',
-          'RJM-Cidade de Goiás✅',
-          'ADM CCB - Cidade de Goiás',
-          'Orquestra Cidade de Goiás',
-          'Irmandade Uvá',
-          'API',
+          "CCB Goiás!",
+          "RJM-Cidade de Goiás✅",
+          "ADM CCB - Cidade de Goiás",
+          "Orquestra Cidade de Goiás",
+          "Irmandade Uvá",
+          "API",
         ].includes(chatName)
       ) {
         api.sendMessage(
           `${contact.name || contact.pushname} (${
-            notification.author.replace('@c.us', '') || ''
+            notification.author.replace("@c.us", "") || ""
           }) ${notification.type} => ${notification.id.participant.replace(
-            '@c.us',
-            ''
+            "@c.us",
+            ""
           )} no grupo ${chatName}!`
         );
         // state.whatsapp.app.sendMessage(
@@ -458,6 +460,20 @@ function init(state) {
       }
     }
   );
+
+  state.whatsapp.ready.subscribe(async () => {
+    console.log("ENVIAR MENSAGEM CAAE...");
+    for (const msg of msgs) {
+      try {
+        const fone = phone.format(msg.to);
+        if (fone) {
+          await app.sendMessage(fone, msg.body);
+        }
+      } catch (e) {
+        console.log(`to: ${msg.to};\tErro: ${e}`);
+      }
+    }
+  });
 
   return {};
 }

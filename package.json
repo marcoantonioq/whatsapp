@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx nodemon server.js",
+    "start": "node index.js",
     "clear": "npm cache clean --force"
   },
   "author": "",
