@@ -4,9 +4,9 @@
  * @typedef { import("whatsapp-web.js").Message } msg
  */
 
-const whatsAppWeb = require("whatsapp-web.js");
-const settings = require("../../config/global");
-const Observable = require("../observers");
+const whatsAppWeb = require('whatsapp-web.js');
+const settings = require('../../config/global');
+const Observable = require('../observers');
 
 function init() {
   const observers = {
@@ -25,17 +25,17 @@ function init() {
   });
   app.initialize();
 
-  app.on("loading_screen", (percent, message) => {
-    console.log("WHATSAPP: LOADING SCREEN", percent, message);
+  app.on('loading_screen', (percent, message) => {
+    console.log('WHATSAPP: LOADING SCREEN', percent, message);
   });
 
-  app.on("qr", (qr) => {
+  app.on('qr', (qr) => {
     observers.qrCode.notify(qr);
   });
 
-  app.on("message_create", (msg) => {
+  app.on('message_create', (msg) => {
     try {
-      if (msg.body.startsWith("API:")) {
+      if (msg.body.startsWith('API:')) {
         return true;
       }
       observers.create.notify(msg);
@@ -44,27 +44,31 @@ function init() {
     }
   });
 
-  app.on("message", async (msg) => {
-    if (msg.body.startsWith("API:")) {
+  app.on('message', async (msg) => {
+    if (msg.body.startsWith('API:')) {
       return true;
     }
     observers.message.notify(msg);
   });
 
-  app.on("group_join", (notification) => {
+  app.on('group_join', (notification) => {
     observers.group.notify(notification);
   });
 
-  app.on("group_leave", (notification) => {
+  app.on('group_leave', (notification) => {
     observers.group.notify(notification);
   });
 
-  app.on("disconnected", (reason) => {
-    console.log("disconnected");
+  app.on('disconnected', (reason) => {
+    console.log('disconnected');
     observers.disconnected.notify(reason);
   });
 
-  app.on("ready", () => {
+  app.on('state_changed', (reason) => {
+    console.log('Client was logged out.', reason);
+  });
+
+  app.on('ready', () => {
     observers.ready.notify();
   });
 

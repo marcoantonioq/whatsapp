@@ -1,10 +1,8 @@
 #!/bin/bash
-cd /home/Arquivos/Projetos/whatsapp
+# docker build -t whatsapp .
+# docker run -d --restart=always whatsapp whatsapp
 npm update
-sleep 60
-npm run dev
-# sudo systemctl status whatsapp-node
-# sudo chown myuser:myuser ./ -R
-
-# sudo crontab -u myuser -e
-# @reboot /home/Arquivos/Projetos/whatsapp/shell/init.sh
+while true; do
+    sleep 10
+    npm run start
+done

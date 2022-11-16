@@ -13,7 +13,7 @@ const settings = {
         '--ignore-certificate-errors',
         '--ignore-certificate-errors-spki-list',
         '--no-default-browser-check',
-        // '--no-experiments',
+        '--no-experiments',
         '--no-sandbox',
         // '--disable-3d-apis',
         // '--disable-accelerated-2d-canvas',

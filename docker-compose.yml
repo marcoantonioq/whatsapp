@@ -1,0 +1,12 @@
+version: "3.3"
+
+services:
+  whatsapp:
+    restart: always 
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      - ./:/app
