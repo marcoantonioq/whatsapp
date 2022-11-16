@@ -1,6 +1,5 @@
 #!/bin/bash
-# docker build -t whatsapp .
-# docker run -d --restart=always whatsapp whatsapp
+git pull --ff-only
 npm update
 while true; do
     sleep 10
