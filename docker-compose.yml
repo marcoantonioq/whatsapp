@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: whatsapp
+    container_name: whatsapp
     ports:
       - 3010:3010
     volumes:

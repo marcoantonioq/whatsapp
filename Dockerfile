@@ -1,4 +1,4 @@
-FROM node:12.18.0
+FROM node:18.12.1
 
 WORKDIR /app
 
@@ -8,11 +8,11 @@ RUN  apt-get update \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
     && apt-get install -y google-chrome-stable \
-    && rm -rf /var/lib/apt/lists/* \
     && wget --quiet https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -O /usr/sbin/wait-for-it.sh \
-    && chmod +x /usr/sbin/wait-for-it.sh
+    && chmod +x /usr/sbin/wait-for-it.sh \
+    && apt-get clean && apt-get autoremove \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN npm install
 EXPOSE 3010
 
 CMD ["shell/init.sh"]
