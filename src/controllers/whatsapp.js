@@ -24,11 +24,3 @@ exports.send = async (req, res) => {
   // });
 };
 
-// const msg = `A paz de Deus 😃
-
-// *Hoje 09/09* às 19h30 teremos reunião de evangelização na casa do Irmão *Sebastião*, no Jardim das Acácias
-//     - Local: https://maps.app.goo.gl/4Dw4WdzMsiiVprTn8
-
-// Deus abençoe 😃🙏`;
-
-// google(whats, msg);
