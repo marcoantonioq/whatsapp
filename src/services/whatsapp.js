@@ -92,10 +92,10 @@ function init(state) {
   console.log('Iniciando serviços de WhatsApp...');
 
   state.whatsapp.ready.subscribe(async () => {
-    console.log('READY...');
+    console.log('API: READY...');
     await sleep(5000);
 
-    db.Messages.create({ to: api.id, group: 'SEND', body: 'READY...' });
+    db.Messages.create({ to: api.id, group: 'SEND', body: 'API: READY...' });
     try {
       const allChats = await state.whatsapp.app.getChats();
       const chatFilter = allChats.filter(
