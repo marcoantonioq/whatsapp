@@ -2,7 +2,9 @@ version: "3.3"
 
 services:
   whatsapp:
-    restart: always 
+    restart: always
+    dns:
+      - 8.8.8.8
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,3 +14,9 @@ services:
       - 3010:3010
     volumes:
       - ./:/app
+    networks:
+      - net
+
+networks:
+  net:
+    external: true
