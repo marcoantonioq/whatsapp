@@ -92,10 +92,10 @@ function init(state) {
   console.log('Iniciando serviços de WhatsApp...');
 
   state.whatsapp.ready.subscribe(async () => {
-    console.log('READY...');
+    console.log('API: READY...');
     await sleep(5000);
 
-    db.Messages.create({ to: api.id, group: 'SEND', body: 'READY...' });
+    db.Messages.create({ to: api.id, group: 'SEND', body: 'API: READY...' });
     try {
       const allChats = await state.whatsapp.app.getChats();
       const chatFilter = allChats.filter(
@@ -275,13 +275,21 @@ function init(state) {
                   }
                   for (const el of newContatos) {
                     if (!msg.body.startsWith('API:')) {
+                      const ms = Object.keys(el)
+                        .filter((el) => el.match(/^_[a-z]/gi))
+                        .reduce((acc, coluna) => {
+                          return acc.replaceAll(
+                            new RegExp(`${coluna}`, 'gi'),
+                            `${el[coluna]}`
+                          );
+                        }, body);
                       for (const tel of el.tel) {
                         if (tel && !telSends[tel]) {
                           db.Messages.create({
                             from,
                             to: tel,
                             group: 'SEND',
-                            body,
+                            body: ms,
                             notifyName,
                             self,
                             caption,
@@ -477,17 +485,17 @@ function init(state) {
 
   state.whatsapp.ready.subscribe(async () => {
     console.log('ENVIAR MENSAGEM...');
-    for (const msg of msgs) {
-      try {
-        const fone = phone.format(msg.to);
-        if (fone) {
-          const media = await MessageMedia.fromFilePath('out/media.jpeg');
-          await app.sendMessage(fone, media);
-        }
-      } catch (e) {
-        console.log(`to: ${msg.to};\tErro: ${e}`);
-      }
-    }
+    // for (const msg of msgs) {
+    //   try {
+    //     const fone = phone.format(msg.to);
+    //     if (fone) {
+    //       const media = await MessageMedia.fromFilePath('out/media.jpeg');
+    //       await app.sendMessage(fone, media);
+    //     }
+    //   } catch (e) {
+    //     console.log(`to: ${msg.to};\tErro: ${e}`);
+    //   }
+    // }
   });
 
   return {};

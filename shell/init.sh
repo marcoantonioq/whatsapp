@@ -1,5 +1,6 @@
 #!/bin/bash
 # Atualiza servidor
+git stash
 git pull --ff-only
 
 # Atualiza app
