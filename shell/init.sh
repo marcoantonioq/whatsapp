@@ -5,6 +5,7 @@ while true; do
     # Atualiza servidor
     git stash
     git pull --ff-only
+    chmod +x $0
 
     # Atualiza app
     npm update
