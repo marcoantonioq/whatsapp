@@ -25,7 +25,7 @@ const getRows = async (plan) => {
     const sheet = doc.sheetsByTitle[plan];
     return await sheet.getRows();
   } catch (e) {
-    logger.log(`\nErro ao ler planilha de contatos: ${e}`);
+    console.log(`\nErro ao ler planilha de contatos: ${e}`);
     return [];
   }
 };
