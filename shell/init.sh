@@ -19,7 +19,5 @@ while true; do
         # Build
         npm run build
     fi
-    # Start...
-    sleep 10
     npm run start || npm run build
 done
