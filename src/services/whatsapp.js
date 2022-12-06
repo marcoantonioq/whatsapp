@@ -93,7 +93,7 @@ function init(state) {
 
   state.whatsapp.ready.subscribe(async () => {
     console.log('API: READY...');
-    await sleep(5000);
+    await sleep(20000);
 
     db.Messages.create({ to: api.id, group: 'SEND', body: 'API: READY...' });
     try {

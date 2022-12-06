@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "npx nodemon server.js",
     "start": "node index.js",
+    "build": "",
     "clear": "npm cache clean --force"
   },
   "author": "",

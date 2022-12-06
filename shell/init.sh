@@ -3,14 +3,21 @@
 # App
 while true; do
     # Atualiza servidor
-    git stash
-    git pull --ff-only
-    chmod +x $0
+    git fetch
+    LOCAL=$(git rev-parse HEAD)
+    REMOTE=$(git rev-parse @{u})
 
-    # Atualiza app
-    npm update
-
-    # Start...
-    sleep 10
-    npm run start
+    if [ $LOCAL = $REMOTE ]; then
+        echo "Aplicação atualizada!"
+    else
+        echo "Atualizando instalação:"
+        git stash
+        git pull --ff-only
+        chmod +x $0
+        # Atualiza app
+        npm install
+        # Build
+        npm run build
+    fi
+    npm run start || npm run build
 done
