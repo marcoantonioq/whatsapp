@@ -68,7 +68,9 @@ function init() {
     console.log('Client was logged out.', reason);
   });
 
-  app.on('ready', () => {
+  app.on('ready', async () => {
+    const chat = await app.getChatLabels('Confraternização CCB 22');
+    console.log('Chat participantes::: ', chat.participants);
     observers.ready.notify();
   });
 
