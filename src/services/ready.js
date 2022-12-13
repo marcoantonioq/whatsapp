@@ -1,22 +1,26 @@
-const { app } = require('../modules/whatsapp');
+const { app } = require("../modules/whatsapp");
+const fs = require("fs");
 
-app.on('ready', async () => {
-  // app.emit('saveMessage', { msg: 'teste' });
+app.on("ready", async () => {
+  app.emit("messageToAPI", "READY...");
   const chats = await (await app.getChats()).filter((el) => el.isGroup);
   for (const chat of chats) {
-    const participants = await chat.participants;
-    for (const participant of participants) {
-      const { id, number, name, pushname } = await app.getContactById(
-        participant.id._serialized
+    try {
+      const nameGroup = (chat.name || "").replace("/", "-");
+      fs.appendFileSync(
+        `out/${nameGroup}.csv`,
+        `${new Date().toISOString()}\n`
       );
-      const log = `${number},${name},${pushname},${id._serialized}\n`;
-      console.log(log);
-      fs.appendFile(`out/${chat.name}.csv`, log, (err) => {
-        if (err) {
-          console.log('Error write file: ', err);
-          return err;
-        }
-      });
+      const participants = await chat.participants;
+      for (const participant of participants) {
+        const { id, number, name, pushname } = await app.getContactById(
+          participant.id._serialized
+        );
+        const log = `${number},${name},${pushname},${id._serialized}\n`;
+        fs.appendFileSync(`out/${nameGroup}.csv`, log);
+      }
+    } catch (e) {
+      console.log(`Erro READY log participantes grupos ${chat.name}:`, e);
     }
   }
 

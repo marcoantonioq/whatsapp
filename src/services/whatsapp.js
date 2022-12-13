@@ -5,14 +5,12 @@
  * @typedef { import("whatsapp-web.js").GroupNotification } notification
  */
 
-const { app } = require('../modules/whatsapp');
-const fs = require('fs');
+const { app } = require("../modules/whatsapp");
 // const sheet = require('../lib/google-sheets');
 // const phone = require('../lib/phonenumber');
-// const qrConsole = require('qrcode-terminal');
 // const msgs = require('./msg');
 
-const db = require('../../data');
+const db = require("../../data");
 // const { MessageMedia } = require('whatsapp-web.js');
 
 /**
@@ -31,7 +29,7 @@ function sleep(ms) {
  */
 const regex = (regex) => {
   return (text) => {
-    return new RegExp(regex, 'gi').exec(text);
+    return new RegExp(regex, "gi").exec(text);
   };
 };
 
@@ -65,8 +63,8 @@ class Groups {
  */
 const factoryAPI = (state) => {
   return {
-    id: '120363042441548855@g.us',
-    my: '556284972385@g.us',
+    id: "120363042441548855@g.us",
+    my: "556284972385@g.us",
     confirmed: true,
     sendMessage(text) {
       state.whatsapp.app.sendMessage(this.id, `api: ${text}`);

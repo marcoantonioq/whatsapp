@@ -1,15 +1,12 @@
 module.exports = {
-  root: true,
   env: {
     browser: true,
-    node: true,
+    commonjs: true,
+    es2021: true,
   },
+  overrides: [],
   parserOptions: {
-    parser: '@babel/eslint-parser',
-    requireConfigFile: false,
+    ecmaVersion: "latest",
   },
-  extends: ['@nuxtjs', 'plugin:nuxt/recommended', 'prettier'],
-  plugins: [],
-  // add your custom rules here
   rules: {},
-}
+};
