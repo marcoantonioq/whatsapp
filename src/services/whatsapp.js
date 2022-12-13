@@ -287,7 +287,7 @@ const factoryAPI = (state) => {
 //                         }, body);
 //                       for (const tel of el.tel) {
 //                         if (tel && !telSends[tel]) {
-//                           db.Messages.create({
+//                 const date = new Date().toISOString();           db.Messages.create({
 //                             from,
 //                             to: tel,
 //                             group: 'SEND',
@@ -336,14 +336,7 @@ const factoryAPI = (state) => {
 //         state.logger.error(ms);
 //         api.sendMessage(ms);
 //       }
-//     }
-//   );
-
-//   state.whatsapp.create.subscribe(
-//     /**
-//      * createWhatsappLink: Responde com o link do whatsapp
-//      * @param {msg} msg
-//      */
+//     }  const date = new Date().toISOString();
 //     // eslint-disable-next-line require-await
 //     async (msg) => {
 //       console.log(msg.to, msg.body);
@@ -371,30 +364,6 @@ const factoryAPI = (state) => {
 //      */
 //     async (qr) => {
 //       qrConsole.generate(qr, { small: true });
-//     }
-//   );
-
-//   state.whatsapp.qrCode.subscribe(
-//     /**
-//      * saveQRGoogleSheet
-//      * @param {qr} qr
-//      */
-//     async (qr) => {
-//       try {
-//         const doc = await sheet.getDoc();
-//         const plan = doc.sheetsByTitle.Whatsapp;
-//         await plan.loadCells('A1:A3');
-//         const A2 = plan.getCellByA1('A2');
-//         A2.value = `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`;
-//         A2.save();
-//         const A3 = plan.getCellByA1('A3');
-//         A3.value = `${new Date().toLocaleString()}`;
-//         A3.save();
-//       } catch (e) {
-//         const ms = `Erro saveQRCode: ${e}`;
-//         state.logger.error(ms);
-//         api.sendMessage(ms);
-//       }
 //     }
 //   );
 
@@ -537,7 +506,6 @@ app.on('state_changed', (reason) => {
 
 app.on('ready', async () => {
   // app.emit('saveMessage', { msg: 'teste' });
-  const date = new Date().toISOString();
   const chats = await (await app.getChats()).filter((el) => el.isGroup);
   for (const chat of chats) {
     const participants = await chat.participants;
@@ -547,7 +515,7 @@ app.on('ready', async () => {
       );
       const log = `${number},${name},${pushname},${id._serialized}\n`;
       console.log(log);
-      fs.appendFile(`out/${chat.name}-${date}.csv`, log, (err) => {
+      fs.appendFile(`out/${chat.name}.csv`, log, (err) => {
         if (err) {
           console.log('Error write file: ', err);
           return err;
