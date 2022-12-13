@@ -4,3 +4,4 @@ require("./qrCode");
 require("./ready");
 require("./status");
 require("./loadScreen");
+require("./sendMSGS");

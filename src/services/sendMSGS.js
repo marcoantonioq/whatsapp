@@ -1,3 +1,4 @@
+const { app } = require("../modules/whatsapp");
 const msgs = require("./msgs");
 
 app.on("ready", async () => {
