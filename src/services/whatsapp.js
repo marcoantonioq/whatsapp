@@ -69,7 +69,7 @@ const factoryAPI = (state) => {
     my: '556284972385@g.us',
     confirmed: true,
     sendMessage(text) {
-      state.whatsapp.app.sendMessage(this.id, `API: ${text}`);
+      state.whatsapp.app.sendMessage(this.id, `api: ${text}`);
     },
     reply(msg, text) {
       msg.reply(`API: ${text}`);
@@ -235,6 +235,9 @@ const factoryAPI = (state) => {
 //                     `Nenhum contato para o grupo ${grupos.join(', ')}!`
 //                   );
 //                   return false;
+//                     `Nenhum contato para o grupo ${grupos.join(', ')}!`
+//                   );
+//                   return false;
 //                 }
 //                 api.reply(
 //                   msg,
@@ -356,177 +359,3 @@ const factoryAPI = (state) => {
 //       }
 //     }
 //   );
-
-//   state.whatsapp.qrCode.subscribe(
-//     /**
-//      * qrCodeGenrateConsole
-//      * @param {String} qr
-//      */
-//     async (qr) => {
-//       qrConsole.generate(qr, { small: true });
-//     }
-//   );
-
-//   // state.whatsapp.message.subscribe(
-//   //   /**
-//   //    * AutoSaveGoogleContatos: Salva o contato de novas conversas no Google Sheet
-//   //    * @param {msg} msg Whatsapp message
-//   //    */
-//   //   // eslint-disable-next-line require-await
-//   //   async (msg) => {
-//   //     try {
-//   //       const contact = await msg.getContact();
-//   //       const chat = await msg.getChat();
-//   //       const contatos = state.contatos.values;
-//   //       // console.log('Contact: ', contact);
-//   //       // console.log('Chat: ', chat);
-
-//   //       const isSaved = contatos.find((el) =>
-//   //         el._TELEFONES.includes(contact.id._serialized.replace('@c.us', ''))
-//   //       );
-
-//   //       if (!isSaved) {
-//   //         const groups = new Groups();
-//   //         const doc = await sheet.getDoc();
-//   //         const plan = doc.sheetsByTitle.Save;
-//   //         groups.values = 'AutoSave';
-//   //         if (chat.isGroup && !phone.format(chat.name)) {
-//   //           groups.values = chat.name;
-//   //         }
-//   //         contatos[contact.id._serialized] = contact.name || contact.pushname;
-//   //         plan.addRow({
-//   //           Name: contact.name || contact.pushname,
-//   //           Birthday: '',
-//   //           Notes: contact.pushname,
-//   //           'Group Membership': groups.values.join(', '),
-//   //           'Phone 1 - Value': contact.number.replace(
-//   //             /(\d\d)(\d{8}$)/g,
-//   //             '$19$2'
-//   //           ),
-//   //           'Organization 1 - Name': '',
-//   //         });
-//   //       }
-//   //     } catch (e) {
-//   //       state.logger.log(`Erro AutoSave contatos no google sheets: ${e}`);
-//   //     }
-//   //   }
-//   // );
-
-//   state.whatsapp.group.subscribe(
-//     /**
-//      * groupLeave: O usuário saiu ou foi expulso do grupo
-//      * @param {notification} notification Notification whatsapp
-//      */
-//     async (notification) => {
-//       const { name: chatName } = await notification.getChat();
-//       const contact = await notification.getContact();
-//       api.sendMessage(
-//         `${contact.name || contact.pushname} (${
-//           notification.author.replace('@c.us', '') || ''
-//         }) ${notification.type} => ${notification.id.participant.replace(
-//           '@c.us',
-//           ''
-//         )} no grupo ${chatName}!`
-//       );
-//     }
-//   );
-
-//   state.whatsapp.group.subscribe(
-//     /**
-//      * groupJoin: O usuário adicionado ao grupo
-//      * @param {notification} notification Notification whatsapp
-//      */
-//     async (notification) => {
-//       const { name: chatName } = await notification.getChat();
-//       const contact = await notification.getContact();
-//       api.sendMessage(
-//         `${contact.name || contact.pushname} (${
-//           notification.author.replace('@c.us', '') || ''
-//         }) ${notification.type} => ${notification.id.participant.replace(
-//           '@c.us',
-//           ''
-//         )} no grupo ${chatName}!`
-//       );
-//       // state.whatsapp.app.sendMessage(
-//       //   notification.id.participant,
-//       //   `Seja muito bem vindo ao grupo ${chatName} 😃`
-//       // );
-//     }
-//   );
-
-//   state.whatsapp.ready.subscribe(async () => {
-//     console.log('ENVIAR MENSAGEM...');
-//     // for (const msg of msgs) {
-//     //   try {
-//     //     const fone = phone.format(msg.to);
-//     //     if (fone) {
-//     //       const media = await MessageMedia.fromFilePath('out/media.jpeg');
-//     //       await app.sendMessage(fone, media);
-//     //     }
-//     //   } catch (e) {
-//     //     console.log(`to: ${msg.to};\tErro: ${e}`);
-//     //   }
-//     // }
-//   });
-
-//   return {};
-// }
-
-app.on('loading_screen', (percent, message) => {
-  console.log('WHATSAPP: LOADING SCREEN', percent, message);
-});
-
-app.on('message_create', (msg) => {
-  try {
-    if (msg.body.startsWith('API:')) {
-      return true;
-    }
-  } catch (e) {
-    console.log(`Erro no processamento ao criar mensagem: ${e}`);
-  }
-});
-
-app.on('message', async (msg) => {
-  if (msg.body.startsWith('API:')) {
-    return true;
-  }
-});
-
-app.on('group_join', (notification) => {});
-
-app.on('group_leave', (notification) => {});
-
-app.on('disconnected', (reason) => {
-  console.log('disconnected');
-});
-
-app.on('state_changed', (reason) => {
-  console.log('Client was logged out.', reason);
-});
-
-app.on('ready', async () => {
-  // app.emit('saveMessage', { msg: 'teste' });
-  const chats = await (await app.getChats()).filter((el) => el.isGroup);
-  for (const chat of chats) {
-    const participants = await chat.participants;
-    for (const participant of participants) {
-      const { id, number, name, pushname } = await app.getContactById(
-        participant.id._serialized
-      );
-      const log = `${number},${name},${pushname},${id._serialized}\n`;
-      console.log(log);
-      fs.appendFile(`out/${chat.name}.csv`, log, (err) => {
-        if (err) {
-          console.log('Error write file: ', err);
-          return err;
-        }
-      });
-    }
-  }
-
-  //   client.isRegisteredUser("911234567890@c.us").then(function(isRegistered) {
-  //     if(isRegistered) {
-  //         client.sendMessage("911234567890@c.us", "hello");
-  //     }
-  // })
-});
