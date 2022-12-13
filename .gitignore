@@ -136,4 +136,4 @@ botpress
 package-lock.json
 data.json
 database.sqlite
-srv/services/msgs.js
+src/services/msgs.js
