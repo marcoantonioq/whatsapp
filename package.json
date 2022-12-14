@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "dotenv": "^16.0.3",
     "express": "^4.16.4",
     "google-spreadsheet": "^3.3.0",
     "libphonenumber-js": "^1.10.13",
@@ -31,7 +32,9 @@
   },
   "nodemonConfig": {
     "watch": [
-      "src",
+      "services",
+      "data",
+      "index.js",
       "config"
     ],
     "ignore": [

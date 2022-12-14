@@ -1,8 +1,8 @@
-const { app } = require('../modules/whatsapp');
+const { app } = require("../modules/whatsapp");
 
-app.on('message_create', (msg) => {
+app.on("message_create", (msg) => {
   try {
-    if (msg.body.startsWith('API:')) {
+    if (msg.body.startsWith("API:")) {
       return true;
     }
   } catch (e) {

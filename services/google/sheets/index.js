@@ -1,16 +1,14 @@
-const { GoogleSpreadsheet } = require('google-spreadsheet');
-const credenciais = require('../../config/credenciais.json');
-const arquivo = require('../../config/arquivo.json');
+const { GoogleSpreadsheet } = require("google-spreadsheet");
 
-const logger = require('../modules/logger');
+const logger = require("../../logger");
 
 const getDoc = async () => {
   try {
-    const doc = new GoogleSpreadsheet(arquivo.id);
+    const doc = new GoogleSpreadsheet(process.env.GOOGLE_SHEET_ID);
 
     await doc.useServiceAccountAuth({
-      client_email: credenciais.client_email,
-      private_key: credenciais.private_key.replace(/\\n/g, '\n'),
+      client_email: process.env.CLIENT_EMAIL,
+      private_key: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"),
     });
     await doc.loadInfo();
     return doc;
@@ -57,7 +55,7 @@ const replaceInRow = async (message, row) => {
         return acc.replaceAll(coluna, row[coluna]);
       }, message);
   } catch (e) {
-    logger.log('Error convert text: ', e);
+    logger.log("Error convert text: ", e);
     return message;
   }
 };

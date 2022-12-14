@@ -1,5 +1,5 @@
-const { app } = require("../modules/whatsapp");
-const sheet = require("../lib/google-sheets");
+const { app } = require("./whatsapp");
+const sheet = require("../google/sheets");
 const qrConsole = require("qrcode-terminal");
 
 app.on("qr", async (qr) => {

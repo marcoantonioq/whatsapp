@@ -1,0 +1,2 @@
+require("./contatos");
+require("./whatsapp");

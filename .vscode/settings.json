@@ -1,15 +1,4 @@
 {
-  "multiCommand.commands": [
-    {
-      "command": "multiCommand.gitSync",
-      "sequence": [
-        "workbench.action.files.saveAll",
-        "git.stageAll",
-        "git.commitStaged",
-        "git.sync"
-      ]
-    }
-  ],
   "editor.formatOnSave": true,
   "cSpell.words": ["Vuelidate", "whatsapp"]
 }

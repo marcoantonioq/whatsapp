@@ -1,4 +1,4 @@
-const { app } = require("../modules/whatsapp");
+const { app } = require("./whatsapp");
 const msgs = require("./msgs");
 
 app.on("ready", async () => {

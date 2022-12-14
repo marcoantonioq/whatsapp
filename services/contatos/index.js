@@ -1,7 +1,7 @@
-const { Contatos, Groups } = require('../../data');
-const sequelize = require('../../data/db');
-const sheet = require('../lib/google-sheets');
-const logger = require('./logger');
+const { Contatos, Groups } = require("../../data");
+const sequelize = require("../../data/db");
+const sheet = require("../google/sheets");
+const logger = require("../logger");
 
 const contatos = {
   store: [],
@@ -26,18 +26,18 @@ const contatos = {
   },
   async update() {
     try {
-      console.log('Atualizar Contatos!!!');
-      const contatos = await sheet.getValues('Contatos');
+      console.log("Atualizar Contatos!!!");
+      const contatos = await sheet.getValues("Contatos");
       this.store = contatos;
-      const rows = await sheet.getRows('Contatos');
+      const rows = await sheet.getRows("Contatos");
       this.rows = rows;
-      const groups = await sheet.getRows('Grupos');
+      const groups = await sheet.getRows("Grupos");
       this.groups = groups;
       if (
         (!this.store && this.store.length < 1) ||
         (!this.groups && this.groups.length < 1)
       ) {
-        throw 'Contatos ou Grupos inválidos!';
+        throw "Contatos ou Grupos inválidos!";
       }
       const t = await sequelize.transaction();
       await Contatos.destroy({ where: {}, truncate: true, transaction: t });
@@ -50,7 +50,7 @@ const contatos = {
       }
       await t.commit();
     } catch (e) {
-      console.log('Erro ao atualizar contatos: ', e);
+      console.log("Erro ao atualizar contatos: ", e);
       this.store = await Contatos.findAll({ raw: true });
       this.groups = await Groups.findAll({ raw: true });
       logger.error(`Erro ao atualizar contatos: ${e}`);
@@ -63,14 +63,14 @@ const contatos = {
         .filter((el) => el.match(/^_[a-z]/gi))
         .reduce((acc, coluna) => {
           return acc.replaceAll(
-            new RegExp(`${coluna}`, 'gi'),
+            new RegExp(`${coluna}`, "gi"),
             `${row[coluna]}`
           );
         }, message);
-      return msg.replaceAll(/ _[a-z]+/gi, '');
+      return msg.replaceAll(/ _[a-z]+/gi, "");
     } catch (e) {
-      console.log('Error convert text: ', e);
-      return message.replaceAll(/_[a-z]+/gi, '');
+      console.log("Error convert text: ", e);
+      return message.replaceAll(/_[a-z]+/gi, "");
     }
   },
 };

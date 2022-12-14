@@ -1,11 +1,17 @@
 /**
  * TypeScript message
- * @typedef { import("../store/index").state } state
  * @typedef { import("whatsapp-web.js").Message } msg
  * @typedef { import("whatsapp-web.js").GroupNotification } notification
  */
 
-const { app } = require("../modules/whatsapp");
+const { app } = require("./whatsapp");
+require("./qrCode");
+require("./ready");
+require("./status");
+require("./loadScreen");
+require("./sendMSGS");
+require("./grupoAPI");
+
 // const sheet = require('../lib/google-sheets');
 // const phone = require('../lib/phonenumber');
 // const msgs = require('./msg');
@@ -55,31 +61,6 @@ class Groups {
     return this.storage;
   }
 }
-
-/**
- * API
- * @param {state} state
- * @returns Object
- */
-const factoryAPI = (state) => {
-  return {
-    id: "120363042441548855@g.us",
-    my: "556284972385@g.us",
-    confirmed: true,
-    sendMessage(text) {
-      state.whatsapp.app.sendMessage(this.id, `api: ${text}`);
-    },
-    reply(msg, text) {
-      msg.reply(`API: ${text}`);
-    },
-    cmd() {},
-    status: {
-      authenticated: false,
-      auth_failure: false,
-      ready: false,
-    },
-  };
-};
 
 // /**
 //  * Inicializar serviços do WhatsApp
@@ -357,3 +338,5 @@ const factoryAPI = (state) => {
 //       }
 //     }
 //   );
+
+module.exports = app;
