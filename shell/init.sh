@@ -20,4 +20,5 @@ while true; do
         npm run build
     fi
     npm run start || npm run build
+    sleep 5
 done

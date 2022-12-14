@@ -1,7 +1,6 @@
 const contatos = require("../contatos");
 const { app } = require("./whatsapp");
 const phone = require("../phone");
-const db = require("../../data");
 
 const api = {
   cmd() {},
@@ -139,7 +138,7 @@ app.on("message_create", async (msg) => {
                 for (const tel of el.tel) {
                   if (tel && !telSends[tel]) {
                     const date = new Date().toISOString();
-                    db.Messages.create({
+                    app.emit("sendMessage", {
                       from,
                       to: tel,
                       group: "SEND",
@@ -186,21 +185,3 @@ app.on("message_create", async (msg) => {
     app.emit("messageToAPI", ms);
   }
 });
-
-//   async (msg) => {
-//     console.log(msg.to, msg.body);
-//     try {
-//       if (msg.fromMe) {
-//         if (msg.to === api.id) {
-//           const contact = phone.format(msg.body);
-//           if (contact) {
-//             api.reply(msg, `https://wa.me/${contact.replace(/@.*/gi, "")} `);
-//           }
-//         }
-//       }
-//     } catch (e) {
-//       const ms = `Erro whatsAppLink: ${e}`;
-//       state.logger.error(ms);
-//       api.sendMessage(ms);
-//     }
-//   };
