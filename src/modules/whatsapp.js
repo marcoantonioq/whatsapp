@@ -1,6 +1,5 @@
 /**
  * TypeScript message
- * @typedef { import("../store").state } state
  * @typedef { import("whatsapp-web.js").Message } msg
  */
 
