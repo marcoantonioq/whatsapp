@@ -1,26 +1,20 @@
-const { app } = require('../modules/whatsapp');
+const { app } = require("./whatsapp");
 
 /**
  * groupLeave: O usuário saiu ou foi expulso do grupo
  * @param {notification} notification Notification whatsapp
  */
 async function subscribe(notification) {
+  console.log("Subscribe::: ", notification);
   const { name: chatName } = await notification.getChat();
-  const contact = await notification.getContact();
-  app.emit(
-    'messageToAPI',
-    `${contact.name || contact.pushname} (${
-      notification.author.replace('@c.us', '') || ''
-    }) ${notification.type} => ${notification.id.participant.replace(
-      '@c.us',
-      ''
-    )} no grupo ${chatName}!`
-  );
+  const type = notification.type === "remove" ? "➖removido" : "➕adicionado";
+  const participant = notification.id.participant.replace("@c.us", "");
+  app.emit("messageToAPI", `${type}: ${participant} grupo ${chatName}!`);
 }
 
-app.on('group_join', subscribe);
+app.on("group_join", subscribe);
 
-app.on('group_leave', subscribe);
+app.on("group_leave", subscribe);
 
 //   // state.whatsapp.message.subscribe(
 //   //   /**
