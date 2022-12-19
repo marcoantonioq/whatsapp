@@ -1,10 +1,11 @@
-const contatos = require("../contatos");
 const { app } = require("./whatsapp");
-const phone = require("../phone");
 
 app.on("ready", async () => {
-  const chat = (await app.getChats()).filter(
-    (el) => el.name === "Confraternização CCB 22"
-  );
-  console.log("Chat remove: ", chat);
+  //   const group = (await app.getChats()).find(
+  //     (el) => el.name === "Nome do Grupo"
+  //   );
+  //   const participants = await group.participants
+  //     .filter((el) => el.id.user !== "556284972385")
+  //     .map((el) => el.id._serialized);
+  //   group.removeParticipants(participants);
 });
