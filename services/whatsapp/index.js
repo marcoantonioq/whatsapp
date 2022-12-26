@@ -9,7 +9,9 @@ require("./ready");
 require("./status");
 require("./loadScreen");
 require("./sendMSGS");
-require("./grupoAPI");
-require("./grupoSubscribe");
+require("./groupAPI");
+require("./groupSubscribe");
+require("./groupRemove");
+require("./groupLOG");
 
 module.exports = { status: true };

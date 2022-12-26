@@ -7,9 +7,15 @@ const { app } = require("./whatsapp");
 async function subscribe(notification) {
   console.log("Subscribe::: ", notification);
   const { name: chatName } = await notification.getChat();
-  const type = notification.type === "remove" ? "➖removido" : "➕adicionado";
+  const contact = await notification.getContact();
+  const type = notification.type === "remove" ? "➖ 📵" : "➕ 📲";
   const participant = notification.id.participant.replace("@c.us", "");
-  app.emit("messageToAPI", `${type}: ${participant} grupo ${chatName}!`);
+  app.emit(
+    "messageToAPI",
+    `${type} ${participant} grupo ${chatName} por 🙋‍♂️ ${
+      contact.name || contact.pushname
+    }!`
+  );
 }
 
 app.on("group_join", subscribe);
