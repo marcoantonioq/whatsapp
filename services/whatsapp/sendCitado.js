@@ -1,22 +1,27 @@
 const { app, api } = require("./whatsapp");
 
+const canceledSend = () => {
+  app.emit("deleteMessageSaved");
+  api.disable("send_citado");
+  api.send(`Envio cancelado!!!`);
+};
+
+const sendMensages = () => {
+  app.emit("sendMessageSaved");
+  api.disable("send_citado");
+  api.send(`Encaminhamento de mensagens iniciado!`);
+};
+
 app.on("message_create", async (msg) => {
   try {
     if (api.toAPI(msg)) {
-      const canceledSend = () => {
-        app.emit("deleteMessageSaved");
-        api.disable("send_citado");
-        api.send(`Envio cancelado!!!`);
-      };
       if (msg.body.match(/^(cancelar|sair)$/gi)) {
         canceledSend();
       }
 
       if (api.isEnable("send_citado")) {
         if (msg.body.trim().match(/^(enviar|ok)$/gi)) {
-          app.emit("sendMessageSaved");
-          api.disable("send_citado");
-          api.send(`Encaminhamento de mensagens iniciado!`);
+          sendMensages();
         }
       }
 

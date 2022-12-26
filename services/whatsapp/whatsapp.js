@@ -86,6 +86,13 @@ app.addListener("sendMessageSaved", async () => {
   return msgs;
 });
 
+app.addListener("deleteMessageSaved", async () => {
+  db.Messages.destroy({
+    where: {},
+    truncate: true,
+  });
+});
+
 app.initialize();
 
 class API {
