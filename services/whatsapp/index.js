@@ -3,7 +3,8 @@
  * @typedef { import("whatsapp-web.js").Message } msg
  * @typedef { import("whatsapp-web.js").GroupNotification } notification
  */
-require("./groupAPI");
+require("./apiGroup");
+require("./apiHello");
 require("./groupLOG");
 require("./groupRemove");
 require("./groupSubscribe");

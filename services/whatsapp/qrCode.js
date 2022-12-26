@@ -1,4 +1,4 @@
-const { app } = require("./whatsapp");
+const { app, api } = require("./whatsapp");
 const sheet = require("../google/sheets");
 const qrConsole = require("qrcode-terminal");
 
@@ -17,6 +17,6 @@ app.on("qr", async (qr) => {
   } catch (e) {
     const ms = `Erro saveQRCode: ${e}`;
     console.error(ms);
-    app.emit("messageToAPI", ms);
+    api.send(ms);
   }
 });

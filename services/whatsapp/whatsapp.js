@@ -5,6 +5,7 @@
 
 const { MessageMedia, Message } = require("whatsapp-web.js");
 const whatsAppWeb = require("whatsapp-web.js");
+const phone = require("../phone");
 const db = require("../../data");
 
 const app = new whatsAppWeb.Client({
@@ -89,19 +90,71 @@ app.on("ready", async () => {
   }
 });
 
-app.addListener("messageToAPI", (text) => {
-  app.sendMessage(process.env.API_ID, `API: ${text}`);
-});
-
 app.initialize();
 
-class Locks {}
-Locks.prototype.toString = function () {
-  return "Return Object Locks";
-};
+class API {
+  constructor() {
+    this.state = {
+      locks: [],
+      numbers: [],
+    };
+  }
+
+  get numbers() {
+    return this.state.numbers;
+  }
+
+  set numbers(numbers = "") {
+    this.state.numbers = [
+      ...new Set(
+        numbers
+          .split(/(\n|,|;| )/gi)
+          .map((el) => phone.format(el))
+          .filter((el) => el)
+      ),
+    ];
+  }
+
+  numbersToString(delimitador = ", ") {
+    return this.numbers
+      .map((el) => el.replace(/55|@c.us/gi, ""))
+      .join(delimitador);
+  }
+
+  toAPI(msg) {
+    return !msg.body.startsWith("API:") &&
+      msg.fromMe &&
+      msg.to === process.env.API_ID
+      ? true
+      : false;
+  }
+
+  isEnable(text) {
+    return !!this.state.locks.find((el) => el === text);
+  }
+
+  enable(text) {
+    this.state.locks.push(text);
+    this.state.locks = [...new Set(this.state.locks)];
+  }
+
+  disable(text) {
+    this.state.locks = this.state.locks.filter((el) => el !== text);
+  }
+
+  send(text) {
+    app.sendMessage(process.env.API_ID, `API: ${text}`);
+  }
+
+  cmd() {}
+
+  toString() {
+    return this;
+  }
+}
 
 module.exports = {
   app,
   whatsAppWeb,
-  locks: new Locks(),
+  api: new API(),
 };
