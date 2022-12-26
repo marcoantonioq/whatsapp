@@ -22,20 +22,35 @@ app.on("message_create", async (msg) => {
         for (const number of api.numbers) {
           const isRegistered = await app.isRegisteredUser(number);
           if (isRegistered) {
-            console.log("Contato encontrado:::: ", isRegistered);
-            app.emit("sendMessage", {
-              from,
-              to: number,
-              group: "SEND",
-              body: body,
-              notifyName,
-              self,
-              caption,
-              mimetype,
-              type,
-              data,
-              hasMedia,
-            });
+            try {
+              const contact = await app.getContactById(number);
+              let ms = ["name", "pushname", "shortName"]
+                .filter(
+                  (coluna) => contact[coluna] && contact[coluna].trim() !== ""
+                )
+                .reduce((acc, coluna) => {
+                  return acc.replaceAll(
+                    new RegExp(`_nome|_name`, "gi"),
+                    `${contact[coluna]}`
+                  );
+                }, body);
+              app.emit("sendMessage", {
+                from,
+                // to: number,
+                to: "556284972385@c.us",
+                group: "SEND",
+                body: ms,
+                notifyName,
+                self,
+                caption,
+                mimetype,
+                type,
+                data,
+                hasMedia,
+              });
+            } catch (e) {
+              console.log(`Erro ao criar mensagem: ${e.message}`);
+            }
           }
         }
       } else {
@@ -48,14 +63,12 @@ app.on("message_create", async (msg) => {
           );
           setTimeout(() => {
             api.disable("send_citado");
-            msg.reply(
-              `API: ⏹️ Paramos encaminhar msg para os números citados!`
-            );
+            msg.reply(`🤖: ⏹️ Paramos encaminhar msg para os números citados!`);
           }, 5 * 60 * 1000);
         }
       }
     }
   } catch (e) {
-    api.send(`API: Erro no processamento ao criar mensagem: ${e}`);
+    console.log(`🤖: Erro no processamento ao criar mensagem: ${e}`);
   }
 });

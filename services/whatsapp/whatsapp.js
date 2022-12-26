@@ -3,13 +3,12 @@
  * @typedef { import("whatsapp-web.js").Message } msg
  */
 
-const { MessageMedia, Message } = require("whatsapp-web.js");
-const whatsAppWeb = require("whatsapp-web.js");
+const { MessageMedia, Client, LocalAuth } = require("whatsapp-web.js");
 const phone = require("../phone");
 const db = require("../../data");
 
-const app = new whatsAppWeb.Client({
-  authStrategy: new whatsAppWeb.LocalAuth({
+const app = new Client({
+  authStrategy: new LocalAuth({
     // clientId: 'CAE',
     clientId: "MARCO",
   }),
@@ -117,12 +116,12 @@ class API {
 
   numbersToString(delimitador = ", ") {
     return this.numbers
-      .map((el) => el.replace(/55|@c.us/gi, ""))
+      .map((el) => el.replace(/^55|^\+55|@c.us$/gi, ""))
       .join(delimitador);
   }
 
   toAPI(msg) {
-    return !msg.body.startsWith("API:") &&
+    return !msg.body.startsWith("🤖:") &&
       msg.fromMe &&
       msg.to === process.env.API_ID
       ? true
@@ -143,7 +142,7 @@ class API {
   }
 
   send(text) {
-    app.sendMessage(process.env.API_ID, `API: ${text}`);
+    app.sendMessage(process.env.API_ID, `🤖: ${text}`);
   }
 
   cmd() {}
@@ -155,6 +154,5 @@ class API {
 
 module.exports = {
   app,
-  whatsAppWeb,
   api: new API(),
 };

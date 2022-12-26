@@ -31,8 +31,8 @@ app.on("message_create", async (msg) => {
   try {
     if (api.toAPI(msg)) {
       let isRun = true;
-      // Encaminhamento de mensagens nos grupos Google contatos
-      const rgEncaminharMensagem = /(send |mensagem |msg )(para |)(.*)$/gi;
+      const rgEncaminharMensagem =
+        /(grupo |send |mensagem |msg )(para |)(.*)$/gi;
       if (msg.body.match(rgEncaminharMensagem)) {
         try {
           isRun = false;
@@ -61,7 +61,7 @@ app.on("message_create", async (msg) => {
 
           if (!grupos || isEmpty(grupos.join(""))) {
             msg.replay(
-              `API: Grupo ${gpInformado.join(
+              `🤖: Grupo ${gpInformado.join(
                 ", "
               )} inválido! \nGrupos disponíveis: ${contatos.groups
                 .map((el) => el._GRUPOS)
@@ -81,14 +81,14 @@ app.on("message_create", async (msg) => {
             .filter((el) => el._NOME && el.tel.length > 0);
 
           if (newContatos.length === 0) {
-            msg.reply(`API: Nenhum contato para o grupo ${grupos.join(", ")}!`);
+            msg.reply(`🤖: Nenhum contato para o grupo ${grupos.join(", ")}!`);
             return false;
           }
 
           msg.reply(
             `${new Date().toLocaleString().replace(",", "")}: Participantes (${
               newContatos.length
-            }): \n${newContatos
+            }) do grupo ${grupos.join(", ")}: \n${newContatos
               .map((el) => `${el._NOME}:\t ${el._TELEFONES}`)
               .join("\n")}`
           );
@@ -96,13 +96,13 @@ app.on("message_create", async (msg) => {
           isRun = false;
           const ms = `Erro ao processar mensagem: ${e}`;
           console.error(ms);
-          api.send(ms);
+          console.log(ms);
         }
       }
     }
   } catch (e) {
     const ms = `Erro: send Group: ${e}`;
     console.error(ms);
-    api.send(ms);
+    console.log(ms);
   }
 });
