@@ -1,14 +1,27 @@
 version: "3.3"
 
 services:
-  whatsapp:
+  db:
+    image: mariadb
     restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: cupsadmin
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+  whatsapp:
+    image: whatsapp
+    container_name: whatsapp
     build:
       context: .
       dockerfile: Dockerfile
-    image: whatsapp
-    container_name: whatsapp
+    restart: always
+    depends_on:
+      - db
     ports:
       - 3010:3010
     volumes:
       - ./:/app
+volumes:
+  mysql:

@@ -25,22 +25,22 @@ const app = new whatsAppWeb.Client({
       "--no-default-browser-check",
       "--no-experiments",
       "--no-sandbox",
-      // '--disable-3d-apis',
-      // '--disable-accelerated-2d-canvas',
-      // '--disable-accelerated-jpeg-decoding',
-      // '--disable-accelerated-mjpeg-decode',
-      // '--disable-accelerated-video-decode',
-      // '--disable-app-list-dismiss-on-blur',
-      // '--disable-canvas-aa',
-      // '--disable-composited-antialiasing',
-      // '--disable-gl-extensions',
-      // '--disable-gpu',
-      // '--disable-histogram-customizer',
-      // '--disable-in-process-stack-traces',
-      // '--disable-site-isolation-trials',
-      // '--disable-threaded-animation',
-      // '--disable-threaded-scrolling',
-      // '--disable-webgl',
+      "--disable-3d-apis",
+      "--disable-accelerated-2d-canvas",
+      "--disable-accelerated-jpeg-decoding",
+      "--disable-accelerated-mjpeg-decode",
+      "--disable-accelerated-video-decode",
+      "--disable-app-list-dismiss-on-blur",
+      "--disable-canvas-aa",
+      "--disable-composited-antialiasing",
+      "--disable-gl-extensions",
+      "--disable-gpu",
+      "--disable-histogram-customizer",
+      "--disable-in-process-stack-traces",
+      "--disable-site-isolation-trials",
+      "--disable-threaded-animation",
+      "--disable-threaded-scrolling",
+      "--disable-webgl",
     ],
   },
 });
@@ -95,7 +95,13 @@ app.addListener("messageToAPI", (text) => {
 
 app.initialize();
 
+class Locks {}
+Locks.prototype.toString = function () {
+  return "Return Object Locks";
+};
+
 module.exports = {
   app,
   whatsAppWeb,
+  locks: new Locks(),
 };

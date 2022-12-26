@@ -1,5 +1,5 @@
 const contatos = require("../contatos");
-const { app } = require("./whatsapp");
+const { app, locks } = require("./whatsapp");
 const phone = require("../phone");
 
 const api = {
@@ -44,6 +44,7 @@ app.on("message_create", async (msg) => {
       if (msg.body.match(rgEncaminharMensagem)) {
         try {
           isRun = false;
+          locks["group_api"] = true;
 
           const gpInformado = rgEncaminharMensagem
             .exec(msg.body)[3]
@@ -167,6 +168,7 @@ app.on("message_create", async (msg) => {
       try {
         if (msg.body.trim().match(/^(ok|ok!|finalizar|cancelar|sair)$/gi)) {
           api.cmd = () => {};
+          locks["group_api"] = false;
           msg.reply(`Ok, todos os comandos foram removidos!`);
         }
         if (isRun) {

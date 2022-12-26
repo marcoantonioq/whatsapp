@@ -3,15 +3,15 @@
  * @typedef { import("whatsapp-web.js").Message } msg
  * @typedef { import("whatsapp-web.js").GroupNotification } notification
  */
-
+require("./groupAPI");
+require("./groupLOG");
+require("./groupRemove");
+require("./groupSubscribe");
+require("./loadScreen");
 require("./qrCode");
 require("./ready");
-require("./status");
-require("./loadScreen");
+require("./sendCitado");
 require("./sendMSGS");
-require("./groupAPI");
-require("./groupSubscribe");
-require("./groupRemove");
-require("./groupLOG");
+require("./status");
 
 module.exports = { status: true };
