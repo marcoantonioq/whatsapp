@@ -79,8 +79,12 @@ app.addListener("sendMessageSaved", async () => {
     where: { group: "SEND", status: false },
   });
   for (const msg of msgs) {
-    if (app.createSendMessage(msg.dataValues)) {
-      msg.destroy();
+    try {
+      if (await app.createSendMessage(msg.dataValues)) {
+        msg.destroy();
+      }
+    } catch (e) {
+      console.log("Erro ao enviar mensagem salva: ", e);
     }
   }
   return msgs;
