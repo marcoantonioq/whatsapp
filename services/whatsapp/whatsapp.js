@@ -77,6 +77,7 @@ app.addListener("saveMessage", async (msg) => {
 app.addListener("sendMessageSaved", async () => {
   const msgs = await db.Messages.findAll({
     where: { group: "SEND", status: false },
+    order: [["to", "ASC"]],
   });
   for (const msg of msgs) {
     try {
