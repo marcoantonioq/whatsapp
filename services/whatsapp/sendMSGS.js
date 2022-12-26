@@ -1,5 +1,5 @@
 const { app } = require("./whatsapp");
-const msgs = require("./msgs");
+const msgs = [];
 
 app.on("ready", async () => {
   console.log("ENVIAR MENSAGEM...");

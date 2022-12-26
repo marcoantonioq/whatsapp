@@ -47,7 +47,6 @@ const app = new Client({
 
 app.createSendMessage = async (msg) => {
   try {
-    // console.log("Novo tipo de msg::: ", msg);
     if (msg.hasMedia) {
       const media = new MessageMedia(msg.mimetype, msg.data, msg.body);
       if (msg.type === "ptt") {
@@ -71,14 +70,11 @@ app.createSendMessage = async (msg) => {
   }
 };
 
-app.addListener("sendMessage", async (msg) => {
-  const data = await db.Messages.create(msg);
-  if (app.createSendMessage(msg)) {
-    await data.destroy();
-  }
+app.addListener("saveMessage", async (msg) => {
+  return await db.Messages.create(msg);
 });
 
-app.on("ready", async () => {
+app.addListener("sendMessageSaved", async () => {
   const msgs = await db.Messages.findAll({
     where: { group: "SEND", status: false },
   });
@@ -87,6 +83,7 @@ app.on("ready", async () => {
       msg.destroy();
     }
   }
+  return msgs;
 });
 
 app.initialize();
@@ -99,6 +96,10 @@ class API {
     };
   }
 
+  get locks() {
+    return this.state.locks.length;
+  }
+
   get numbers() {
     return this.state.numbers;
   }
@@ -107,7 +108,9 @@ class API {
     this.state.numbers = [
       ...new Set(
         numbers
-          .split(/(\n|,|;| )/gi)
+          .split(/(\n|,|;|\t)/gi)
+          .map((el) => el.replace(/\D/gim, ""))
+          .filter((el) => el && el !== "")
           .map((el) => phone.format(el))
           .filter((el) => el)
       ),
@@ -116,7 +119,8 @@ class API {
 
   numbersToString(delimitador = ", ") {
     return this.numbers
-      .map((el) => el.replace(/^55|^\+55|@c.us$/gi, ""))
+      .filter((el) => el)
+      .map((el) => el.replace(/^55|@c.us$/gi, ""))
       .join(delimitador);
   }
 

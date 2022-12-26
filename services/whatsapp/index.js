@@ -10,7 +10,6 @@ require("./groupRemove");
 require("./groupSubscribe");
 require("./loadScreen");
 require("./qrCode");
-require("./ready");
 require("./sendCitado");
 require("./sendMSGS");
 require("./status");

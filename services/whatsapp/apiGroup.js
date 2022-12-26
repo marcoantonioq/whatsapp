@@ -36,7 +36,7 @@ app.on("message_create", async (msg) => {
       if (msg.body.match(rgEncaminharMensagem)) {
         try {
           isRun = false;
-          api["group_api"] = true;
+          api.enable("group_api");
 
           const gpInformado = rgEncaminharMensagem
             .exec(msg.body)[3]
@@ -81,7 +81,7 @@ app.on("message_create", async (msg) => {
             .filter((el) => el._NOME && el.tel.length > 0);
 
           if (newContatos.length === 0) {
-            msg.reply(`🤖: Nenhum contato para o grupo ${grupos.join(", ")}!`);
+            api.send(`Nenhum contato para o grupo ${grupos.join(", ")}!`);
             return false;
           }
 
@@ -97,6 +97,8 @@ app.on("message_create", async (msg) => {
           const ms = `Erro ao processar mensagem: ${e}`;
           console.error(ms);
           console.log(ms);
+        } finally {
+          api.disable("group_api");
         }
       }
     }
