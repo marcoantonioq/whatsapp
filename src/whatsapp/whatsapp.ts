@@ -1,6 +1,6 @@
 import { MessageMedia, Client, LocalAuth, Message } from "whatsapp-web.js";
 import db from "../data";
-import { format, formatWhatsapp } from "../phone";
+import { formatWhatsapp } from "../phone";
 
 const createSendMessage = async (msg: any) => {
   try {
@@ -92,7 +92,12 @@ app.addListener("sendMessageSaved", async () => {
 });
 
 app.addListener("deleteMessageSaved", async () => {
-  db.messages.deleteMany({});
+  console.log("Apagar todas as mensagens!!!")
+  await db.messages.deleteMany({
+    where: {
+      group: "SEND"
+    }
+  });
 });
 
 app.initialize();
