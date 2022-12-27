@@ -1,4 +1,4 @@
-const { app } = require("./whatsapp");
+const { app, api } = require("./whatsapp");
 
 /**
  * groupLeave: O usuário saiu ou foi expulso do grupo
@@ -10,8 +10,7 @@ async function subscribe(notification) {
   const contact = await notification.getContact();
   const type = notification.type === "remove" ? "➖ 📵" : "➕ 📲";
   const participant = notification.id.participant.replace("@c.us", "");
-  app.emit(
-    "messageToAPI",
+  api.send(
     `${type} ${participant} grupo ${chatName} por 🙋‍♂️ ${
       contact.name || contact.pushname
     }!`
