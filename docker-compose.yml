@@ -5,7 +5,7 @@ services:
     image: mariadb
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: cupsadmin
+      MARIADB_ROOT_PASSWORD: admin
     volumes:
       - mysql:/var/lib/mysql
     ports:

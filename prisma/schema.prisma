@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Contatos {
+  id          String   @id
+  nome        String
+  telefones   String?
+  grupos      String?
+  aniversario String?
+  email       String?
+  address     String?
+  notas       String?
+  status      Boolean  @default(true)
+  modified    DateTime @updatedAt
+  created     DateTime @default(now())
+}
+
+model Grupos {
+  nome String @id
+}
+
+model Messages {
+  id         Int      @id @default(autoincrement())
+  to         String
+  serialized String?
+  body       String?
+  from       String?
+  group      String?
+  notifyName String?
+  self       String?
+  caption    String?
+  mimetype   String?
+  type       String?
+  data       String?
+  old        String?
+  status     Boolean  @default(true)
+  hasMedia   Boolean? @default(false)
+}
