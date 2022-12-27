@@ -67,7 +67,7 @@ export const app = new Client({
 
 
 app.addListener("saveMessage", async (msg) => {
-  return await db.messages.create(msg);
+  return await db.messages.create({ data: msg });
 });
 
 app.addListener("sendMessageSaved", async () => {

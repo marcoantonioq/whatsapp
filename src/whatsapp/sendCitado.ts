@@ -35,16 +35,21 @@ app.on("message_create", async (msg) => {
           mimetype = media.mimetype;
         }
         const reg = / _NOME/gi;
-        for (const number of api.numbers) {
+        for (const number of api.arrayNumbers()) {
           try {
             const contact: any = await app.getContactById(number);
-            let ms = ["name", "pushname", "shortName"]
-              .filter((title) => contact[title])
-              .filter((title) => contact[title].trim() !== "")
-              .reduce((acc, title) => {
-                return acc.replace(reg, ` ${contact[title]}`);
-              }, body);
-            ms = ms.replace(reg, "");
+            let ms
+            if (!msg.hasMedia) {
+              ms = ["name", "pushname", "shortName"]
+                .filter((title) => contact[title])
+                .filter((title) => contact[title].trim() !== "")
+                .reduce((acc, title) => {
+                  return acc.replace(reg, ` ${contact[title]}`);
+                }, body);
+              ms = ms.replace(reg, "");
+            } else {
+              ms = body
+            }
             app.emit("saveMessage", {
               from,
               to: number,
