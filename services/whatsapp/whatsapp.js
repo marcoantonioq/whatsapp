@@ -3,12 +3,12 @@
  * @typedef { import("whatsapp-web.js").Message } msg
  */
 
-const { MessageMedia, Message } = require("whatsapp-web.js");
-const whatsAppWeb = require("whatsapp-web.js");
+const { MessageMedia, Client, LocalAuth } = require("whatsapp-web.js");
+const phone = require("../phone");
 const db = require("../../data");
 
-const app = new whatsAppWeb.Client({
-  authStrategy: new whatsAppWeb.LocalAuth({
+const app = new Client({
+  authStrategy: new LocalAuth({
     // clientId: 'CAE',
     clientId: "MARCO",
   }),
@@ -25,29 +25,28 @@ const app = new whatsAppWeb.Client({
       "--no-default-browser-check",
       "--no-experiments",
       "--no-sandbox",
-      // '--disable-3d-apis',
-      // '--disable-accelerated-2d-canvas',
-      // '--disable-accelerated-jpeg-decoding',
-      // '--disable-accelerated-mjpeg-decode',
-      // '--disable-accelerated-video-decode',
-      // '--disable-app-list-dismiss-on-blur',
-      // '--disable-canvas-aa',
-      // '--disable-composited-antialiasing',
-      // '--disable-gl-extensions',
-      // '--disable-gpu',
-      // '--disable-histogram-customizer',
-      // '--disable-in-process-stack-traces',
-      // '--disable-site-isolation-trials',
-      // '--disable-threaded-animation',
-      // '--disable-threaded-scrolling',
-      // '--disable-webgl',
+      "--disable-3d-apis",
+      "--disable-accelerated-2d-canvas",
+      "--disable-accelerated-jpeg-decoding",
+      "--disable-accelerated-mjpeg-decode",
+      "--disable-accelerated-video-decode",
+      "--disable-app-list-dismiss-on-blur",
+      "--disable-canvas-aa",
+      "--disable-composited-antialiasing",
+      "--disable-gl-extensions",
+      "--disable-gpu",
+      "--disable-histogram-customizer",
+      "--disable-in-process-stack-traces",
+      "--disable-site-isolation-trials",
+      "--disable-threaded-animation",
+      "--disable-threaded-scrolling",
+      "--disable-webgl",
     ],
   },
 });
 
 app.createSendMessage = async (msg) => {
   try {
-    // console.log("Novo tipo de msg::: ", msg);
     if (msg.hasMedia) {
       const media = new MessageMedia(msg.mimetype, msg.data, msg.body);
       if (msg.type === "ptt") {
@@ -71,31 +70,105 @@ app.createSendMessage = async (msg) => {
   }
 };
 
-app.addListener("sendMessage", async (msg) => {
-  const data = await db.Messages.create(msg);
-  if (app.createSendMessage(msg)) {
-    await data.destroy();
-  }
+app.addListener("saveMessage", async (msg) => {
+  return await db.Messages.create(msg);
 });
 
-app.on("ready", async () => {
+app.addListener("sendMessageSaved", async () => {
   const msgs = await db.Messages.findAll({
     where: { group: "SEND", status: false },
+    order: [["to", "ASC"]],
   });
   for (const msg of msgs) {
-    if (app.createSendMessage(msg.dataValues)) {
-      msg.destroy();
+    try {
+      if (await app.createSendMessage(msg.dataValues)) {
+        msg.destroy();
+      }
+    } catch (e) {
+      console.log("Erro ao enviar mensagem salva: ", e);
     }
   }
+  return msgs;
 });
 
-app.addListener("messageToAPI", (text) => {
-  app.sendMessage(process.env.API_ID, `API: ${text}`);
+app.addListener("deleteMessageSaved", async () => {
+  db.Messages.destroy({
+    where: {},
+    truncate: true,
+  });
 });
 
 app.initialize();
 
+class API {
+  constructor() {
+    this.state = {
+      locks: [],
+      numbers: [],
+    };
+  }
+
+  get locks() {
+    return this.state.locks.length;
+  }
+
+  get numbers() {
+    return this.state.numbers;
+  }
+
+  set numbers(numbers = "") {
+    this.state.numbers = [
+      ...new Set(
+        numbers
+          .split(/(\n|,|;|\t)/gi)
+          .map((el) => el.replace(/\D/gim, ""))
+          .filter((el) => el && el !== "")
+          .map((el) => phone.format(el))
+          .filter((el) => el)
+      ),
+    ];
+  }
+
+  numbersToString(delimitador = ", ") {
+    return this.numbers
+      .filter((el) => el)
+      .map((el) => el.replace(/^55|@c.us$/gi, ""))
+      .join(delimitador);
+  }
+
+  toAPI(msg) {
+    return !msg.body.startsWith("🤖:") &&
+      msg.fromMe &&
+      msg.to === process.env.API_ID
+      ? true
+      : false;
+  }
+
+  isEnable(text) {
+    return !!this.state.locks.find((el) => el === text);
+  }
+
+  enable(text) {
+    this.state.locks.push(text);
+    this.state.locks = [...new Set(this.state.locks)];
+  }
+
+  disable(text) {
+    this.state.locks = this.state.locks.filter((el) => el !== text);
+  }
+
+  send(text) {
+    app.sendMessage(process.env.API_ID, `🤖: ${text}`);
+  }
+
+  cmd() {}
+
+  toString() {
+    return this;
+  }
+}
+
 module.exports = {
   app,
-  whatsAppWeb,
+  api: new API(),
 };

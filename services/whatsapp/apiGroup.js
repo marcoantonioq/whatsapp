@@ -1,0 +1,110 @@
+const contatos = require("../contatos");
+const { app, api } = require("./whatsapp");
+const phone = require("../phone");
+
+/**
+ * Criar uma regex
+ * @param {String} regex
+ * @returns function
+ */
+const regex = (regex) => {
+  return (text) => {
+    return new RegExp(regex, "gi").exec(text);
+  };
+};
+
+/**
+ * É vazio
+ * @param {String} str
+ * @returns Boolean
+ */
+function isEmpty(str) {
+  return !str || str.length === 0;
+}
+
+/**
+ * createMsgGoogleGroups: Envia mensagem para os Marcadores do Google Contatos utilizando a API
+ * @param {msg} msg Mensagem do WhatsApp
+ * @returns
+ */
+app.on("message_create", async (msg) => {
+  try {
+    if (api.toAPI(msg)) {
+      let isRun = true;
+      const rgEncaminharMensagem =
+        /(grupo |send |mensagem |msg )(para |)(.*)$/gi;
+      if (msg.body.match(rgEncaminharMensagem)) {
+        try {
+          isRun = false;
+          api.enable("group_api");
+
+          const gpInformado = rgEncaminharMensagem
+            .exec(msg.body)[3]
+            .trim()
+            .split(",")
+            .map((el) => el.trim().toUpperCase());
+          const grupos = contatos.groups
+            .filter((el) =>
+              gpInformado.some((gp) => regex(gp)(el._GRUPOS.toUpperCase()))
+            )
+            .map((el) => el._GRUPOS);
+          const notGrupos = contatos.groups
+            .filter((el) =>
+              gpInformado.some((gp) => {
+                if (gp.startsWith("!")) {
+                  return regex(gp.replace(/^!/g, ""))(el._GRUPOS.toUpperCase());
+                }
+                return false;
+              })
+            )
+            .map((el) => el._GRUPOS);
+
+          if (!grupos || isEmpty(grupos.join(""))) {
+            msg.replay(
+              `🤖: Grupo ${gpInformado.join(
+                ", "
+              )} inválido! \nGrupos disponíveis: ${contatos.groups
+                .map((el) => el._GRUPOS)
+                .join(", ")}`
+            );
+            return false;
+          }
+          const newContatos = contatos.values
+            .filter((el) => grupos.some((gp) => regex(gp)(el._GRUPOS)))
+            .filter((el) => !notGrupos.some((gp) => regex(gp)(el._GRUPOS)))
+            .map((el) => {
+              return {
+                ...el,
+                tel: el._TELEFONES.split(",").map((el) => phone.format(el)),
+              };
+            })
+            .filter((el) => el._NOME && el.tel.length > 0);
+
+          if (newContatos.length === 0) {
+            api.send(`Nenhum contato para o grupo ${grupos.join(", ")}!`);
+            return false;
+          }
+
+          msg.reply(
+            `${new Date().toLocaleString().replace(",", "")}: Participantes (${
+              newContatos.length
+            }) do grupo ${grupos.join(", ")}: \n${newContatos
+              .map((el) => `${el._NOME}:\t ${el._TELEFONES}`)
+              .join("\n")}`
+          );
+        } catch (e) {
+          isRun = false;
+          const ms = `Erro ao processar mensagem: ${e}`;
+          console.error(ms);
+          console.log(ms);
+        } finally {
+          api.disable("group_api");
+        }
+      }
+    }
+  } catch (e) {
+    const ms = `Erro: send Group: ${e}`;
+    console.error(ms);
+    console.log(ms);
+  }
+});

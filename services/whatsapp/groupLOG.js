@@ -2,7 +2,6 @@ const { app } = require("./whatsapp");
 const fs = require("fs");
 
 app.on("ready", async () => {
-  app.emit("messageToAPI", "READY...");
   const chats = await (await app.getChats()).filter((el) => el.isGroup);
   for (const chat of chats) {
     try {
