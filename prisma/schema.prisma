@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Contatos {
-  id          String   @id
+  id          String    @id
   nome        String
   telefones   String?
   grupos      String?
@@ -19,9 +19,9 @@ model Contatos {
   email       String?
   address     String?
   notas       String?
-  status      Boolean  @default(true)
-  modified    DateTime @updatedAt
-  created     DateTime @default(now())
+  status      Boolean?  @default(true)
+  modified    DateTime? @updatedAt
+  created     DateTime? @default(now())
 }
 
 model Grupos {

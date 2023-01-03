@@ -1,6 +1,5 @@
 import { app } from "./whatsapp";
 import fs from "fs";
-import { GroupChat } from "whatsapp-web.js";
 
 app.on("ready", async () => {
   const chats: any[] = await app.getChats()

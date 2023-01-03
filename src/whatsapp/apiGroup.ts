@@ -25,10 +25,10 @@ app.on("message_create", async (msg) => {
         }
 
         const contatos = agenda
-          .contatos
+          ._contatos
           .filter(contato => {
             return grupos.some(grupo => {
-              return contato.grupos.join(',').toUpperCase().includes(grupo.toUpperCase())
+              return contato.data.grupos?.toUpperCase().includes(grupo.toUpperCase())
             })
           })
 
@@ -40,7 +40,7 @@ app.on("message_create", async (msg) => {
         msg.reply(
           `${new Date().toLocaleString().replace(",", "")}: Participantes (${contatos.length
           }) do grupo ${grupos.join(", ")}: \n${contatos
-            .map((el) => `${el.nome}:\t ${el.telefones.join(', ')}`)
+            .map((contato) => `${contato.data.nome}:\t ${contato.data.telefones}`)
             .join("\n")}`
         );
       }
