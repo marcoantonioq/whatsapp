@@ -37,7 +37,7 @@ CREATE TABLE `Messages` (
     `type` VARCHAR(191) NULL,
     `data` VARCHAR(191) NULL,
     `old` VARCHAR(191) NULL,
-    `status` BOOLEAN NOT NULL DEFAULT true,
+    `status` BOOLEAN NULL DEFAULT true,
     `hasMedia` BOOLEAN NULL DEFAULT false,
 
     PRIMARY KEY (`id`)

@@ -1,6 +1,12 @@
-import { MessageMedia, Client, LocalAuth, Message } from "whatsapp-web.js";
+import { Client, LocalAuth, Message as msg } from "whatsapp-web.js";
 import db from "../data";
 import { formatWhatsapp } from "../phone";
+import { ContentMessage } from "../Message/ContentMessage";
+
+export enum Events {
+  sending = "SEND",
+  canceled = "canceled",
+}
 
 export const app = new Client({
   authStrategy: new LocalAuth({
@@ -40,28 +46,26 @@ export const app = new Client({
   },
 });
 
-
 app.addListener("saveMessage", async (msg) => {
   return await db.messages.create({ data: msg });
 });
 
-
 app.initialize();
 
 class API {
+  private _locks: Array<string> = [];
+  private _numbers: Array<string> = [];
+  timeOut = [setTimeout(() => {}, 1000)];
+  mensagens: ContentMessage[] = [];
 
-  private _locks: Array<string> = []
-  private _numbers: Array<string> = []
-
-  constructor() {
-  }
+  constructor() {}
 
   get locks() {
     return this._locks.length;
   }
 
   get numbers() {
-    return this._numbers.join(', ');
+    return this._numbers.join(", ");
   }
 
   set numbers(numbers: string) {
@@ -71,17 +75,39 @@ class API {
       .filter((el) => el && el !== "")
       .map((el) => {
         try {
-          return formatWhatsapp(el)
-        } catch (e) { }
+          return formatWhatsapp(el);
+        } catch (e) {
+          return undefined;
+        }
       })
       .filter((el) => el)
-      .map((el) => String(el))
-    const n1 = new Set([...this._numbers, ...tmp])
-    this._numbers = [...n1]
+      .map((el) => String(el));
+    const n1 = new Set([...this._numbers, ...tmp]);
+    this._numbers = [...n1];
+    console.log("Números citados:::", api._numbers);
+    this.timeOut.push(
+      setTimeout(() => {
+        if (!api.isEnable("send_citado")) {
+          api.sendToAPI(
+            `▶️ Enviaremos novas mensagens para: \n\n⏹️ Sair / Cancelar\n📤 Enviar / Ok\n\nNúmeros citados: ${api.numbersToString()}`
+          );
+          api.enable("send_citado");
+        }
+      }, 30000)
+    );
+    this.timeOut.push(
+      setTimeout(() => {
+        if (api.isEnable("send_citado")) {
+          api.sendToAPI(`⏹️ Paramos encaminhar msg para os números citados!`);
+          api.disable("send_citado");
+          this.reset();
+        }
+      }, 15 * 60 * 1000)
+    );
   }
 
   arrayNumbers() {
-    return this._numbers
+    return this._numbers.filter((el) => el);
   }
 
   numbersToString(delimitador = ", ") {
@@ -91,11 +117,7 @@ class API {
       .join(delimitador);
   }
 
-  clearNumbers() {
-    this._numbers = []
-  }
-
-  toAPI(msg: Message) {
+  isToAPI(msg: msg) {
     return !msg.body.startsWith("🤖:") &&
       msg.fromMe &&
       msg.to === process.env.API_ID
@@ -114,10 +136,18 @@ class API {
 
   disable(text: string) {
     this._locks = this._locks.filter((el) => el !== text);
+    this.timeOut.forEach((time) => clearTimeout(time));
   }
 
-  send(text: string) {
-    app.sendMessage(String(process.env.API_ID), `🤖: ${text}`);
+  async sendToAPI(text: string) {
+    await app.sendMessage(String(process.env.API_ID), `🤖: ${text}`);
+  }
+
+  async reset() {
+    this._locks = [];
+    this._numbers = [];
+    this.mensagens = [];
+    this.timeOut.forEach((time) => clearTimeout);
   }
 
   toString() {
@@ -125,4 +155,4 @@ class API {
   }
 }
 
-export const api = new API()
+export const api = new API();
