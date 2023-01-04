@@ -10,7 +10,9 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - database.env
+      - .env.database
+    networks:
+      - backend
   whatsapp:
     image: whatsapp
     container_name: whatsapp
@@ -21,10 +23,16 @@ services:
     depends_on:
       - db
     links: 
-      - db
+      - db:database
     ports:
       - 3010:3010
     volumes:
       - ./:/app
+    networks:
+      - backend
+networks:
+  backend:
+    name: backend
+    driver: backend
 volumes:
   database:

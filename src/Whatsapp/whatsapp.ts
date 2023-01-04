@@ -99,7 +99,7 @@ class API {
       }, 15 * 60 * 1000)
     );
     api.sendToAPI(
-      `🆗 Numeros registrados ${this.numbers}!!\n\nAguarde ⏱️... \n*Estamos preparando tudo*, em segundos iniciaremos...`,
+      `🆗 Numeros registrados ${this.numbersToString()}!!\n\nAguarde ⏱️... \n*Estamos preparando tudo*, em segundos iniciaremos...`,
       1000
     );
   }
