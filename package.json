@@ -9,7 +9,8 @@
     "build": "npm run gdb",
     "clear": "npm cache clean --force",
     "upgrade": "npx npm-check-updates -u",
-    "gdb": "npx prisma migrate reset --force && npx prisma migrate dev --name create_db"
+    "gdb": "npx prisma migrate dev --name create_db",
+    "reset": "npx prisma migrate reset --force"
   },
   "author": "",
   "license": "ISC",

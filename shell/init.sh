@@ -16,6 +16,7 @@ while true; do
     fi
     chmod +x $0
     npm install
+    npm run gdb
     npm run build
     npm run start
     sleep 5
