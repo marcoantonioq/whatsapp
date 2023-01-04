@@ -1,16 +1,6 @@
 version: "3.3"
 
 services:
-  db:
-    image: postgres
-    container_name: db
-    restart: always
-    volumes:
-      - database:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    env_file:
-      - database.env
   whatsapp:
     image: whatsapp
     container_name: whatsapp
@@ -19,8 +9,6 @@ services:
       dockerfile: Dockerfile
     restart: always
     depends_on:
-      - db
-    links:
       - db
     ports:
       - 3010:3010
