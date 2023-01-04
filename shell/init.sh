@@ -18,9 +18,8 @@ while true; do
         # Atualiza app
         npm install
         # Build
-        npm run gdb
         npm run build
     fi
-    npm run start || npm run build
+    npm run start || npm run build || npm install
     sleep 5
 done
