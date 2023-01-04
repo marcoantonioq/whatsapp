@@ -5,12 +5,12 @@ services:
     image: postgres
     container_name: db
     restart: always
-    environment:
-      POSTGRES_PASSWORD: admin
     volumes:
-      - data:/var/lib/postgresql/data
+      - database:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    env_file:
+      - database.env
   whatsapp:
     image: whatsapp
     container_name: whatsapp
@@ -27,4 +27,4 @@ services:
     volumes:
       - ./:/app
 volumes:
-  data:
+  database:
