@@ -6,7 +6,7 @@ import {
   MessageSendOptions,
 } from "whatsapp-web.js";
 import { formatWhatsapp } from "../phone";
-import { app } from "../whatsapp/whatsapp";
+import { app } from "../Whatsapp/whatsapp";
 
 export class Message extends DataBase {
   private _content: MessageContent = this.defaultContent();

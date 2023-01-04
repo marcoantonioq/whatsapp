@@ -22,7 +22,6 @@ export class DataBase extends Events {
   async save() {
     let data: any = { ...this.data };
     if (!data.id) delete data.id;
-    console.log("Dados::::", this.data);
     this.data = await db.messages.upsert({
       where: { id: data.id || -1 },
       update: data,

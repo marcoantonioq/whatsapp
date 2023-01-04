@@ -87,7 +87,7 @@ class API {
           );
           api.enable("send_citado");
         }
-      }, 5000)
+      }, 30000)
     );
     this.timeOut.push(
       setTimeout(() => {
@@ -100,7 +100,7 @@ class API {
     );
     api.sendToAPI(
       `🆗 Numeros registrados ${this.numbers}!!\n\nAguarde ⏱️... \n*Estamos preparando tudo*, em segundos iniciaremos...`,
-      2000
+      1000
     );
   }
 
