@@ -22,7 +22,15 @@ export class ContentMessage extends DataBase {
     this._content = content;
   }
 
-  async createMessage(data: Messages | undefined) {
+  async createMessage(data?: Messages) {
+    if (this.data) {
+      this.data.to = "";
+      this.data.from = null;
+      this.save();
+    } else {
+      console.log("erro ao criar message: ", this.data, data);
+    }
+
     if (data) {
       if (this.data) this.data.to = formatWhatsapp(data.to);
       if (data.hasMedia && data.mimetype && data.data) {
@@ -36,7 +44,6 @@ export class ContentMessage extends DataBase {
           default:
             break;
         }
-      } else {
       }
       console.log("Não foi possível criar mensagem: ");
     }

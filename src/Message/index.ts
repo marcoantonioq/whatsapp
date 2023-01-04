@@ -1,18 +1,18 @@
 import { ContentMessage } from "./ContentMessage";
 
 abstract class Creator {
-  public abstract factoryMethod(): ContentMessage;
+  public abstract factoryMethod(): Promise<ContentMessage>;
 
-  public someOperation(): string {
-    const message = this.factoryMethod();
+  async someOperation(): Promise<string> {
+    const message = await this.factoryMethod();
     return `Creator: ${message.content}`;
   }
 }
 
 export class Message extends Creator {
-  public factoryMethod(): ContentMessage {
+  public async factoryMethod(): Promise<ContentMessage> {
     const content = new ContentMessage();
-    content.createMessage();
+    await content.createMessage();
     return content;
   }
 }
