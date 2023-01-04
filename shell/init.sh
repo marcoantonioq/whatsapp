@@ -11,12 +11,13 @@ while true; do
         echo "Aplicação atualizada!"
     else
         echo "Atualizando instalação:"
-        # git stash
+        # git pull
         git pull --ff-only
         chmod +x $0
         # Atualiza app
         npm install
         # Build
+        npm run gdb
         npm run build
     fi
     npm run start || npm run build
