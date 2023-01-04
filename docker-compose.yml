@@ -20,6 +20,8 @@ services:
     restart: always
     depends_on:
       - db
+    links:
+      - db
     ports:
       - 3010:3010
     volumes:
