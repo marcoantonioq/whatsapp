@@ -8,10 +8,9 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    depends_on:
-      - db
     ports:
       - 3010:3010
+      - 5000:5432
     volumes:
       - ./:/app
 volumes:
