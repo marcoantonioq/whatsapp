@@ -32,7 +32,5 @@ services:
       - backend
 networks:
   backend:
-    name: backend
-    driver: backend
 volumes:
   database:
