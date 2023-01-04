@@ -20,6 +20,7 @@ while true; do
         # Build
         npm run build
     fi
-    npm run start || npm run build || npm install
+    npm run start || npm run build
+    npm run start || npm install
     sleep 5
 done
