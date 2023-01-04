@@ -5,8 +5,8 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "npx nodemon server.ts",
-    "start": "sucrase-node src/index.ts",
-    "build": "",
+    "start": "ts-node src/index.ts",
+    "build": "npm run gdb",
     "clear": "npm cache clean --force",
     "upgrade": "npx npm-check-updates -u",
     "gdb": "npx prisma migrate reset --force && npx prisma migrate dev --name create_db"
