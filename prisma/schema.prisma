@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -40,7 +40,7 @@ model Messages {
   caption    String?
   mimetype   String?
   type       String?
-  data       String?
+  data       String?  @db.Text
   old        String?
   status     Boolean? @default(true)
   hasMedia   Boolean? @default(false)

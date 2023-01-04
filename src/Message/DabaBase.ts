@@ -1,25 +1,10 @@
 import Events from "events";
 import { Messages } from "@prisma/client";
 import db from "../data";
+import { Group } from "./Constants";
 
 export class DataBase extends Events {
-  private _data: Messages = {
-    id: 0,
-    to: "",
-    serialized: "",
-    body: "",
-    from: "",
-    group: "",
-    notifyName: "",
-    self: "",
-    caption: "",
-    mimetype: "",
-    type: "",
-    data: "",
-    old: "",
-    status: true,
-    hasMedia: false,
-  };
+  private _data: Messages = this.defaultData();
 
   constructor(data?: Messages) {
     super();
@@ -31,19 +16,18 @@ export class DataBase extends Events {
   }
 
   set data(data) {
-    this._data = { ...this.data, ...data };
+    this._data = data;
   }
 
   async save() {
-    const data = Object.create(this.data);
-    console.log("Objetos daa: ", data, this.data);
+    let data: any = { ...this.data };
     if (!data.id) delete data.id;
+    console.log("Dados::::", this.data);
     this.data = await db.messages.upsert({
-      where: { id: data.id },
+      where: { id: data.id || -1 },
       update: data,
       create: data,
     });
-    console.log("New Objetos daa: ", data, this.data);
     return this;
   }
 
@@ -62,5 +46,43 @@ export class DataBase extends Events {
         },
       });
     }
+  }
+
+  defaultData() {
+    return {
+      id: 0,
+      to: "",
+      serialized: "",
+      body: "",
+      from: "",
+      group: Group.cache,
+      notifyName: "",
+      self: "",
+      caption: "",
+      mimetype: "",
+      type: "",
+      data: "",
+      old: "",
+      status: true,
+      hasMedia: false,
+    };
+  }
+
+  reset() {
+    this._data = this.defaultData();
+  }
+
+  async clearCache() {
+    if (this.data.group === Group.cache) await this.reset();
+    await db.messages.deleteMany({
+      where: {
+        group: Group.cache,
+      },
+    });
+  }
+
+  async destroy() {
+    await this.delete();
+    this.reset();
   }
 }

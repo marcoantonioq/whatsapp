@@ -9,8 +9,9 @@ async function subscribe(notification: any) {
   const contact = await notification.getContact();
   const type = notification.type === "remove" ? "➖ 📵" : "➕ 📲";
   const participant = notification.id.participant.replace("@c.us", "");
-  api.send(
-    `${type} ${participant} grupo ${chatName} por 🙋‍♂️ ${contact.name || contact.pushname
+  api.sendToAPI(
+    `${type} ${participant} grupo ${chatName} por 🙋‍♂️ ${
+      contact.name || contact.pushname
     }!`
   );
 }

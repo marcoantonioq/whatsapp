@@ -2,15 +2,15 @@ version: "3.3"
 
 services:
   db:
-    image: mariadb
+    image: postgres
     container_name: db
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: admin
+      POSTGRES_PASSWORD: admin
     volumes:
-      - mysql:/var/lib/mysql
+      - data:/var/lib/postgresql/data
     ports:
-      - "3306:3306"
+      - "5432:5432"
   whatsapp:
     image: whatsapp
     container_name: whatsapp
@@ -25,4 +25,4 @@ services:
     volumes:
       - ./:/app
 volumes:
-  mysql:
+  data:

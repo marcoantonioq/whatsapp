@@ -1,12 +1,7 @@
 import { Client, LocalAuth, Message as msg } from "whatsapp-web.js";
 import db from "../data";
 import { formatWhatsapp } from "../phone";
-import { ContentMessage } from "../Message/ContentMessage";
-
-export enum Events {
-  sending = "SEND",
-  canceled = "canceled",
-}
+import { Message } from "../Message";
 
 export const app = new Client({
   authStrategy: new LocalAuth({
@@ -56,7 +51,7 @@ class API {
   private _locks: Array<string> = [];
   private _numbers: Array<string> = [];
   timeOut = [setTimeout(() => {}, 1000)];
-  mensagens: ContentMessage[] = [];
+  mensagens: Message[] = [];
 
   constructor() {}
 
@@ -84,7 +79,6 @@ class API {
       .map((el) => String(el));
     const n1 = new Set([...this._numbers, ...tmp]);
     this._numbers = [...n1];
-    console.log("Números citados:::", api._numbers);
     this.timeOut.push(
       setTimeout(() => {
         if (!api.isEnable("send_citado")) {
@@ -93,7 +87,7 @@ class API {
           );
           api.enable("send_citado");
         }
-      }, 30000)
+      }, 5000)
     );
     this.timeOut.push(
       setTimeout(() => {
@@ -103,6 +97,10 @@ class API {
           this.reset();
         }
       }, 15 * 60 * 1000)
+    );
+    api.sendToAPI(
+      `🆗 Numeros registrados ${this.numbers}!!\n\nAguarde ⏱️... \n*Estamos preparando tudo*, em segundos iniciaremos...`,
+      2000
     );
   }
 
@@ -139,8 +137,10 @@ class API {
     this.timeOut.forEach((time) => clearTimeout(time));
   }
 
-  async sendToAPI(text: string) {
-    await app.sendMessage(String(process.env.API_ID), `🤖: ${text}`);
+  async sendToAPI(text: string, delay: number = 0) {
+    setTimeout(async () => {
+      await app.sendMessage(String(process.env.API_ID), `🤖: ${text}`);
+    }, delay);
   }
 
   async reset() {
