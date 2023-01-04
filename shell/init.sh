@@ -12,6 +12,7 @@ while true; do
     else
         echo "Atualizando instalação:"
         # git pull
+        git stash
         git pull --ff-only
         chmod +x $0
         # Atualiza app
