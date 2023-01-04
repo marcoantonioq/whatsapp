@@ -5,7 +5,8 @@ import "./groupLOG";
 import "./groupSubscribe";
 import "./loadScreen";
 import "./qrCode";
-import "./whatsapp.Messages";
+import "./sendJSON";
 import "./status";
+import "./apiReboot";
 
 export default true;

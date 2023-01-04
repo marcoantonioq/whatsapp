@@ -1,7 +1,6 @@
 import { app, api } from "./whatsapp";
-import { sheet } from "../google/sheets";
+import { sheet } from "../Google/sheets";
 import qrConsole from "qrcode-terminal";
-
 
 app.on("qr", async (qr) => {
   try {

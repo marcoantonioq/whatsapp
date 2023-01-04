@@ -42,6 +42,6 @@ model Messages {
   type       String?
   data       String?
   old        String?
-  status     Boolean  @default(true)
+  status     Boolean? @default(true)
   hasMedia   Boolean? @default(false)
 }
