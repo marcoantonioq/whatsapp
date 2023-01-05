@@ -5,8 +5,8 @@ import {
   MessageMedia,
   MessageSendOptions,
 } from "whatsapp-web.js";
-import { formatWhatsapp } from "../phone";
-import { app } from "../Whatsapp/whatsapp";
+import { formatWhatsapp } from "../libs/Phone";
+import { app } from "../Whatsapp";
 
 export class Message extends DataBase {
   private _content: MessageContent = this.defaultContent();
@@ -86,6 +86,3 @@ export class Message extends DataBase {
     this.reset();
   }
 }
-
-export const messages = new Message();
-// messages.clearCache();

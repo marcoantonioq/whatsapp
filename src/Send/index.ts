@@ -3,7 +3,7 @@
 /**
  * em criação
  */
-import { app } from "./whatsapp";
+import { app } from "../Whatsapp";
 
 import { Message as MSG } from "../Message";
 

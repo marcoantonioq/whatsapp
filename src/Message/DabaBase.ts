@@ -1,6 +1,6 @@
 import Events from "events";
 import { Messages } from "@prisma/client";
-import db from "../data";
+import db from "../libs/data";
 import { Group } from "./Constants";
 
 export class DataBase extends Events {

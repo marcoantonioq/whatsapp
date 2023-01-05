@@ -1,7 +1,7 @@
 import { Contatos as DSContatos, Grupos as DSGrupos } from "@prisma/client";
-import db from "../data";
-import { sheet } from "../Google/sheets";
-import { format } from "../phone";
+import db from "../libs/data";
+import { sheet } from "../libs/Google/sheets";
+import { format } from "../libs/Phone";
 
 export class Grupo {
   data: DSGrupos;
@@ -128,7 +128,3 @@ export class Agenda {
     this._contatos = [...new Set([...this._contatos, ...contatos])];
   }
 }
-
-export const agenda = new Agenda();
-agenda.update();
-setInterval(agenda.update, 120 * 60 * 1000);
