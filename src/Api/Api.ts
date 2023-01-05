@@ -172,7 +172,7 @@ export class API extends Events {
   initialize() {
     this.app.on("ready", async () => {
       if (!this.locks) {
-        this.sendToAPI(`${moment().format("DD/MM, h:mm")}`);
+        this.sendToAPI(`🦾 voltei ${moment().format("h:mm DD/MM")}`);
       }
     });
 
@@ -193,7 +193,7 @@ export class API extends Events {
           }
           const reboot = /^reboot$|^restart$/gi;
           if (msg.body.match(reboot)) {
-            this.sendToAPI("Reiniciando API....");
+            this.sendToAPI("↪️ Reiniciando API....");
             setTimeout(() => {
               this.command("/sbin/reboot");
             }, 1000);
