@@ -1,8 +1,9 @@
 import { app, api } from "./whatsapp";
+import moment from "moment";
 
 app.on("ready", async () => {
   if (!api.locks) {
-    api.sendToAPI(`${new Date().toLocaleString()}`);
+    api.sendToAPI(`${moment().format("DD/MM, h:mm")}`);
   }
 });
 
