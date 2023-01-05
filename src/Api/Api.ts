@@ -235,9 +235,8 @@ export class API extends Events {
                     const media = await msg.downloadMedia();
                     dt.data = media.data;
                     dt.mimetype = media.mimetype;
-                  } else {
-                    await message.replaceNomeContact();
                   }
+                  await message.replaceNomeContact();
                   await message.save();
                   this.mensagens.push(message);
                   return message;
