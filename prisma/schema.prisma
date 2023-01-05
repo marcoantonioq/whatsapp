@@ -31,7 +31,7 @@ model Messages {
   serialized String?
   body       String?
   from       String?
-  group      String?
+  group      Group?   @default(CACHE)
   notifyName String?
   self       String?
   caption    String?
@@ -41,4 +41,10 @@ model Messages {
   old        String?
   status     Boolean? @default(true)
   hasMedia   Boolean? @default(false)
+}
+
+enum Group {
+  SENDING
+  CANCELED
+  CACHE
 }

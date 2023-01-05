@@ -1,7 +1,7 @@
 import Events from "events";
 import { Messages } from "@prisma/client";
 import db from "../libs/data";
-import { Group } from "./Constants";
+import { Message } from ".";
 
 export class DataBase extends Events {
   private _data: Messages = this.defaultData();
@@ -47,14 +47,14 @@ export class DataBase extends Events {
     }
   }
 
-  defaultData() {
+  defaultData(): Messages {
     return {
       id: 0,
       to: "",
       serialized: "",
       body: "",
       from: "",
-      group: Group.cache,
+      group: "SENDING",
       notifyName: "",
       self: "",
       caption: "",
@@ -72,10 +72,10 @@ export class DataBase extends Events {
   }
 
   async clearCache() {
-    if (this.data.group === Group.cache) await this.reset();
+    if (this.data.group === "CACHE") await this.reset();
     await db.messages.deleteMany({
       where: {
-        group: Group.cache,
+        group: "CACHE",
       },
     });
   }

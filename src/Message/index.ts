@@ -1,4 +1,4 @@
-import { DataBase } from "./DabaBase";
+import { DataBase } from "./DataBase";
 import { Messages } from "@prisma/client";
 import {
   MessageContent,
@@ -63,17 +63,13 @@ export class Message extends DataBase {
   async replaceNomeContact() {
     const reg = /_NOME/gi;
     const contact: any = await app.getContactById(this.data.to);
-    const body = ["name", "pushname", "shortName"]
+    this.data.body = ["name", "pushname", "shortName"]
       .filter((title) => contact[title])
       .filter((title) => contact[title].trim() !== "")
       .reduce((acc, title) => {
         return acc ? acc.replace(reg, `${contact[title]}`) : acc;
       }, this.data.body);
-    if (this.data.hasMedia) {
-      this.messageOptions.caption = body || undefined;
-    } else {
-      this.data.body = body;
-    }
+    this.data.body = this.data.body?.replace(reg, "") || null;
   }
 
   async send() {

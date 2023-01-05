@@ -3,7 +3,6 @@ import { formatWhatsapp } from "../libs/Phone";
 import { Message } from "../Message";
 import { Client, Message as msg } from "whatsapp-web.js";
 import Events from "events";
-import moment from "moment";
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
@@ -172,7 +171,7 @@ export class API extends Events {
   initialize() {
     this.app.on("ready", async () => {
       if (!this.locks) {
-        this.sendToAPI(`🦾 voltei ${moment().format("h:mm DD/MM")}`);
+        this.sendToAPI(`🦾`);
       }
     });
 
@@ -193,7 +192,7 @@ export class API extends Events {
           }
           const reboot = /^reboot$|^restart$/gi;
           if (msg.body.match(reboot)) {
-            this.sendToAPI("↪️ Reiniciando API....");
+            this.sendToAPI("💤 reiniciando API....");
             setTimeout(() => {
               this.command("/sbin/reboot");
             }, 1000);
@@ -220,32 +219,35 @@ export class API extends Events {
                 }
               }
             } else {
-              // cria novas mensagens
+              // coleta numero informado
               if (numeroCitado) this.numbers = msg.body;
-              this.arrayNumbers().forEach(async (number) => {
-                try {
-                  const message = new Message();
-                  const { data: dt } = message;
-                  dt.to = number;
-                  dt.from = msg.from;
-                  dt.body = msg.body;
-                  dt.type = msg.type;
-                  dt.hasMedia = msg.hasMedia;
-                  if (dt.hasMedia) {
-                    const media = await msg.downloadMedia();
-                    dt.data = media.data;
-                    dt.mimetype = media.mimetype;
+              // Verifica se está ativo, após alguns segundos
+              if (this.isEnable("send_citado"))
+                this.arrayNumbers().forEach(async (number) => {
+                  try {
+                    const message = new Message();
+                    const { data: dt } = message;
+                    dt.to = number;
+                    dt.from = msg.from;
+                    dt.body = msg.body;
+                    dt.type = msg.type;
+                    dt.group = "SENDING";
+                    dt.hasMedia = msg.hasMedia;
+                    if (dt.hasMedia) {
+                      const media = await msg.downloadMedia();
+                      dt.data = media.data;
+                      dt.mimetype = media.mimetype;
+                    }
+                    await message.replaceNomeContact();
+                    await message.save();
+                    this.mensagens.push(message);
+                    return message;
+                  } catch (error) {
+                    this.sendToAPI(
+                      `Erro ao criar mensagem apiSendCitado: ${error}`
+                    );
                   }
-                  await message.replaceNomeContact();
-                  await message.save();
-                  this.mensagens.push(message);
-                  return message;
-                } catch (error) {
-                  this.sendToAPI(
-                    `Erro ao criar mensagem apiSendCitado: ${error}`
-                  );
-                }
-              });
+                });
             }
           }
         }
