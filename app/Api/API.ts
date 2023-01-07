@@ -164,6 +164,13 @@ export class API extends Events {
     return stdout.trim();
   }
 
+  reboot() {
+    this.sendToAPI("💤 reiniciando API....");
+    setTimeout(() => {
+      this.command("/sbin/reboot");
+    }, 1000);
+  }
+
   hello() {
     this.sendToAPI("Olá!");
   }
@@ -192,10 +199,7 @@ export class API extends Events {
           }
           const reboot = /^reboot$|^restart$/gi;
           if (msg.body.match(reboot)) {
-            this.sendToAPI("💤 reiniciando API....");
-            setTimeout(() => {
-              this.command("/sbin/reboot");
-            }, 1000);
+            this.reboot();
           }
           const numeroCitado = msg.body.match(/(\d{4}-\d{4}|\d{8})+/gi);
           // if está ativo ou algum numero de telefone foi citado
@@ -245,12 +249,17 @@ export class API extends Events {
                     await message.replaceNomeContact();
                     await message.save();
                     this.mensagens.push(message);
+                    console.log("Message: ", message.data);
                     return message;
-                  } catch (error) {
-                    info = `${info}\n${error}`;
+                  } catch (e) {
+                    console.log(`${number} ${e}`);
+                    info = `${info}\n${e}`;
                   }
                 });
-              if (info) this.sendToAPI(info);
+              if (info !== "") {
+                this.sendToAPI(info);
+                console.log("Informações: ", info);
+              }
             }
           }
         }
