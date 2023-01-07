@@ -3,9 +3,9 @@
 /**
  * em criação
  */
-import { app } from "./whatsapp";
+import { app } from "../Whatsapp";
 
-import { ContentMessage as MSG } from "../Message/ContentMessage";
+import { Message as MSG } from "../Message";
 
 export enum Events {
   sending = "SEND",

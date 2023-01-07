@@ -76,6 +76,7 @@ web_modules/
 
 # dotenv environment variable files
 .env
+.env.database
 .env.development.local
 .env.test.local
 .env.production.local
@@ -136,4 +137,3 @@ botpress
 package-lock.json
 data.json
 database.sqlite
-src/services/msgs.js

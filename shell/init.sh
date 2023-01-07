@@ -13,12 +13,11 @@ while true; do
         echo "Atualizando instalação:"
         # git stash
         git pull --ff-only
-        chmod +x $0
-        # Atualiza app
-        npm install
-        # Build
-        npm run build
     fi
-    npm run start || npm run build
+    chmod +x $0
+    npm install
+    npm run gdb
+    npm run build
+    npm run start
     sleep 5
 done

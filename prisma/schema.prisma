@@ -1,12 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -34,14 +31,20 @@ model Messages {
   serialized String?
   body       String?
   from       String?
-  group      String?
+  group      Group?   @default(CACHE)
   notifyName String?
   self       String?
   caption    String?
   mimetype   String?
   type       String?
-  data       String?
+  data       String?  @db.Text
   old        String?
   status     Boolean? @default(true)
   hasMedia   Boolean? @default(false)
+}
+
+enum Group {
+  SENDING
+  CANCELED
+  CACHE
 }
