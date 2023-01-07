@@ -2,10 +2,10 @@
   "name": "whatsapp",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.ts",
+  "main": "app/index.ts",
   "scripts": {
     "dev": "npx nodemon server.ts",
-    "start": "ts-node src/index.ts",
+    "start": "ts-node app/index.ts",
     "build": "npm run gdb",
     "clear": "npm cache clean --force",
     "upgrade": "npx npm-check-updates -u",
@@ -45,14 +45,15 @@
   },
   "nodemonConfig": {
     "watch": [
-      "src",
+      "app",
       "index.ts",
       "config"
     ],
     "ignore": [
       "out/*"
     ],
-    "ext": "js,json",
-    "verbose": true
+    "verbose": true,
+    "ext": ".ts,.js,.json",
+    "exec": "ts-node ./app/index.ts"
   }
 }

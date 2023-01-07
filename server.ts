@@ -1,12 +1,12 @@
-import nodemon from 'nodemon';
+import nodemon from "nodemon";
 
-nodemon({ script: 'srv/index.ts' })
-  .on('start', function () {
-    console.log('Iniciado o nodemon!');
+nodemon({ script: "app/index.ts" })
+  .on("start", function () {
+    console.log("Iniciado o nodemon!");
   })
-  .on('crash', function () {
-    console.log('Crashed nodemon!');
-    nodemon.emit('restart');
+  .on("crash", function () {
+    console.log("Crashed nodemon!");
+    nodemon.emit("restart");
   });
 
 // force a restart

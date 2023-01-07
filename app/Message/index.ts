@@ -31,8 +31,12 @@ export class Message extends DataBase {
     return {};
   }
 
-  createMessage() {
+  formatNumber() {
     if (this.data) this.data.to = formatWhatsapp(this.data.to);
+  }
+
+  createMessage() {
+    this.formatNumber();
     if (this.data.hasMedia && this.data.mimetype && this.data.data) {
       this.content = new MessageMedia(
         this.data.mimetype,
@@ -78,6 +82,11 @@ export class Message extends DataBase {
       await app.sendMessage(this.data.to, this.content, this.messageOptions);
     }
     return this;
+  }
+
+  async isRegisteredUser() {
+    this.formatNumber();
+    return await app.isRegisteredUser(this.data.to);
   }
 
   async destroy() {

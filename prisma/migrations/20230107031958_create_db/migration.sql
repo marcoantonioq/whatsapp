@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "Group" AS ENUM ('SENDING', 'CANCELED', 'CACHE');
+
 -- CreateTable
 CREATE TABLE "Contatos" (
     "id" TEXT NOT NULL,
@@ -29,7 +32,7 @@ CREATE TABLE "Messages" (
     "serialized" TEXT,
     "body" TEXT,
     "from" TEXT,
-    "group" TEXT,
+    "group" "Group" DEFAULT 'CACHE',
     "notifyName" TEXT,
     "self" TEXT,
     "caption" TEXT,
@@ -37,6 +40,7 @@ CREATE TABLE "Messages" (
     "type" TEXT,
     "data" TEXT,
     "old" TEXT,
+    "info" TEXT,
     "status" BOOLEAN DEFAULT true,
     "hasMedia" BOOLEAN DEFAULT false,
 

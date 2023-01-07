@@ -1,14 +1,24 @@
 import Events from "events";
 import { Messages } from "@prisma/client";
 import db from "../libs/data";
-import { Message } from ".";
+import { formatWhatsapp } from "../libs/Phone";
+
+type keys = "to";
 
 export class DataBase extends Events {
+  // private _data: Messages = this.defaultData();
   private _data: Messages = this.defaultData();
+  validate = {
+    to: [(number: string) => number.match(/@c.us$/gi)],
+  };
+
+  format = {
+    to: [(number: string) => formatWhatsapp(number)],
+  };
 
   constructor(data?: Messages) {
     super();
-    if (data) this.data = data;
+    this.data = data ? data : this.defaultData();
   }
 
   get data() {
@@ -16,7 +26,29 @@ export class DataBase extends Events {
   }
 
   set data(data) {
-    this._data = data;
+    this._data = new Proxy(data, {
+      set: (target: any, key: keys, value) => {
+        try {
+          let newValue = value;
+          if (this.format[key]) {
+            newValue = this.format[key].reduce((acc, format) => {
+              acc = format(acc);
+              return acc;
+            }, value);
+          }
+          if (this.validate[key]) {
+            if (!this.validate[key].every((valid) => valid(value)))
+              throw `Valor ${value} inválido para ${key}!`;
+          }
+          target[key] = newValue;
+          console.log(`${key.toString()} inseriu o valor ${newValue}`);
+          if (this.data.id) this.save();
+        } catch (error) {
+          console.log(error);
+        }
+        return true;
+      },
+    });
   }
 
   async save() {
@@ -62,6 +94,7 @@ export class DataBase extends Events {
       type: "",
       data: "",
       old: "",
+      info: "",
       status: true,
       hasMedia: false,
     };

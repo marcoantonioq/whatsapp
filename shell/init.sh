@@ -13,6 +13,7 @@ while true; do
         echo "Atualizando instalação:"
         # git stash
         git pull --ff-only
+        npm run reset
     fi
     chmod +x $0
     npm install
