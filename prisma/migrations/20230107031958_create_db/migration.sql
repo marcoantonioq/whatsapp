@@ -40,6 +40,7 @@ CREATE TABLE "Messages" (
     "type" TEXT,
     "data" TEXT,
     "old" TEXT,
+    "info" TEXT,
     "status" BOOLEAN DEFAULT true,
     "hasMedia" BOOLEAN DEFAULT false,
 

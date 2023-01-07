@@ -52,7 +52,8 @@
     "ignore": [
       "out/*"
     ],
-    "ext": "js,json",
-    "verbose": true
+    "verbose": true,
+    "ext": ".ts,.js,.json",
+    "exec": "ts-node ./app/index.ts"
   }
 }

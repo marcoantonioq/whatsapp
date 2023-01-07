@@ -3,7 +3,6 @@ import { formatWhatsapp } from "../libs/Phone";
 import { Message } from "../Message";
 import { Client, Message as msg } from "whatsapp-web.js";
 import Events from "events";
-import db from "../libs/data";
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
@@ -220,6 +219,7 @@ export class API extends Events {
                 }
               }
             } else {
+              let info = "";
               // coleta numero informado
               if (numeroCitado) this.numbers = msg.body;
               // Verifica se está ativo, após alguns segundos
@@ -229,6 +229,9 @@ export class API extends Events {
                     const message = new Message();
                     const { data: dt } = message;
                     dt.to = number;
+                    const isRegistered = await message.isRegisteredUser();
+                    if (!isRegistered)
+                      throw `Numero não possui whatsapp: ${number}`;
                     dt.from = msg.from;
                     dt.body = msg.body;
                     dt.type = msg.type;
@@ -241,20 +244,13 @@ export class API extends Events {
                     }
                     await message.replaceNomeContact();
                     await message.save();
-                    setTimeout(() => {
-                      dt.body = "teste auto save";
-                    }, 10000);
-                    setTimeout(() => {
-                      dt.body = "teste auto save2";
-                    }, 20000);
                     this.mensagens.push(message);
                     return message;
                   } catch (error) {
-                    this.sendToAPI(
-                      `Erro ao criar mensagem apiSendCitado: ${error}`
-                    );
+                    info = `${info}\n${error}`;
                   }
                 });
+              if (info) this.sendToAPI(info);
             }
           }
         }

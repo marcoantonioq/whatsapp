@@ -39,6 +39,7 @@ model Messages {
   type       String?
   data       String?  @db.Text
   old        String?
+  info       String?
   status     Boolean? @default(true)
   hasMedia   Boolean? @default(false)
 }
