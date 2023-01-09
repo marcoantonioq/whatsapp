@@ -62,9 +62,10 @@ export class API extends Events {
     this.timeOut.push(
       setTimeout(() => {
         if (this.isEnable("send_citado")) {
-          this.sendToAPI(`⏹️ Paramos encaminhar msg para os números citados!`);
-          this.mensagens.forEach((message) => message.destroy);
           this.disable("send_citado");
+          this.sendToAPI(`⏹️ Paramos encaminhar msg para os números citados!`);
+          this._numbers = [];
+          this.mensagens.forEach((message) => message.destroy);
         }
       }, 15 * 60 * 1000)
     );
@@ -76,7 +77,9 @@ export class API extends Events {
         this._numbers = numbers;
         if (this._numbers.length)
           this.sendToAPI(
-            `Aguarde ⏱️... \n*Estamos preparando tudo*, em segundos iniciaremos o envio...\n\n🆗 Números registrados ${this.numbersToString()}!!`,
+            `Aguarde ⏱️... \n*Estamos preparando tudo*, em segundos iniciaremos o envio...\n\n🆗 Números registrados (${
+              this._numbers.length
+            }): ${this.numbersToString()}!!`,
             1000
           );
       });
@@ -126,8 +129,8 @@ export class API extends Events {
 
   async reset() {
     this._locks = [];
-    this._numbers = [];
     this.mensagens = [];
+    this._numbers = [];
     this.timeOut.forEach((time) => clearTimeout);
   }
 
@@ -214,13 +217,12 @@ export class API extends Events {
           const numeroCitado = msg.body.match(/(\d{4}-\d{4}|\d{8})+/gi);
           if (this.isEnable("send_citado") || numeroCitado) {
             if (msg.body.match(/^(cancelar|sair)$/gi)) {
+              this.disable("send_citado");
               this._numbers = [];
               this.mensagens.forEach((message) => message.destroy);
-              this.disable("send_citado");
               this.sendToAPI("👋 envio cancelado!");
             } else if (msg.body.trim().match(/^(enviar|ok)$/gi)) {
               this.disable("send_citado");
-              this._numbers = [];
               const numbersSort = this.mensagens.sort((a, b) =>
                 a.data.to > b.data.to &&
                 a.data.created &&
@@ -229,15 +231,15 @@ export class API extends Events {
                   ? -1
                   : 1
               );
-
               for (const message of numbersSort) {
                 try {
                   await message.send();
-                  await message.destroy();
                 } catch (e: any) {
-                  console.log(`Erro ao enviar mensagens: ${e}`);
+                  this.sendToAPI(`Erro ao enviar mensagem: ${e}`);
                 }
               }
+              this.mensagens.forEach((message) => message.destroy);
+              this._numbers = [];
             } else {
               if (numeroCitado) this.numbers = msg.body;
               if (this.isEnable("send_citado")) {
