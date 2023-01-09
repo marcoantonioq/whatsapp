@@ -1,4 +1,4 @@
-import { app } from "./whatsapp"
+import { app } from "../Whatsapp";
 
 app.on("disconnected", (reason) => {
   console.log("disconnected");
