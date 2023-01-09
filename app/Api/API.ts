@@ -1,8 +1,10 @@
 import { Agenda } from "../Contatos";
-import { formatWhatsapp } from "../libs/Phone";
 import { Message } from "../Message";
 import { Client, Message as msg } from "whatsapp-web.js";
 import Events from "events";
+import { formatWhatsapp } from "../libs/Phone";
+import { filterAsync } from "../Util/ArrayFunction";
+import { api } from ".";
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
@@ -32,27 +34,27 @@ export class API extends Events {
   }
 
   set numbers(numbers: string) {
-    const tmp = numbers
-      .split(/(\n|,|;|\t)/gi)
-      .map((el) => el.replace(/\D/gim, ""))
-      .filter((el) => el && el !== "")
-      .map((el) => {
-        try {
-          return formatWhatsapp(el);
-        } catch (e) {
-          return undefined;
-        }
-      })
-      .filter((el) => el)
-      .map((el) => String(el));
-    const n1 = new Set([...this._numbers, ...tmp]);
-    this._numbers = [...n1];
+    this._numbers = [
+      ...new Set([
+        ...this._numbers,
+        ...numbers
+          .split(/(\n|\r|\t|,|;|\|)/gi)
+          .map((el) => el.replace(/\D/gim, ""))
+          .filter((el) => el.match(/(\d{8})+/gi))
+          .map((el) => formatWhatsapp(el))
+          .filter((el) => el && el !== "")
+          .map((el) => String(el)),
+      ]),
+    ];
+
     this.timeOut.push(
       setTimeout(() => {
         if (!this.isEnable("send_citado") && this._numbers.length) {
           this.enable("send_citado");
           this.sendToAPI(
-            `▶️ Enviaremos novas mensagens para: \n\n⏹️ Sair / Cancelar\n📤 Enviar / Ok\n\nNúmeros citados: ${this.numbersToString()}`
+            `▶️ Enviaremos novas mensagens para: \n\n⏹️ Sair / Cancelar\n📤 Enviar / Ok\n\nNúmeros citados (${
+              this._numbers.length
+            }): ${this.numbersToString()}`
           );
         }
       }, 30000)
@@ -66,11 +68,19 @@ export class API extends Events {
         }
       }, 15 * 60 * 1000)
     );
-    if (this._numbers.length)
-      this.sendToAPI(
-        `🆗 Números registrados ${this.numbersToString()}!!\n\nAguarde ⏱️... \n*Estamos preparando tudo*, em segundos iniciaremos...`,
-        1000
-      );
+    if (this._numbers.length) {
+      filterAsync(
+        this._numbers,
+        async (el) => !!(await this.app.isRegisteredUser(el))
+      ).then((numbers) => {
+        this._numbers = numbers;
+        if (this._numbers.length)
+          this.sendToAPI(
+            `Aguarde ⏱️... \n*Estamos preparando tudo*, em segundos iniciaremos o envio...\n\n🆗 Números registrados ${this.numbersToString()}!!`,
+            1000
+          );
+      });
+    }
   }
 
   arrayNumbers() {
@@ -164,6 +174,13 @@ export class API extends Events {
     return stdout.trim();
   }
 
+  reboot() {
+    this.sendToAPI("💤 reiniciando API....");
+    setTimeout(() => {
+      this.command("/sbin/reboot");
+    }, 1000);
+  }
+
   hello() {
     this.sendToAPI("Olá!");
   }
@@ -192,65 +209,58 @@ export class API extends Events {
           }
           const reboot = /^reboot$|^restart$/gi;
           if (msg.body.match(reboot)) {
-            this.sendToAPI("💤 reiniciando API....");
-            setTimeout(() => {
-              this.command("/sbin/reboot");
-            }, 1000);
+            this.reboot();
           }
           const numeroCitado = msg.body.match(/(\d{4}-\d{4}|\d{8})+/gi);
-          // if está ativo ou algum numero de telefone foi citado
           if (this.isEnable("send_citado") || numeroCitado) {
-            // if cancelar, apaga todas as mensagens
             if (msg.body.match(/^(cancelar|sair)$/gi)) {
               this._numbers = [];
               this.mensagens.forEach((message) => message.destroy);
               this.disable("send_citado");
               this.sendToAPI("👋 envio cancelado!");
-              // if enviar mensagens (apaga todas)
             } else if (msg.body.trim().match(/^(enviar|ok)$/gi)) {
+              this.disable("send_citado");
               this._numbers = [];
-              for (const message of this.mensagens) {
+              const numbersSort = this.mensagens.sort((a, b) =>
+                a.data.to > b.data.to &&
+                a.data.created &&
+                b.data.created &&
+                a.data.created > b.data.created
+                  ? -1
+                  : 1
+              );
+
+              for (const message of numbersSort) {
                 try {
                   await message.send();
                   await message.destroy();
-                  this.disable("send_citado");
                 } catch (e: any) {
                   console.log(`Erro ao enviar mensagens: ${e}`);
                 }
               }
             } else {
-              let info = "";
-              // coleta numero informado
               if (numeroCitado) this.numbers = msg.body;
-              // Verifica se está ativo, após alguns segundos
-              if (this.isEnable("send_citado"))
-                this.arrayNumbers().forEach(async (number) => {
+              if (this.isEnable("send_citado")) {
+                for (const number of this._numbers) {
                   try {
-                    const message = new Message();
-                    const { data: dt } = message;
-                    dt.to = number;
-                    const isRegistered = await message.isRegisteredUser();
-                    if (!isRegistered)
-                      throw `Numero não possui whatsapp: ${number}`;
-                    dt.from = msg.from;
-                    dt.body = msg.body;
-                    dt.type = msg.type;
-                    dt.group = "SENDING";
-                    dt.hasMedia = msg.hasMedia;
-                    if (dt.hasMedia) {
-                      const media = await msg.downloadMedia();
-                      dt.data = media.data;
-                      dt.mimetype = media.mimetype;
+                    const isRegistered = await this.app.isRegisteredUser(
+                      number
+                    );
+                    if (isRegistered) {
+                      const message = new Message();
+                      message.data.to = number;
+                      await message.updateDataWithMsg(msg);
+                      this.mensagens.push(message);
+                      await message.replaceNomeContact();
+                      await message.save();
                     }
-                    await message.replaceNomeContact();
-                    await message.save();
-                    this.mensagens.push(message);
-                    return message;
-                  } catch (error) {
-                    info = `${info}\n${error}`;
+                  } catch (e) {
+                    console.log("Erro ");
+                    api.sendToAPI(`Erro ${number}: ${e}`);
                   }
-                });
-              if (info) this.sendToAPI(info);
+                }
+                api.sendToAPI(`Mensagem: \n_${msg.body}_ salva!`);
+              }
             }
           }
         }

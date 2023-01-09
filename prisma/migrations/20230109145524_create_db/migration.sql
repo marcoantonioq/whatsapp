@@ -43,6 +43,8 @@ CREATE TABLE "Messages" (
     "info" TEXT,
     "status" BOOLEAN DEFAULT true,
     "hasMedia" BOOLEAN DEFAULT false,
+    "created" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+    "modified" TIMESTAMP(3),
 
     CONSTRAINT "Messages_pkey" PRIMARY KEY ("id")
 );

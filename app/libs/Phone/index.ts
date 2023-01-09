@@ -6,16 +6,12 @@ enum DD {
 
 export function format(number: string) {
   const phone = parse(number, "BR");
-  if (phone && phone.isValid()) {
-    return phone.formatNational();
-  } else {
-    throw new Error(`Número inválido: ${number}`);
-  }
+  return phone && phone.isValid() ? phone.formatNational() : "";
 }
 
 export function formatWhatsapp(number: string) {
   let nm: string = number.replace(/[^0-9]+/g, "");
-  if (nm.length < 8) throw `Numero inválido:  ${number}`;
+  if (nm.length < 8) return "";
   if ([8, 9].includes(nm.length)) {
     nm = `${DD.default}${nm}`;
   }
