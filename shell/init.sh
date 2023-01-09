@@ -13,7 +13,6 @@ while true; do
         echo "Atualizando instalação:"
         ./shell/pull_only.sh
         ./shell/reset.sh
-        npm run reset
     fi
     chmod +x $0
     npm install
