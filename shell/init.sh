@@ -11,8 +11,8 @@ while true; do
         echo "Aplicação atualizada!"
     else
         echo "Atualizando instalação:"
-        # git stash
-        git pull --ff-only
+        ./shell/pull_only.sh
+        ./shell/reset.sh
         npm run reset
     fi
     chmod +x $0
