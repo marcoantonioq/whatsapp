@@ -15,6 +15,7 @@ while true; do
         ./shell/reset.sh
     fi
     chmod +x $0
+    npm run up-whatsapp
     npm install
     npm run gdb
     npm run build

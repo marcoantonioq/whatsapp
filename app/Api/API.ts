@@ -210,7 +210,7 @@ export class API extends Events {
               this.sendToAPI("Olá!");
             }
           }
-          const reboot = /^reboot$|^restart$/gi;
+          const reboot = /^(reboot|restart|reiniciar)$/gi;
           if (msg.body.match(reboot)) {
             this.reboot();
           }
@@ -261,7 +261,7 @@ export class API extends Events {
                     api.sendToAPI(`Erro ${number}: ${e}`);
                   }
                 }
-                api.sendToAPI(`Mensagem: \n_${msg.body}_ salva!`);
+                api.sendToAPI(`Mensagem salva!`);
               }
             }
           }
