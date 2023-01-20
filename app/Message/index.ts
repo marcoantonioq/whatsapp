@@ -59,7 +59,8 @@ export class Message extends DataMessage {
   }
 
   async send() {
-    if (this.data && this.data.to && this.content) {
+    if (/@c.us$/gi.test(this.data.to)) {
+      console.log("Sendddd: ", this.data, this.content);
       await app.sendMessage(this.data.to, this.content, this.messageOptions);
     }
     return this;

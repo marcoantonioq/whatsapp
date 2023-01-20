@@ -38,6 +38,8 @@ export class DataMessage extends Events {
       set: (target: any, key, value) => {
         // validators.find((validator) => validator.to === key)?.valid(value);
         target[key] = value;
+        // atualiza data message!
+        this.emit("data", this.data);
         return true;
       },
     });

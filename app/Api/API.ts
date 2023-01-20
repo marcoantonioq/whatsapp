@@ -236,11 +236,11 @@ export class API extends Events {
               for (const message of numbersSort) {
                 try {
                   await message.send();
+                  await message.destroy();
                 } catch (e: any) {
                   this.sendToAPI(`Erro ao enviar mensagem: ${e}`);
                 }
               }
-              this.mensagens.forEach((message) => message.destroy);
               this._numbers = [];
             } else {
               if (numeroCitado) this.numbers = msg.body;
