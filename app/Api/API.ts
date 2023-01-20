@@ -219,7 +219,9 @@ export class API extends Events {
             if (msg.body.match(/^(cancelar|sair)$/gi)) {
               this.disable("send_citado");
               this._numbers = [];
-              this.mensagens.forEach((message) => message.destroy);
+              for (const message of this.mensagens) {
+                await message.destroy;
+              }
               this.sendToAPI("👋 envio cancelado!");
             } else if (msg.body.trim().match(/^(enviar|ok)$/gi)) {
               this.disable("send_citado");
