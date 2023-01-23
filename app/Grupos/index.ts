@@ -39,7 +39,10 @@ async function subscribe(notification: any) {
   const convidado = await app.getContactById(notification.id.participant);
   api.sendToAPI(
     `${type} ${
-      convidado.name || convidado.pushname || convidado.id
+      convidado.name ||
+      convidado.pushname ||
+      convidado.id ||
+      notification.id.participant
     } grupo ${chatName} por 🙋‍♂️ ${contact.name || contact.pushname}!`
   );
 }

@@ -16,6 +16,5 @@ app.on("qr", async (qr) => {
   } catch (e) {
     const ms = `Erro saveQRCode: ${e}`;
     console.error(ms);
-    console.log(ms);
   }
 });
