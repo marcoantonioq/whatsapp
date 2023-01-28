@@ -7,7 +7,6 @@ const GOOGLE_KEY = process.env.GOOGLE_API || "";
 const customSearch = google.customsearch("v1");
 
 export const speechToTextOGG = async (data: string) => {
-  console.log("Iniciando transcrição:: ");
   const client = new SpeechClient({
     credentials: AUTH,
   });

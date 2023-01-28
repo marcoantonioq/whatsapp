@@ -226,10 +226,12 @@ export class API extends Events {
                 gptSearch(msg.body).then((response) => {
                   if (response) msg.reply(`🤖: ${response}`);
                 });
-                googleSearch(msg.body).then((response) => {
-                  if (response)
-                    msg.reply(`🤖: Resultados do google: \n${response}`);
-                });
+                if (msg.body.match(/?$/g)) {
+                  googleSearch(msg.body).then((response) => {
+                    if (response)
+                      msg.reply(`🤖: Resultados do google: \n${response}`);
+                  });
+                }
               }
             }
           }
@@ -273,9 +275,9 @@ export class API extends Events {
                       const message = new Message();
                       message.data.to = number;
                       await message.updateDataWithMsg(msg);
-                      this.mensagens.push(message);
                       await message.replaceNomeContact();
-                      await message.save();
+                      this.mensagens.push(message);
+                      // await message.save();
                     }
                   } catch (e) {
                     console.log("Erro ");
