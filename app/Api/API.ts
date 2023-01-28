@@ -6,7 +6,7 @@ import { formatWhatsapp } from "../Phone";
 import { filterAsync } from "../Util/ArrayFunction";
 import { api } from ".";
 import { textResponse as gptSearch } from "./Openai";
-import googleSearch from "./Google";
+import { search as googleSearch, speechToTextOGG } from "./Google";
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
@@ -200,6 +200,12 @@ export class API extends Events {
     this.app.on("message_create", async (msg) => {
       if (this.isToAPI(msg)) {
         const chat = await msg.getChat();
+        if (["audio", "ptt"].includes(msg.type)) {
+          const media = await msg.downloadMedia();
+          speechToTextOGG(media.data).then((response) => {
+            if (response) msg.reply(`🤖: ${response}`);
+          });
+        }
         try {
           chat.sendStateTyping();
           const black_list = ["ok"];
@@ -216,21 +222,15 @@ export class API extends Events {
             } else if (msg.body.match(/^(limpar|cls|clear|apagar)$/gi)) {
               await chat.clearMessages();
             } else {
-              gptSearch(msg.body)
-                .then((response) => {
+              if (msg.body.trim() !== "") {
+                gptSearch(msg.body).then((response) => {
                   if (response) msg.reply(`🤖: ${response}`);
-                })
-                .catch((e) => {
-                  msg.reply(`🤖: ${e}`);
                 });
-              googleSearch(msg.body)
-                .then((response) => {
+                googleSearch(msg.body).then((response) => {
                   if (response)
                     msg.reply(`🤖: Resultados do google: \n${response}`);
-                })
-                .catch((e) => {
-                  msg.reply(`🤖: Resultados do google: \n${e}`);
                 });
+              }
             }
           }
           const numeroCitado = msg.body.match(/(\d{4}-\d{4}|\d{8})+/gi);

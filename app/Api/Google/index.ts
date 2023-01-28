@@ -1,9 +1,42 @@
 import { google } from "googleapis";
+import { SpeechClient } from "@google-cloud/speech";
+
+const AUTH = JSON.parse(process.env.GOOGLE_AUTH || "");
+const GOOGLE_KEY = process.env.GOOGLE_API || "";
+
 const customSearch = google.customsearch("v1");
+
+export const speechToTextOGG = async (data: string) => {
+  console.log("Iniciando transcrição:: ");
+  const client = new SpeechClient({
+    credentials: AUTH,
+  });
+  client.auth.fromAPIKey(GOOGLE_KEY);
+  const [response] = await client.recognize({
+    audio: {
+      content: data,
+    },
+    config: {
+      encoding: "OGG_OPUS",
+      sampleRateHertz: 16000,
+      languageCode: "pt-BR",
+    },
+  });
+
+  if (response && response.results) {
+    const transcription = response.results
+      .filter((result) => result.alternatives)
+      .map((result) => {
+        if (result.alternatives) return result.alternatives[0].transcript;
+      })
+      .join("\n");
+    return transcription;
+  }
+};
 
 export const search = async (text: string) => {
   const response = await customSearch.cse.list({
-    auth: process.env.SEARCH_API,
+    auth: GOOGLE_KEY,
     cx: process.env.SEARCH_ID,
     q: text,
     num: 5,
@@ -16,4 +49,4 @@ export const search = async (text: string) => {
   }
 };
 
-export default search;
+export default { search };
