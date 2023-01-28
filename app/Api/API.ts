@@ -2,10 +2,11 @@ import { Agenda } from "../Contatos";
 import { Message } from "../Message";
 import { Client, Message as msg } from "whatsapp-web.js";
 import Events from "events";
-import { formatWhatsapp } from "../libs/Phone";
+import { formatWhatsapp } from "../Phone";
 import { filterAsync } from "../Util/ArrayFunction";
 import { api } from ".";
 import { textResponse } from "./Openai";
+import search from "./Google";
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
@@ -197,8 +198,10 @@ export class API extends Events {
     });
 
     this.app.on("message_create", async (msg) => {
-      try {
-        if (this.isToAPI(msg)) {
+      if (this.isToAPI(msg)) {
+        const chat = await msg.getChat();
+        try {
+          chat.sendStateTyping();
           const reg = /(^grupo |^send |^contatos )(.*)$/gi;
           const match = reg.exec(msg.body);
           if (match && match[2]) {
@@ -213,6 +216,15 @@ export class API extends Events {
             } else {
               const response = await textResponse(msg.body);
               msg.reply(`🤖: ${response}`);
+              search(msg.body).then((response) => {
+                if (response.data.items) {
+                  const result = response.data.items.reduce((acc, item) => {
+                    acc += `\n\n${item.title}\n${item.snippet}\n${item.link}`;
+                    return acc;
+                  }, "");
+                  msg.reply(`🤖: Segundo o google: \n${result}`);
+                }
+              });
             }
           }
           const numeroCitado = msg.body.match(/(\d{4}-\d{4}|\d{8})+/gi);
@@ -268,9 +280,10 @@ export class API extends Events {
               }
             }
           }
+        } catch (e) {
+          this.sendToAPI(`🤖: Erro no processamento ao criar mensagem: ${e}`);
         }
-      } catch (e) {
-        this.sendToAPI(`🤖: Erro no processamento ao criar mensagem: ${e}`);
+        chat.clearState();
       }
     });
   }

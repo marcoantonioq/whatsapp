@@ -1,7 +1,7 @@
 import Events from "events";
 import { Messages } from "@prisma/client";
 import db from "../libs/data";
-import { formatWhatsapp } from "../libs/Phone";
+import { formatWhatsapp } from "../Phone";
 // import { Validation } from "../Util/Validation";
 
 // const validators = [

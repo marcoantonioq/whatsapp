@@ -1,7 +1,7 @@
 import { Contatos as DSContatos, Grupos as DSGrupos } from "@prisma/client";
 import db from "../libs/data";
 import { sheet } from "../libs/Google/sheets";
-import { format } from "../libs/Phone";
+import { format } from "../Phone";
 
 export class Grupo {
   data: DSGrupos;
