@@ -40,9 +40,15 @@ export class Validation {
     this.value = value;
     if (this.regex)
       if (!`${this.value}`.match(this.regex))
-        throw new Error(`Expressão: ${this.message || "Valor inválido!"}`);
+        throw new Error(
+          `Expressão ${this.to} ${this.regex} => ${this.value}: ${
+            this.message || "Valor inválido!"
+          }`
+        );
     if (this.validation)
       if (!this.validation(this.value))
-        throw new Error(`Validação: ${this.message || "Valor inválido!"}`);
+        throw new Error(
+          `Validação ${this.value}: ${this.message || "Valor inválido!"}`
+        );
   }
 }

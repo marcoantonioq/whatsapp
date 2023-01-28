@@ -34,12 +34,13 @@ app.on("ready", async () => {
 async function subscribe(notification: any) {
   const { name: chatName } = await notification.getChat();
   const contact = await notification.getContact();
-  const type = notification.type === "remove" ? "➖ 📵" : "➕ 📲";
-  const participant = notification.id.participant.replace("@c.us", "");
+  const type = notification.type === "add" ? "➕ 📲" : "➖ 📵";
+
+  const convidado = await app.getContactById(notification.id.participant);
   api.sendToAPI(
-    `${type} ${participant} grupo ${chatName} por 🙋‍♂️ ${
-      contact.name || contact.pushname
-    }!`
+    `${type} ${convidado.name || convidado.pushname || convidado.id} (${
+      notification.id.participant
+    }) grupo ${chatName} por 🙋‍♂️ ${contact.name || contact.pushname}!`
   );
 }
 

@@ -11,11 +11,11 @@ while true; do
         echo "Aplicação atualizada!"
     else
         echo "Atualizando instalação:"
-        # git stash
-        git pull --ff-only
-        npm run reset
+        ./shell/pull_only.sh
+        ./shell/reset.sh
     fi
     chmod +x $0
+    npm run up-whatsapp
     npm install
     npm run gdb
     npm run build

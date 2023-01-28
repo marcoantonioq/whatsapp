@@ -2,25 +2,25 @@ import Events from "events";
 import { Messages } from "@prisma/client";
 import db from "../libs/data";
 import { formatWhatsapp } from "../libs/Phone";
-import { Validation } from "../Util/Validation";
+// import { Validation } from "../Util/Validation";
 
-const validators = [
-  new Validation({
-    to: "to",
-    regex: /@c.us$/gi,
-    sanitizer: (phone: string) => {
-      return formatWhatsapp(phone);
-    },
-  }),
-  new Validation({
-    to: "body",
-    validation: (body: string) => {
-      return body.trim().length > 0;
-    },
-  }),
-];
+// const validators = [
+//   new Validation({
+//     to: "to",
+//     regex: /@c.us$/gi,
+//     sanitizer: (phone: string) => {
+//       return formatWhatsapp(phone);
+//     },
+//   }),
+//   new Validation({
+//     to: "body",
+//     validation: (body: string) => {
+//       return body.trim().length > 0;
+//     },
+//   }),
+// ];
 
-export class DataBase extends Events {
+export class DataMessage extends Events {
   // private _data: Messages = this.defaultData();
   private _data: Messages = this.defaultData();
 
@@ -36,9 +36,10 @@ export class DataBase extends Events {
   set data(data) {
     this._data = new Proxy(data, {
       set: (target: any, key, value) => {
-        validators.find((validator) => validator.to === key)?.valid(value);
+        // validators.find((validator) => validator.to === key)?.valid(value);
         target[key] = value;
-        if (this.data.id) this.save();
+        // atualiza data message!
+        this.emit("data", this.data);
         return true;
       },
     });
@@ -90,6 +91,8 @@ export class DataBase extends Events {
       info: "",
       status: true,
       hasMedia: false,
+      created: new Date(),
+      modified: new Date(),
     };
   }
 
