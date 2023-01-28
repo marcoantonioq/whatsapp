@@ -226,7 +226,7 @@ export class API extends Events {
                 gptSearch(msg.body).then((response) => {
                   if (response) msg.reply(`🤖: ${response}`);
                 });
-                if (msg.body.match(/?$/g)) {
+                if (msg.body.match(/\?$/g)) {
                   googleSearch(msg.body).then((response) => {
                     if (response)
                       msg.reply(`🤖: Resultados do google: \n${response}`);
