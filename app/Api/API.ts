@@ -206,17 +206,14 @@ export class API extends Events {
             msg.reply(this.getGruposContatos(informados.join(",")));
           }
           if (!this.locks) {
-            const hello = /^api$|^oi$|^ping$|^info$/gi;
-            if (msg.body.match(hello)) {
+            if (msg.body.match(/^api$|^oi$|^ping$|^info$/gi)) {
               this.sendToAPI("Olá!");
+            } else if (msg.body.match(/^(reboot|restart|reiniciar)$/gi)) {
+              this.reboot();
             } else {
               const response = await textResponse(msg.body);
               msg.reply(`🤖: ${response}`);
             }
-          }
-          const reboot = /^(reboot|restart|reiniciar)$/gi;
-          if (msg.body.match(reboot)) {
-            this.reboot();
           }
           const numeroCitado = msg.body.match(/(\d{4}-\d{4}|\d{8})+/gi);
           if (this.isEnable("send_citado") || numeroCitado) {
