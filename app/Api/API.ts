@@ -211,7 +211,6 @@ export class API extends Events {
             } else if (msg.body.match(/^api$|^oi$|^ping$|^info$/gi)) {
               this.sendToAPI("Olá!");
             } else if (msg.body.match(/^(reboot|restart|reiniciar)$/gi)) {
-              const chat = await msg.getChat();
               await chat.clearMessages();
               this.reboot();
             } else if (msg.body.match(/^(limpar|cls|clear|apagar)$/gi)) {
