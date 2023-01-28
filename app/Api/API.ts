@@ -5,6 +5,7 @@ import Events from "events";
 import { formatWhatsapp } from "../libs/Phone";
 import { filterAsync } from "../Util/ArrayFunction";
 import { api } from ".";
+import { textResponse } from "./Openai";
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
@@ -208,6 +209,9 @@ export class API extends Events {
             const hello = /^api$|^oi$|^ping$|^info$/gi;
             if (msg.body.match(hello)) {
               this.sendToAPI("Olá!");
+            } else {
+              const response = await textResponse(msg.body);
+              msg.reply(`🤖: ${response}`);
             }
           }
           const reboot = /^(reboot|restart|reiniciar)$/gi;
