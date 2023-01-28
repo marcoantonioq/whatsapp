@@ -9,10 +9,10 @@ const openai = new OpenAIApi(configuration);
 
 export const textResponse = async (text: string) => {
   const options = {
-    model: "text-davinci-003", // Modelo GPT a ser usado
-    prompt: text, // Texto enviado pelo usuário
-    temperature: 1, // Nível de variação das respostas geradas, 1 é o máximo
-    max_tokens: 4000, // Quantidade de tokens (palavras) a serem retornadas pelo bot, 4000 é o máximo
+    model: "text-davinci-003",
+    prompt: text,
+    temperature: 1,
+    max_tokens: 4000,
   };
 
   try {
@@ -28,13 +28,13 @@ export const textResponse = async (text: string) => {
 };
 
 export const imgResponse = async (text: string) => {
-  const options = {
-    prompt: text, // Descrição da imagem
-    n: 1, // Número de imagens a serem geradas
+  const request = {
+    prompt: text,
+    n: 1,
   };
 
   try {
-    const response = await openai.createImage(options);
+    const response = await openai.createImage(request);
     return response.data.data[0].url;
   } catch (e: any) {
     return `❌ OpenAI Response Error: ${e.response.data.error.message}`;
