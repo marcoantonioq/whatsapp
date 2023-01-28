@@ -6,7 +6,7 @@ export const search = async (text: string) => {
     auth: process.env.SEARCH_API,
     cx: process.env.SEARCH_ID,
     q: text,
-    num: 2,
+    num: 5,
   });
   if (response.data.items) {
     return response.data.items.reduce((acc, item) => {
