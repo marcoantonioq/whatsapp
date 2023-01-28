@@ -277,7 +277,7 @@ export class API extends Events {
                       await message.updateDataWithMsg(msg);
                       await message.replaceNomeContact();
                       this.mensagens.push(message);
-                      // await message.save();
+                      await message.save();
                     }
                   } catch (e) {
                     console.log("Erro ");
