@@ -5,8 +5,8 @@ import Events from "events";
 import { formatWhatsapp } from "../Phone";
 import { filterAsync } from "../Util/ArrayFunction";
 import { api } from ".";
-import { textResponse } from "./Openai";
-import search from "./Google";
+import { textResponse as gptSearch } from "./Openai";
+import googleSearch from "./Google";
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
@@ -202,7 +202,8 @@ export class API extends Events {
         const chat = await msg.getChat();
         try {
           chat.sendStateTyping();
-          if (!this.locks) {
+          const black_list = ["ok"];
+          if (!this.locks && !black_list.includes(msg.body)) {
             const match = /(^grupo |^send |^contatos )(.*)$/gi.exec(msg.body);
             if (match && match[2]) {
               const informados = match[2].split(/,|;/).map((el) => el.trim());
@@ -213,22 +214,24 @@ export class API extends Events {
               const chat = await msg.getChat();
               await chat.clearMessages();
               this.reboot();
+            } else if (msg.body.match(/^(limpar|cls|clear|apagar)$/gi)) {
+              await chat.clearMessages();
             } else {
-              textResponse(msg.body).then((response) => {
-                msg.reply(`🤖: ${response}`);
-              });
-              search(msg.body).then((response) => {
-                if (response.data.items) {
-                  const resultGoogle = response.data.items.reduce(
-                    (acc, item) => {
-                      acc += `\n\n${item.title}\n${item.snippet}\n${item.link}`;
-                      return acc;
-                    },
-                    ""
-                  );
-                  msg.reply(`🤖: Resultados do google: \n${resultGoogle}`);
-                }
-              });
+              gptSearch(msg.body)
+                .then((response) => {
+                  if (response) msg.reply(`🤖: ${response}`);
+                })
+                .catch((e) => {
+                  msg.reply(`🤖: ${e}`);
+                });
+              googleSearch(msg.body)
+                .then((response) => {
+                  if (response)
+                    msg.reply(`🤖: Resultados do google: \n${response}`);
+                })
+                .catch((e) => {
+                  msg.reply(`🤖: Resultados do google: \n${e}`);
+                });
             }
           }
           const numeroCitado = msg.body.match(/(\d{4}-\d{4}|\d{8})+/gi);
@@ -287,7 +290,7 @@ export class API extends Events {
         } catch (e) {
           this.sendToAPI(`🤖: Erro no processamento ao criar mensagem: ${e}`);
         }
-        chat.clearState();
+        // chat.clearState();
       }
     });
   }

@@ -1,7 +1,6 @@
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import "./Api/Google/index";
 import { Contato } from "./Contatos";
 import { app } from "./Whatsapp";
 import { api } from "./Api";
