@@ -202,27 +202,31 @@ export class API extends Events {
         const chat = await msg.getChat();
         try {
           chat.sendStateTyping();
-          const reg = /(^grupo |^send |^contatos )(.*)$/gi;
-          const match = reg.exec(msg.body);
-          if (match && match[2]) {
-            const informados = match[2].split(/,|;/).map((el) => el.trim());
-            msg.reply(this.getGruposContatos(informados.join(",")));
-          }
           if (!this.locks) {
-            if (msg.body.match(/^api$|^oi$|^ping$|^info$/gi)) {
+            const match = /(^grupo |^send |^contatos )(.*)$/gi.exec(msg.body);
+            if (match && match[2]) {
+              const informados = match[2].split(/,|;/).map((el) => el.trim());
+              msg.reply(this.getGruposContatos(informados.join(",")));
+            } else if (msg.body.match(/^api$|^oi$|^ping$|^info$/gi)) {
               this.sendToAPI("Olá!");
             } else if (msg.body.match(/^(reboot|restart|reiniciar)$/gi)) {
+              const chat = await msg.getChat();
+              await chat.clearMessages();
               this.reboot();
             } else {
-              const response = await textResponse(msg.body);
-              msg.reply(`🤖: ${response}`);
+              textResponse(msg.body).then((response) => {
+                msg.reply(`🤖: ${response}`);
+              });
               search(msg.body).then((response) => {
                 if (response.data.items) {
-                  const result = response.data.items.reduce((acc, item) => {
-                    acc += `\n\n${item.title}\n${item.snippet}\n${item.link}`;
-                    return acc;
-                  }, "");
-                  msg.reply(`🤖: Segundo o google: \n${result}`);
+                  const resultGoogle = response.data.items.reduce(
+                    (acc, item) => {
+                      acc += `\n\n${item.title}\n${item.snippet}\n${item.link}`;
+                      return acc;
+                    },
+                    ""
+                  );
+                  msg.reply(`🤖: Resultados do google: \n${resultGoogle}`);
                 }
               });
             }
