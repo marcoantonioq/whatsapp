@@ -1,14 +1,26 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "lib": ["es6"],
-    "allowJs": true,
-    "outDir": "build",
-    "rootDir": "./",
-    "strict": true,
-    "noImplicitAny": true,
+    "target": "ES2021",
+    "module": "CommonJS",
     "esModuleInterop": true,
-    "resolveJsonModule": true
-  }
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "declaration": true,
+    "declarationDir": "./src/types",
+    "baseUrl": ".",
+    "outDir": "dist",
+    "paths": {
+      "@types": ["./src/types/index"],
+      "@libs/*": ["./src/libs/*"],
+      "@config/*": ["./src/config/*"],
+      "@modules/*": ["./src/modules/*"]
+    }
+  },
+  "exclude": ["./dist", "./coverage"]
 }
