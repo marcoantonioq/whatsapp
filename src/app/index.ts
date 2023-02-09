@@ -1,11 +1,11 @@
 import * as dotenv from "dotenv";
-import { Whatsapp } from "./libs/whatsapp";
-import fs from "fs";
-import { sheet } from "./modules/google/Sheet";
-import * as shell from "@modules/shell/infra/services";
+import { App } from "../libs/whatsapp";
+import { Module as Shell } from "@modules/shell";
+import { Module as Contatos } from "@modules/contacts";
+import { Module as Messages } from "@modules/messages";
 dotenv.config();
 
-const app = Whatsapp.create({
+const app = App.create({
   clientId: "MARCO",
   puppeteer: {
     executablePath: "/usr/bin/google-chrome-stable",
@@ -38,8 +38,11 @@ const app = Whatsapp.create({
     ],
   },
 });
+app.add(new Contatos());
+app.add(new Messages());
+app.add(new Shell());
 
-app.initialize();
+app.whatsapp.initialize();
 
 // app.on("ready", async () => {
 //   const chats: any[] = await app.getChats();
@@ -99,27 +102,6 @@ app.on("disconnected", (reason) => {
 
 app.on("state_changed", (reason) => {
   console.log("Client was logged out.", reason);
-});
-
-app.on("qr", async (qr) => {
-  shell.qrCodeConsole.execute(qr);
-  //   try {
-  //     const plan = sheet.doc.sheetsByTitle.Whatsapp;
-  //     await plan.loadCells("A1:A3");
-  //     const A2 = plan.getCellByA1("A2");
-  //     A2.value = `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`;
-  //     A2.save();
-  //     const A3 = plan.getCellByA1("A3");
-  //     A3.value = `${new Date().toLocaleString()}`;
-  //     A3.save();
-  //   } catch (e) {
-  //     const ms = `Erro saveQRCode: ${e}`;
-  //     console.error(ms);
-  //   }
-});
-
-app.on("disconnected", (reason) => {
-  shell.rebootSystem.execute();
 });
 
 app.on("state_changed", (reason) => {

@@ -1,4 +1,4 @@
-import { Message as MSG } from "../core/Message";
+import { Message as MSG } from "../core/Message-bkp";
 
 export enum Events {
   sending = "SEND",

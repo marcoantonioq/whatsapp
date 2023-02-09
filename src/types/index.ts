@@ -1,3 +1,9 @@
+import EventEmitter from "events";
+
+export interface Module {
+  initialize(app: EventEmitter): Promise<any>;
+}
+
 export interface WhatsappSettings {
   clientId: string;
   puppeteer: {
@@ -32,7 +38,12 @@ export interface WhatsappSettings {
   };
 }
 
-export enum Events {
+export enum EventsApp {
+  READY = "ready",
+  UPDATE_CONTACT = "update-contact",
+}
+
+export enum EventsWhatsapp {
   AUTHENTICATED = "authenticated",
   AUTHENTICATION_FAILURE = "auth_failure",
   READY = "ready",

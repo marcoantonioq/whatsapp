@@ -2,10 +2,10 @@
   "name": "whatsapp",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.ts",
+  "main": "src/app/index.ts",
   "scripts": {
-    "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
-    "start": "npm run gdb && ts-node -r tsconfig-paths/register src/index.ts",
+    "dev": "ts-node-dev -r tsconfig-paths/register src/app/index.ts",
+    "start": "npm run gdb && ts-node -r tsconfig-paths/register src/app/index.ts",
     "clear": "npm cache clean --force",
     "upgrade": "npx npm-check-updates -u",
     "up-whatsapp": "npx npm-check-updates -u whatsapp-web.js",

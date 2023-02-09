@@ -1,5 +1,5 @@
-import { Agenda } from "../../contacts/core";
-import { Message } from "../../messages/core/Message";
+import { Agenda } from "../../contacts/core/Contacts";
+import { Message } from "../../messages/core/Message-bkp";
 import { Client, Message as msg } from "whatsapp-web.js";
 import Events from "events";
 import { formatWhatsapp } from "../../../libs/phone";

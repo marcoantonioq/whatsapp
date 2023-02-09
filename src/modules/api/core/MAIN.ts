@@ -1,4 +1,4 @@
-import { Agenda } from "../../contacts/core";
+import { Agenda } from "../../contacts/core/Contacts";
 import { app } from "../../../libs/whatsapp";
 import API from "../../../modules/api/core/API";
 

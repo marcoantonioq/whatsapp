@@ -4,7 +4,9 @@ import configs from "@config/index";
 
 const GOOGLE_KEY = process.env.GOOGLE_API || "";
 
-const customSearch = google.customsearch("v1");
+const customSearch = google.customsearch({
+  version: "v1",
+});
 
 export const speechToTextOGG = async (data: string) => {
   const client = new SpeechClient({
