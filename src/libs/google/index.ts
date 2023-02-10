@@ -1,38 +1,45 @@
-import { google as GoogleApis, sheets_v4 } from "googleapis";
+import { google as GoogleApis } from "googleapis";
 import EventEmitter from "events";
 import { GoogleAuthOptions } from "google-gax";
 import { Events } from "./types";
 
-export class Google extends EventEmitter {
+class Google extends EventEmitter {
+  private static instance: Google;
+  private authenticated = false;
   client: any;
   private constructor() {
     super();
   }
-  static create(auth: GoogleAuthOptions) {
-    const instance = new Google();
-    instance.auth(auth);
-    return instance;
+  static create(): Google {
+    if (!Google.instance) {
+      Google.instance = new Google();
+    }
+    return Google.instance;
   }
 
-  async auth(auth?: GoogleAuthOptions) {
-    const authentication = new GoogleApis.auth.GoogleAuth(auth);
-    this.client = await authentication.getClient();
-    this.emit(Events.AUTHENTICATED, this.client);
+  async auth(auth: any) {
+    if (!this.authenticated) {
+      const authentication = new GoogleApis.auth.GoogleAuth(auth);
+      this.client = await authentication.getClient();
+      this.emit(Events.AUTHENTICATED, this.client);
+      console.log("Google authenticated!!!");
+      this.authenticated = true;
+    }
+    return this.client;
   }
 
-  async sheets() {
+  get spreadsheets() {
     return GoogleApis.sheets({
       version: "v4",
-      auth: await this.client,
-    });
+      auth: this.client,
+    }).spreadsheets;
   }
 
-  async people() {
-    const people = await GoogleApis.people({
+  get people() {
+    return GoogleApis.people({
       version: "v1",
       auth: this.client,
-    });
-    return people;
+    }).people;
   }
 }
 

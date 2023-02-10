@@ -1,4 +1,4 @@
-import { GOOGLE } from "@libs/google/types";
+import { GOOGLE, AUTH } from "@libs/google/types";
 import { config as env } from "dotenv";
 
 export const configs = {
