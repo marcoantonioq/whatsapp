@@ -274,7 +274,7 @@ export class API extends Events {
                     if (isRegistered) {
                       const message = new Message();
                       message.data.to = number;
-                      await message.updateDataWithMsg(msg);
+                      await message.create(msg);
                       await message.replaceNomeContact();
                       this.mensagens.push(message);
                       await message.save();

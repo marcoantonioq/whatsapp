@@ -1,7 +1,9 @@
 import { google as GoogleApis } from "googleapis";
 import EventEmitter from "events";
-import { GoogleAuthOptions } from "google-gax";
-import { Events } from "./types";
+
+export enum Events {
+  AUTHENTICATED = "authenticated",
+}
 
 class Google extends EventEmitter {
   private static instance: Google;
@@ -22,7 +24,6 @@ class Google extends EventEmitter {
       const authentication = new GoogleApis.auth.GoogleAuth(auth);
       this.client = await authentication.getClient();
       this.emit(Events.AUTHENTICATED, this.client);
-      console.log("Google authenticated!!!");
       this.authenticated = true;
     }
     return this.client;
@@ -40,6 +41,20 @@ class Google extends EventEmitter {
       version: "v1",
       auth: this.client,
     }).people;
+  }
+
+  get speech() {
+    return GoogleApis.speech({
+      version: "v1",
+      auth: this.client,
+    }).speech;
+  }
+
+  get search() {
+    return GoogleApis.customsearch({
+      version: "v1",
+      auth: this.client,
+    }).cse;
   }
 }
 

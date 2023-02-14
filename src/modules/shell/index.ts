@@ -1,21 +1,19 @@
-import QrCodeConsole from "./app/qr-code";
+import QrConsole from "./app/qr-console";
 import RebootSystem from "./app/reboot-system";
-import RepoShell from "./infra/repo-mem";
+import RepoShell from "./infra/repository";
 
-import { Module as ModuleType } from "@types";
+import { EventsWhatsapp, Module as ModuleType } from "@types";
 
-export class Module implements ModuleType {
+export const module = <ModuleType>{
   async initialize(app: import("events")): Promise<Boolean> {
     const repo = new RepoShell([]);
 
-    const rebootSystem = new RebootSystem(repo);
-    const qrCodeConsole = new QrCodeConsole(repo);
-    app.on("qr", async (qr) => {
-      qrCodeConsole.execute(qr);
+    app.on(EventsWhatsapp.QR_RECEIVED, async (qr) => {
+      new QrConsole(repo).execute(qr);
     });
-    app.on("disconnected", (reason) => {
-      // rebootSystem.execute();
+    app.on(EventsWhatsapp.DISCONNECTED, (reason) => {
+      new RebootSystem(repo).execute();
     });
     return true;
-  }
-}
+  },
+};
