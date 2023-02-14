@@ -2,17 +2,21 @@ import EventEmitter from "events";
 import * as puppeteer from "puppeteer";
 
 export interface Module {
+  id: string;
   initialize(app: EventEmitter): Promise<any>;
 }
 
 export interface WhatsappSettings {
   clientId: string;
+  ID_API: string;
   puppeteer: puppeteer.PuppeteerNodeLaunchOptions & puppeteer.ConnectOptions;
 }
 
 export enum EventsApp {
   READY = "ready",
-  UPDATE_CONTACT = "update-contact",
+  CONTACTS_GET = "get-contact",
+  CONTACTS_UPDATE = "update-contact",
+  SEND_API = "send-api",
 }
 
 export enum EventsWhatsapp {
@@ -35,4 +39,22 @@ export enum EventsWhatsapp {
   BATTERY_CHANGED = "change_battery",
   REMOTE_SESSION_SAVED = "remote_session_saved",
   CALL = "call",
+}
+
+export interface AUTH {
+  type: string;
+  project_id: string;
+  private_key: string;
+  client_email: string;
+  client_id: string;
+  auth_uri: string;
+  token_uri: string;
+  auth_provider_x509_cert_url: string;
+  client_x509_cert_url: string;
+}
+export interface GOOGLE {
+  AUTH: AUTH;
+  GOOGLE_KEY: string;
+  SEARCH_ID: string;
+  SHEET_DOC_ID: string;
 }

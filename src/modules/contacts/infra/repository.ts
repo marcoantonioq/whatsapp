@@ -1,12 +1,12 @@
 import { Contato, InterfaceRepository } from "../core/Contacts";
 
-export class RepositoryMemory implements InterfaceRepository {
-  constructor(private readonly data: Array<Contato>) {}
+export class Repository implements InterfaceRepository {
+  constructor(private readonly data: Contato[]) {}
   async clean(): Promise<Boolean> {
     this.data.slice(0, this.data.length);
     return true;
   }
-  async index(): Promise<Contato[]> {
+  async list(): Promise<Contato[]> {
     return this.data;
   }
   async add(contato: Contato): Promise<Boolean> {

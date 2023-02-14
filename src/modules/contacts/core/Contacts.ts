@@ -73,7 +73,7 @@ export class Contato implements DSContatos {
 }
 
 export interface InterfaceRepository {
-  index(): Promise<Contato[]>;
+  list(): Promise<Contato[]>;
   add(contato: Contato): Promise<Boolean>;
   delete(contato: Contato): Promise<Boolean>;
   clean(): Promise<Boolean>;
