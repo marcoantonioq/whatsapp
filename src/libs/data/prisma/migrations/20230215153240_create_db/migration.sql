@@ -27,8 +27,9 @@ CREATE TABLE "Grupos" (
 
 -- CreateTable
 CREATE TABLE "Messages" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "to" TEXT NOT NULL,
+    "displayName" TEXT,
     "serialized" TEXT,
     "body" TEXT,
     "from" TEXT,

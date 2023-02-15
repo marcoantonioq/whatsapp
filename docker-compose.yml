@@ -16,20 +16,20 @@ services:
   whatsapp:
     image: whatsapp
     container_name: whatsapp
+    user: node
     build:
       context: .
       dockerfile: Dockerfile
     restart: always
     depends_on:
       - db
-    links: 
-      - db:database
     ports:
       - 3010:3010
     volumes:
       - ./:/app
     networks:
       - backend
+    command: npm run dev
 networks:
   backend:
 volumes:
