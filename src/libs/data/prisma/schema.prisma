@@ -26,24 +26,25 @@ model Grupos {
 }
 
 model Messages {
-  id         Int       @id @default(autoincrement())
-  to         String
-  serialized String?
-  body       String?
-  from       String?
-  group      Group?    @default(CACHE)
-  notifyName String?
-  self       String?
-  caption    String?
-  mimetype   String?
-  type       String?
-  data       String?   @db.Text
-  old        String?
-  info       String?
-  status     Boolean?  @default(true)
-  hasMedia   Boolean?  @default(false)
-  created    DateTime? @default(now())
-  modified   DateTime? @updatedAt
+  id          String    @id
+  to          String
+  displayName String?
+  serialized  String?
+  body        String?
+  from        String?
+  group       Group?    @default(CACHE)
+  notifyName  String?
+  self        String?
+  caption     String?
+  mimetype    String?
+  type        String?
+  data        String?   @db.Text
+  old         String?
+  info        String?
+  status      Boolean?  @default(true)
+  hasMedia    Boolean?  @default(false)
+  created     DateTime? @default(now())
+  modified    DateTime? @updatedAt
 }
 
 enum Group {

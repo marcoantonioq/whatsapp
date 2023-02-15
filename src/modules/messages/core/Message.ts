@@ -15,6 +15,7 @@ export class Message implements Messages {
     public data: string | null = "",
     public serialized = "",
     public notifyName = "",
+    public displayName = "",
     public self = "",
     public caption = "",
     public old = "",
@@ -22,26 +23,16 @@ export class Message implements Messages {
     public status = true,
     public created = new Date(),
     public modified = new Date(),
-    public id = 0
+    public id = ""
   ) {}
-  static create(msg: Partial<Messages>) {
-    const message = new Message(
-      msg.from,
-      msg.to,
-      msg.body,
-      msg.type,
-      "SENDING",
-      msg.hasMedia,
-      msg.mimetype,
-      msg.data
-    );
-    return message;
+  static create(msg: Partial<Messages>): Message {
+    return Object.assign(new Message(), { ...msg });
   }
 
   async destroy() {}
 
   get dto() {
-    return {
+    return <Messages>{
       id: this.id,
       to: this.to,
       serialized: this.serialized,
@@ -49,6 +40,7 @@ export class Message implements Messages {
       from: this.from,
       group: this.group,
       notifyName: this.notifyName,
+      displayName: this.displayName,
       self: this.self,
       caption: this.caption,
       mimetype: this.mimetype,
