@@ -17,7 +17,7 @@ export const module = <ModuleType>{
         "marco",
         (_base64Qrimg, asciiQR, _attempts, urlCode) => {
           app.emit(EventsWhatsapp.QR_RECEIVED, urlCode);
-          console.log("Terminal qrcode:\n ", asciiQR);
+          // console.log("Terminal qrcode:\n ", asciiQR);
         },
         (statusSession, session) => {
           console.log("Status Session: ", statusSession);
@@ -27,7 +27,7 @@ export const module = <ModuleType>{
         {
           autoClose: 30000,
           folderNameToken: "tokens",
-          mkdirFolderToken: "/node_modules",
+          mkdirFolderToken: "./out",
         }
       )
       .then(async (client) => {
