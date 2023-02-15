@@ -26,6 +26,8 @@ export const module = <ModuleType>{
         },
         {
           autoClose: 30000,
+          folderNameToken: "tokens",
+          mkdirFolderToken: "/node_modules",
         }
       )
       .then(async (client) => {
