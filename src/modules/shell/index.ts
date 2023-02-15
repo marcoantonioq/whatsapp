@@ -8,9 +8,9 @@ export const module = <ModuleType>{
   async initialize(app: import("events")): Promise<Boolean> {
     const repo = new RepoShell([]);
 
-    app.on(EventsWhatsapp.QR_RECEIVED, async (qr) => {
-      new QrConsole(repo).execute(qr);
-    });
+    // app.on(EventsWhatsapp.QR_RECEIVED, async (qr) => {
+    //   new QrConsole(repo).execute(qr);
+    // });
     app.on(EventsWhatsapp.DISCONNECTED, (reason) => {
       new RebootSystem(repo).execute();
     });

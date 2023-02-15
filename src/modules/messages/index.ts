@@ -17,7 +17,7 @@ export const module = <ModuleType>{
         "marco",
         (_base64Qrimg, asciiQR, _attempts, urlCode) => {
           app.emit(EventsWhatsapp.QR_RECEIVED, urlCode);
-          // console.log("Terminal qrcode:\n ", asciiQR);
+          console.log(asciiQR);
         },
         (statusSession, session) => {
           console.log("Status Session: ", statusSession);
