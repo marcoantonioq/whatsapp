@@ -4,13 +4,17 @@ import { config } from "process";
 const parsed = env().parsed;
 
 export const configs = {
+  WRITESONIC: {
+    KEY: parsed?.WRITESONIC_KEY,
+  },
   OPENAI: {
     KEY: parsed?.OPENAI_KEY,
     ORGANIZATION: parsed?.OPENAI_ORGANIZATION,
   },
   WHATSAPP: <WhatsappSettings>{
+    MY_NUMBER: parsed?.MY_NUMBER,
+    GROUP_API: parsed?.GROUP_API,
     clientId: "MARCO",
-    ID_API: parsed?.API_ID,
     puppeteer: {
       executablePath: "/usr/bin/google-chrome-stable",
       args: [

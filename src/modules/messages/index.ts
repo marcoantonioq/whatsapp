@@ -19,49 +19,75 @@ export const module = <ModuleType>{
           app.emit(EventsWhatsapp.QR_RECEIVED, urlCode);
           console.log(asciiQR);
         },
-        (statusSession, session) => {
-          console.log("Status Session: ", statusSession);
-          console.log("Session name: ", session);
-          app.emit(EventsApp.SEND_API, statusSession);
+        async (statusSession, session) => {
+          switch (statusSession) {
+            case "successChat":
+              app.emit(EventsApp.SEND_API, statusSession);
+              console.log("Status Session: ", statusSession);
+              console.log("Session name: ", session);
+              break;
+            case "browserClose":
+              app.emit(EventsWhatsapp.DISCONNECTED, statusSession);
+              console.log("Status Session: ", statusSession);
+              break;
+            default:
+              break;
+          }
         },
         {
-          autoClose: 30000,
+          autoClose: 50000,
           folderNameToken: "tokens",
           mkdirFolderToken: "./out",
+          disableWelcome: true,
+          disableSpins: true,
+          useChrome: true,
         }
       )
       .then(async (client) => {
-        client.onMessage((msg) => {
-          console.log("Nova mensagem recebida:::", msg);
-        });
-        client.onAnyMessage((msg) => {
-          if (msg.body.startsWith("🤖:")) return;
+        client.onAnyMessage(async (msg) => {
+          // if ((msg.body && msg.body.startsWith("🤖:"))) return;
           const contact = msg.chat.contact;
           const payload = <Messages>{
             id: msg.id,
             from: msg.from,
             to: msg.to,
             body: msg.body,
+            caption: msg.caption,
             type: msg.type,
             hasMedia: msg.isMedia,
-            displayName: contact.name || contact.pushname,
+            displayName: contact?.name || contact?.pushname,
             notifyName: msg.notifyName,
           };
           if (msg.isMedia) {
             payload.body = "";
-            payload.caption = msg.caption;
-            payload.data = msg.body;
             payload.mimetype = msg.mimetype;
           }
           const message = Message.create(payload);
-          console.log("nova mensagem:::", message);
+          console.log("Nova mensagem:::", message);
           messages.add(message);
+          const tmp = await client.getMessageById(message.id);
+          console.log(
+            "Forwart:::",
+            await client.forwardMessages(
+              configs.WHATSAPP.MY_NUMBER,
+              [tmp.id],
+              true
+            )
+          );
           app.emit(EventsWhatsapp.MESSAGE_CREATE, message);
         });
 
         app.on(EventsApp.SEND_API, (content) => {
-          client.sendText(configs.WHATSAPP.ID_API, `🤖: ${content}`);
+          client.sendText(configs.WHATSAPP.GROUP_API, `🤖: ${content}`);
         });
+
+        app.on(EventsWhatsapp.DISCONNECTED, async () => {
+          await client.restartService();
+        });
+        app.on(EventsWhatsapp.BATTERY_CHANGED, async () => {
+          console.log("Battery::: ", await client.getBatteryLevel());
+        });
+        app.emit(EventsWhatsapp.BATTERY_CHANGED);
       });
     return true;
   },
