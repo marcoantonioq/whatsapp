@@ -7,6 +7,7 @@ import { filterAsync } from "../../../libs/util/ArrayFunction";
 import { api } from "./MAIN";
 import { textResponse as gptSearch } from "../../../libs/openai/core/OpenAI";
 import { search as googleSearch, speechToTextOGG } from "../../google/Google";
+import configs from "@config/index";
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
@@ -102,7 +103,7 @@ export class API extends Events {
   isToAPI(msg: msg) {
     return !msg.body.startsWith("🤖:") &&
       msg.fromMe &&
-      msg.to === process.env.API_ID
+      msg.to === configs.WHATSAPP.GROUP_API
       ? true
       : false;
   }

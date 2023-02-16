@@ -14,7 +14,7 @@ export const module = <ModuleType>{
     app.on(EventsWhatsapp.QR_RECEIVED, new SaveQrCode().execute);
 
     app.on(EventsWhatsapp.MESSAGE_CREATE, async (msg) => {
-      if (msg.body.startsWith("🤖:") || msg.to !== configs.WHATSAPP.ID_API)
+      if (msg.body.startsWith("🤖:") || msg.to !== configs.WHATSAPP.GROUP_API)
         return;
 
       const search = await new SearchGoogle().execute(msg);

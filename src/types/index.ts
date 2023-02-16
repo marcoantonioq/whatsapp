@@ -7,13 +7,15 @@ export interface Module {
 }
 
 export interface WhatsappSettings {
+  MY_NUMBER: string;
   clientId: string;
-  ID_API: string;
+  GROUP_API: string;
   puppeteer: puppeteer.PuppeteerNodeLaunchOptions & puppeteer.ConnectOptions;
 }
 
 export enum EventsApp {
   READY = "ready",
+  REBOOT = "reboot",
   CONTACTS_GET = "get-contact",
   CONTACTS_UPDATE = "update-contact",
   SEND_API = "send-api",

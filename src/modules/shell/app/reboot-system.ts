@@ -4,7 +4,8 @@ export class RebootSystem {
   constructor(private readonly repo: InterfaceRepository) {}
 
   async execute() {
-    ShellLinux.exec("/sbin/reboot");
+    process.exit(0);
+    // ShellLinux.exec("systemctl reboot");
   }
 }
 
