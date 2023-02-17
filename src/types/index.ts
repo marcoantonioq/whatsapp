@@ -6,18 +6,12 @@ export interface Module {
   initialize(app: EventEmitter): Promise<any>;
 }
 
-export interface WhatsappSettings {
-  MY_NUMBER: string;
-  clientId: string;
-  GROUP_API: string;
-  puppeteer: puppeteer.PuppeteerNodeLaunchOptions & puppeteer.ConnectOptions;
-}
-
 export enum EventsApp {
   READY = "ready",
   REBOOT = "reboot",
   MESSAGES = "messages",
   MESSAGE_CREATE = "message_create",
+  FORWARD_MESSAGES = "forward_messages",
   CONTACTS_GET = "get_contact",
   CONTACTS_UPDATE = "update_contact",
   SEND_API = "send_api",

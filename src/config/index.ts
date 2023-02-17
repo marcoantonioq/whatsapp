@@ -1,4 +1,4 @@
-import { WhatsappSettings, GOOGLE } from "@types";
+import { GOOGLE } from "@types";
 import { config as env } from "dotenv";
 import { config } from "process";
 const parsed = env().parsed;
@@ -11,9 +11,10 @@ export const configs = {
     KEY: parsed?.OPENAI_KEY,
     ORGANIZATION: parsed?.OPENAI_ORGANIZATION,
   },
-  WHATSAPP: <WhatsappSettings>{
-    MY_NUMBER: parsed?.MY_NUMBER,
-    GROUP_API: parsed?.GROUP_API,
+  WHATSAPP: {
+    MY_NUMBER: parsed?.MY_NUMBER || "",
+    GROUP_API: parsed?.GROUP_API || "",
+    GROUP_SEND: parsed?.GROUP_SEND || "",
     clientId: "MARCO",
   },
   GOOGLE: <GOOGLE>{

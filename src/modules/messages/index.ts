@@ -30,7 +30,6 @@ export const module = <ModuleType>{
     // Add Message Repository
     whatsapp.on(EventsWhatsapp.MESSAGE_CREATE, async (msg) => {
       messages.add(msg);
-      console.log("Mensagens: ", await messages.messages());
       app.emit(EventsApp.MESSAGE_CREATE, msg);
     });
 
@@ -38,24 +37,22 @@ export const module = <ModuleType>{
      * APP => WHATSAPP
      */
     // messages
-    app.on(EventsApp.MESSAGES, (call) => {
-      call(messages.messages);
+    app.on(EventsApp.MESSAGES, async (call) => {
+      try {
+        call(messages.messages);
+      } catch (e) {
+        console.log("Ger messages:::", e);
+      }
+      return messages.messages;
     });
     // Enviar mensagem para grupo API
     app.on(EventsApp.SEND_API, async (content) => {
       await whatsapp.sendText(configs.WHATSAPP.GROUP_API, `🤖: ${content}`);
     });
-
-    /**
-     * Testes
-     */
-
-    whatsapp.on(EventsWhatsapp.MESSAGE_CREATE, async (msg) => {
-      if (msg.to === "120363047718493579@g.us") {
-        await whatsapp.forwardMessages("556284972385@c.us", [msg]);
-      }
+    // Encaminhar mensagens para o numero
+    app.on(EventsApp.FORWARD_MESSAGES, async (to: string, msgs: any[]) => {
+      await whatsapp.forwardMessages(to, msgs);
     });
-
     return true;
   },
 };
