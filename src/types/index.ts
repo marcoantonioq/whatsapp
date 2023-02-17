@@ -16,9 +16,12 @@ export interface WhatsappSettings {
 export enum EventsApp {
   READY = "ready",
   REBOOT = "reboot",
-  CONTACTS_GET = "get-contact",
-  CONTACTS_UPDATE = "update-contact",
-  SEND_API = "send-api",
+  MESSAGES = "messages",
+  MESSAGE_CREATE = "message_create",
+  CONTACTS_GET = "get_contact",
+  CONTACTS_UPDATE = "update_contact",
+  SEND_API = "send_api",
+  STATUS = "app_status",
 }
 
 export enum EventsWhatsapp {

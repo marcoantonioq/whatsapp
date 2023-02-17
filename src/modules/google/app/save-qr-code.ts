@@ -6,7 +6,6 @@ export class SaveQrCode {
   constructor(private readonly repo?: any) {}
 
   async execute(qr: string) {
-    const contatos: Contato[] = [];
     const google = Google.create();
     await google.auth({
       credentials: configs.GOOGLE.AUTH,

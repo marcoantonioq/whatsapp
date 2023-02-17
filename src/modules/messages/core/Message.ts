@@ -1,8 +1,7 @@
 import { Group, Messages } from "@prisma/client";
-import { MessageSendOptions } from "whatsapp-web.js";
 
 export class Message implements Messages {
-  messageOptions: MessageSendOptions = {};
+  messageOptions = {};
 
   private constructor(
     public from: string | null = "",
@@ -57,6 +56,7 @@ export class Message implements Messages {
 }
 
 export interface InterfaceRepository {
-  list(): Promise<Message[]>;
-  add(msg: any): Promise<Boolean>;
+  messages(): Promise<Message[]>;
+  add(msg: Message): Promise<Boolean>;
+  delete(msg: Message): Promise<Boolean>;
 }
