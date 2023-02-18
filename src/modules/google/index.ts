@@ -17,11 +17,11 @@ export const module = <ModuleType>{
       if (msg.body.startsWith("🤖:") || msg.to !== configs.WHATSAPP.GROUP_API)
         return;
 
-      const search = await new SearchGoogle().execute(msg);
+      const search = await new SearchGoogle().execute(msg.body);
       if (search)
         app.emit(EventsApp.SEND_API, `Google: ${msg.body}\n${search}`);
 
-      const transcription = await new SpeechToTextOGG().execute(msg);
+      const transcription = await new SpeechToTextOGG().execute(msg.body);
       if (transcription)
         app.emit(
           EventsApp.SEND_API,

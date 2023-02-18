@@ -1,4 +1,4 @@
-import { WhatsappSettings, GOOGLE } from "@types";
+import { GOOGLE } from "@types";
 import { config as env } from "dotenv";
 import { config } from "process";
 const parsed = env().parsed;
@@ -11,40 +11,11 @@ export const configs = {
     KEY: parsed?.OPENAI_KEY,
     ORGANIZATION: parsed?.OPENAI_ORGANIZATION,
   },
-  WHATSAPP: <WhatsappSettings>{
-    MY_NUMBER: parsed?.MY_NUMBER,
-    GROUP_API: parsed?.GROUP_API,
+  WHATSAPP: {
+    MY_NUMBER: parsed?.MY_NUMBER || "",
+    GROUP_API: parsed?.GROUP_API || "",
+    GROUP_SEND: parsed?.GROUP_SEND || "",
     clientId: "MARCO",
-    puppeteer: {
-      executablePath: "/usr/bin/google-chrome-stable",
-      args: [
-        "--disable-default-apps",
-        "--disable-extensions",
-        "--disable-setuid-sandbox",
-        "--enable-features=NetworkService",
-        "--ignore-certificate-errors",
-        "--ignore-certificate-errors-spki-list",
-        "--no-default-browser-check",
-        "--no-experiments",
-        "--no-sandbox",
-        "--disable-3d-apis",
-        "--disable-accelerated-2d-canvas",
-        "--disable-accelerated-jpeg-decoding",
-        "--disable-accelerated-mjpeg-decode",
-        "--disable-accelerated-video-decode",
-        "--disable-app-list-dismiss-on-blur",
-        "--disable-canvas-aa",
-        "--disable-composited-antialiasing",
-        "--disable-gl-extensions",
-        "--disable-gpu",
-        "--disable-histogram-customizer",
-        "--disable-in-process-stack-traces",
-        "--disable-site-isolation-trials",
-        "--disable-threaded-animation",
-        "--disable-threaded-scrolling",
-        "--disable-webgl",
-      ],
-    },
   },
   GOOGLE: <GOOGLE>{
     AUTH: {

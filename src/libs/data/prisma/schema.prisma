@@ -9,14 +9,14 @@ datasource db {
 
 model Contatos {
   id          String    @id
-  nome        String
-  telefones   String?
-  grupos      String?
+  address     String?
   aniversario String?
   email       String?
-  address     String?
+  grupos      String?
+  nome        String
   notas       String?
   status      Boolean?  @default(true)
+  telefones   String?
   modified    DateTime? @updatedAt
   created     DateTime? @default(now())
 }
@@ -27,28 +27,28 @@ model Grupos {
 
 model Messages {
   id          String    @id
-  to          String
-  displayName String?
-  serialized  String?
   body        String?
+  caption     String?
+  data        String?   @db.Text
+  displayName String?
   from        String?
   group       Group?    @default(CACHE)
-  notifyName  String?
-  self        String?
-  caption     String?
-  mimetype    String?
-  type        String?
-  data        String?   @db.Text
-  old         String?
-  info        String?
-  status      Boolean?  @default(true)
   hasMedia    Boolean?  @default(false)
+  info        String?
+  mimetype    String?
+  notifyName  String?
+  old         String?
+  self        String?
+  serialized  String?
+  status      Boolean?  @default(true)
+  to          String
+  type        String?
   created     DateTime? @default(now())
   modified    DateTime? @updatedAt
 }
 
 enum Group {
-  SENDING
-  CANCELED
   CACHE
+  CANCELED
+  SENDING
 }

@@ -1,17 +1,17 @@
 -- CreateEnum
-CREATE TYPE "Group" AS ENUM ('SENDING', 'CANCELED', 'CACHE');
+CREATE TYPE "Group" AS ENUM ('CACHE', 'CANCELED', 'SENDING');
 
 -- CreateTable
 CREATE TABLE "Contatos" (
     "id" TEXT NOT NULL,
-    "nome" TEXT NOT NULL,
-    "telefones" TEXT,
-    "grupos" TEXT,
+    "address" TEXT,
     "aniversario" TEXT,
     "email" TEXT,
-    "address" TEXT,
+    "grupos" TEXT,
+    "nome" TEXT NOT NULL,
     "notas" TEXT,
     "status" BOOLEAN DEFAULT true,
+    "telefones" TEXT,
     "modified" TIMESTAMP(3),
     "created" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
 
@@ -28,22 +28,22 @@ CREATE TABLE "Grupos" (
 -- CreateTable
 CREATE TABLE "Messages" (
     "id" TEXT NOT NULL,
-    "to" TEXT NOT NULL,
-    "displayName" TEXT,
-    "serialized" TEXT,
     "body" TEXT,
+    "caption" TEXT,
+    "data" TEXT,
+    "displayName" TEXT,
     "from" TEXT,
     "group" "Group" DEFAULT 'CACHE',
-    "notifyName" TEXT,
-    "self" TEXT,
-    "caption" TEXT,
-    "mimetype" TEXT,
-    "type" TEXT,
-    "data" TEXT,
-    "old" TEXT,
-    "info" TEXT,
-    "status" BOOLEAN DEFAULT true,
     "hasMedia" BOOLEAN DEFAULT false,
+    "info" TEXT,
+    "mimetype" TEXT,
+    "notifyName" TEXT,
+    "old" TEXT,
+    "self" TEXT,
+    "serialized" TEXT,
+    "status" BOOLEAN DEFAULT true,
+    "to" TEXT NOT NULL,
+    "type" TEXT,
     "created" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "modified" TIMESTAMP(3),
 

@@ -5,90 +5,54 @@ import Repository from "./infra/repository";
 import { configs } from "@config/index";
 
 import { Messages } from "@prisma/client";
-
-import * as venom from "venom-bot";
+import Whatsapp from "./core/Whatsapp";
 
 export const module = <ModuleType>{
   async initialize(app: import("events")): Promise<Boolean> {
     const messages = new Repository([]);
+    const whatsapp = await Whatsapp.create();
 
-    venom
-      .create(
-        "marco",
-        (_base64Qrimg, asciiQR, _attempts, urlCode) => {
-          app.emit(EventsWhatsapp.QR_RECEIVED, urlCode);
-          console.log(asciiQR);
-        },
-        async (statusSession, session) => {
-          switch (statusSession) {
-            case "successChat":
-              app.emit(EventsApp.SEND_API, statusSession);
-              console.log("Status Session: ", statusSession);
-              console.log("Session name: ", session);
-              break;
-            case "browserClose":
-              app.emit(EventsWhatsapp.DISCONNECTED, statusSession);
-              console.log("Status Session: ", statusSession);
-              break;
-            default:
-              break;
-          }
-        },
-        {
-          autoClose: 50000,
-          folderNameToken: "tokens",
-          mkdirFolderToken: "./out",
-          disableWelcome: true,
-          disableSpins: true,
-          useChrome: true,
-        }
-      )
-      .then(async (client) => {
-        client.onAnyMessage(async (msg) => {
-          // if ((msg.body && msg.body.startsWith("🤖:"))) return;
-          const contact = msg.chat.contact;
-          const payload = <Messages>{
-            id: msg.id,
-            from: msg.from,
-            to: msg.to,
-            body: msg.body,
-            caption: msg.caption,
-            type: msg.type,
-            hasMedia: msg.isMedia,
-            displayName: contact?.name || contact?.pushname,
-            notifyName: msg.notifyName,
-          };
-          if (msg.isMedia) {
-            payload.body = "";
-            payload.mimetype = msg.mimetype;
-          }
-          const message = Message.create(payload);
-          console.log("Nova mensagem:::", message);
-          messages.add(message);
-          const tmp = await client.getMessageById(message.id);
-          console.log(
-            "Forwart:::",
-            await client.forwardMessages(
-              configs.WHATSAPP.MY_NUMBER,
-              [tmp.id],
-              true
-            )
-          );
-          app.emit(EventsWhatsapp.MESSAGE_CREATE, message);
-        });
+    /**
+     * WHATSAPP => APP
+     */
+    // Status
+    whatsapp.on(EventsWhatsapp.STATE_CHANGED, async (state: string) => {
+      const disconnect = [
+        "DISCONNECTED",
+        "browserClose",
+        "qrReadFail",
+      ].includes(state);
+      if (disconnect) {
+        console.log("Disconnect: ", state);
+      }
+      app.emit(EventsApp.STATUS, state);
+    });
+    // Add Message Repository
+    whatsapp.on(EventsWhatsapp.MESSAGE_CREATE, async (msg) => {
+      messages.add(msg);
+      app.emit(EventsApp.MESSAGE_CREATE, msg);
+    });
 
-        app.on(EventsApp.SEND_API, (content) => {
-          client.sendText(configs.WHATSAPP.GROUP_API, `🤖: ${content}`);
-        });
-
-        app.on(EventsWhatsapp.DISCONNECTED, async () => {
-          await client.restartService();
-        });
-        app.on(EventsWhatsapp.BATTERY_CHANGED, async () => {
-          console.log("Battery::: ", await client.getBatteryLevel());
-        });
-        app.emit(EventsWhatsapp.BATTERY_CHANGED);
-      });
+    /**
+     * APP => WHATSAPP
+     */
+    // messages
+    app.on(EventsApp.MESSAGES, async (call) => {
+      try {
+        call(messages.messages);
+      } catch (e) {
+        console.log("Ger messages:::", e);
+      }
+      return messages.messages;
+    });
+    // Enviar mensagem para grupo API
+    app.on(EventsApp.SEND_API, async (content) => {
+      await whatsapp.sendText(configs.WHATSAPP.GROUP_API, `🤖: ${content}`);
+    });
+    // Encaminhar mensagens para o numero
+    app.on(EventsApp.FORWARD_MESSAGES, async (to: string, msgs: any[]) => {
+      await whatsapp.forwardMessages(to, msgs);
+    });
     return true;
   },
 };
