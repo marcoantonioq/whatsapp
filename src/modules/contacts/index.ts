@@ -1,17 +1,54 @@
-import UpdateRepo from "./app/update-repo";
+import UpdateValues from "./app/update-values";
 import { Repository } from "./infra/repository";
 import { EventsApp, Module as ModuleType } from "@types";
-import { Contato } from "./core/Contacts";
+import configs from "@config/index";
+import { Contact } from "./core/Contacts";
+
+const arrayValuesToContact = (values: any[]) => {
+  return values
+    .filter(([nome, , telefone]: [string, string, string]) => nome && telefone)
+    .map(
+      ([nome, notas, telefones, aniversario, grupos, address, id]: [
+        string,
+        string,
+        string,
+        string,
+        string,
+        string,
+        string
+      ]) =>
+        Contact.create({
+          address,
+          aniversario,
+          grupos,
+          id,
+          nome,
+          notas,
+          telefones,
+        })
+    );
+};
 
 export const module = <ModuleType>{
   async initialize(app: import("events")) {
-    const contatos = new Repository([]);
-    app.on(EventsApp.CONTACTS_UPDATE, async (contacts) => {
-      await new UpdateRepo(contatos).execute(contacts);
+    const repo = new Repository([]);
+
+    app.emit(EventsApp.GOOGLE_SHEET_GET, {
+      spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
+      range: "Contatos",
+      call: async (data: any) => {
+        const contacts = arrayValuesToContact(data.values);
+        await new UpdateValues(repo).execute(contacts);
+        app.emit(EventsApp.UPDATE, { id: "contacts", data: repo.contacts() });
+      },
     });
-    app.on(EventsApp.CONTACTS_GET, async (callback) => {
-      callback(await contatos.list());
+
+    app.on(EventsApp.CONTACTS, async (callback: Function) => {
+      const contacts = await repo.contacts();
+      if (callback) callback(contacts);
+      return contacts;
     });
+
     return true;
   },
 };

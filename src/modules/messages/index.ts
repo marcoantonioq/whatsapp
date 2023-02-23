@@ -1,58 +1,56 @@
 // https://docs.orkestral.io/venom/#/
-import { EventsApp, EventsWhatsapp, Module as ModuleType } from "@types";
-import { Message } from "./core/Message";
-import Repository from "./infra/repository";
-import { configs } from "@config/index";
+import { EventsApp, GOOGLE_SHEET_SAVE, Module as ModuleType } from "@types";
+import Repository from "./infra/repository-wppconnect";
 
-import { Messages } from "@prisma/client";
-import Whatsapp from "./core/Whatsapp";
+import StateMessages from "./app/on-state";
+import OnCreate from "./app/on-created";
+import SendMessage from "./app/send-message";
+import configs from "@config/index";
+import OnQR from "./app/on-qr";
 
 export const module = <ModuleType>{
   async initialize(app: import("events")): Promise<Boolean> {
-    const messages = new Repository([]);
-    const whatsapp = await Whatsapp.create();
+    const repo = new Repository([], app);
+    const onCreate = new OnCreate(repo);
+    const stateMessages = new StateMessages(repo);
+    const sendMessage = new SendMessage(repo);
 
-    /**
-     * WHATSAPP => APP
-     */
-    // Status
-    whatsapp.on(EventsWhatsapp.STATE_CHANGED, async (state: string) => {
-      const disconnect = [
-        "DISCONNECTED",
-        "browserClose",
-        "qrReadFail",
-      ].includes(state);
-      if (disconnect) {
-        console.log("Disconnect: ", state);
-      }
-      app.emit(EventsApp.STATUS, state);
+    // enviar
+    app.on(EventsApp.MESSAGE_SEND, (msg) => {
+      sendMessage.execute(msg);
     });
-    // Add Message Repository
-    whatsapp.on(EventsWhatsapp.MESSAGE_CREATE, async (msg) => {
-      messages.add(msg);
-      app.emit(EventsApp.MESSAGE_CREATE, msg);
+    // create message
+    app.on(EventsApp.MESSAGE_CREATE, async (msg) => {
+      onCreate.execute(msg);
+    });
+    // status
+    app.on(EventsApp.STATUS, async (state, session) => {
+      stateMessages.execute(state, session);
+    });
+    // lista de mensagens
+    app.on(EventsApp.MESSAGES, async (callback: Function) => {
+      if (callback) callback(repo);
+      return repo.messages;
     });
 
-    /**
-     * APP => WHATSAPP
-     */
-    // messages
-    app.on(EventsApp.MESSAGES, async (call) => {
-      try {
-        call(messages.messages);
-      } catch (e) {
-        console.log("Ger messages:::", e);
-      }
-      return messages.messages;
+    app.on(EventsApp.QR_RECEIVED, async (qr) => {
+      app.emit(EventsApp.GOOGLE_SHEET_SAVE, <GOOGLE_SHEET_SAVE>{
+        spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
+        values: [
+          [
+            `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`,
+          ],
+          [new Date().toLocaleString()],
+        ],
+        range: "Whatsapp!A2:A3",
+      });
+      new OnQR(repo).execute(qr);
     });
-    // Enviar mensagem para grupo API
-    app.on(EventsApp.SEND_API, async (content) => {
-      await whatsapp.sendText(configs.WHATSAPP.GROUP_API, `🤖: ${content}`);
+
+    app.on(EventsApp.READY, () => {
+      console.log("App iniciado!!!");
     });
-    // Encaminhar mensagens para o numero
-    app.on(EventsApp.FORWARD_MESSAGES, async (to: string, msgs: any[]) => {
-      await whatsapp.forwardMessages(to, msgs);
-    });
+
     return true;
   },
 };

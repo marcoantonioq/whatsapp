@@ -1,19 +1,19 @@
-import { Contato, InterfaceRepository } from "../core/Contacts";
+import { Contact, InterfaceRepository } from "../core/Contacts";
 
 export class Repository implements InterfaceRepository {
-  constructor(private readonly data: Contato[]) {}
+  constructor(private readonly data: Contact[]) {}
   async clean(): Promise<Boolean> {
     this.data.slice(0, this.data.length);
     return true;
   }
-  async list(): Promise<Contato[]> {
+  async contacts(): Promise<Contact[]> {
     return this.data;
   }
-  async add(contato: Contato): Promise<Boolean> {
+  async add(contato: Contact): Promise<Boolean> {
     this.data.push(contato);
     return true;
   }
-  async delete(contato: Contato): Promise<Boolean> {
+  async delete(contato: Contact): Promise<Boolean> {
     this.data.slice(0);
     return true;
   }

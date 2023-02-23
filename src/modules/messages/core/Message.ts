@@ -7,7 +7,7 @@ export class Message implements Messages {
     public from: string | null = "",
     public to = "",
     public body: string | null = "",
-    public type: string | null = "",
+    public type: string | null = "text",
     public group = <Group | null>"SENDING",
     public hasMedia: boolean | null = false,
     public mimetype: string | null = "",
@@ -57,6 +57,7 @@ export class Message implements Messages {
 
 export interface InterfaceRepository {
   messages(): Promise<Message[]>;
-  add(msg: Message): Promise<Boolean>;
+  send(msg: Message): Promise<Boolean>;
   delete(msg: Message): Promise<Boolean>;
+  forwardMessages(to: string, msgs: Message[]): Promise<Boolean>;
 }

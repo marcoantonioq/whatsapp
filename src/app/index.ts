@@ -11,8 +11,12 @@ export class App extends EventEmitter {
   }
 
   add(module: Module) {
-    module.initialize(this);
-    this.modules.push(module);
+    try {
+      module.initialize(this);
+      this.modules.push(module);
+    } catch (e) {
+      console.log("Erro module:::", e);
+    }
   }
 }
 
@@ -25,10 +29,10 @@ import { module as Google } from "@modules/google";
 import { module as OpenAI } from "@modules/openai";
 import { module as Sonic } from "@modules/writesonic";
 import { module as SEND } from "@modules/send";
-app.add(Shell);
-app.add(Contatos);
-app.add(Messages);
+// app.add(Messages);
+// app.add(Shell);
 app.add(Google);
-app.add(OpenAI);
-app.add(Sonic);
-app.add(SEND);
+app.add(Contatos);
+// app.add(OpenAI);
+// app.add(Sonic);
+// app.add(SEND);

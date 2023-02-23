@@ -1,11 +1,11 @@
 import configs from "@config/index";
 import Google from "../core/Google";
-import { Contato } from "@modules/contacts/core/Contacts";
+import { GOOGLE_SHEET_SAVE } from "@types";
 
 export class SaveQrCode {
   constructor(private readonly repo?: any) {}
 
-  async execute(qr: string) {
+  async execute({ range, values, spreadsheetId }: GOOGLE_SHEET_SAVE) {
     const google = Google.create();
     await google.auth({
       credentials: configs.GOOGLE.AUTH,
@@ -13,16 +13,11 @@ export class SaveQrCode {
     });
 
     const updateValue = await google.spreadsheets.values.update({
-      spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
+      spreadsheetId,
       valueInputOption: "USER_ENTERED",
-      range: "Whatsapp!A2:A3",
+      range,
       requestBody: {
-        values: [
-          [
-            `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`,
-          ],
-          [new Date().toLocaleString()],
-        ],
+        values,
       },
     });
     return updateValue;

@@ -1,20 +1,13 @@
-import { Agenda } from "../../contacts/core/Contacts";
-import { Message } from "../../messages/core/Message-bkp";
-import { Client, Message as msg } from "whatsapp-web.js";
 import Events from "events";
 import { formatWhatsapp } from "../../../libs/phone";
 import { filterAsync } from "../../../libs/util/ArrayFunction";
-import { api } from "./MAIN";
-import { textResponse as gptSearch } from "../../../libs/openai/core/OpenAI";
-import { search as googleSearch, speechToTextOGG } from "../../google/Google";
-import configs from "@config/index";
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
 /**
  * Grupo API do whatsapp 🤖
  */
-export class API extends Events {
+export class Send extends Events {
   private _locks: Array<string> = [];
   private _numbers: Array<string> = [];
   timeOut = [setTimeout(() => {}, 1000)];
@@ -298,4 +291,4 @@ export class API extends Events {
   }
 }
 
-export default API;
+export default Send;

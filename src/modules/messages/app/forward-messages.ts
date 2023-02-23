@@ -1,13 +1,15 @@
+import { Message } from "../core/Message";
+
 interface params {
-  number: string;
-  ids: string[];
+  to: string;
+  msgs: Message[];
 }
 
 export class ForwardMessages {
   constructor(private readonly repo?: any) {}
 
-  async execute(params: params) {
-    console.log("Encaminhar novas mensagens: ", params);
+  async execute({ to, msgs }: params) {
+    this.repo.forwardMessages(to, msgs);
   }
 }
 export default ForwardMessages;
