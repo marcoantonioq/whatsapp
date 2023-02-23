@@ -1,11 +1,10 @@
 // https://docs.orkestral.io/venom/#/
-import { EventsApp, GOOGLE_SHEET_SAVE, Module as ModuleType } from "@types";
+import { EventsApp, Module as ModuleType } from "@types";
 import Repository from "./infra/repository-wppconnect";
 
 import StateMessages from "./app/on-state";
 import OnCreate from "./app/on-created";
 import SendMessage from "./app/send-message";
-import configs from "@config/index";
 import OnQR from "./app/on-qr";
 
 export const module = <ModuleType>{
@@ -34,21 +33,16 @@ export const module = <ModuleType>{
     });
 
     app.on(EventsApp.QR_RECEIVED, async (qr) => {
-      app.emit(EventsApp.GOOGLE_SHEET_SAVE, <GOOGLE_SHEET_SAVE>{
-        spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
-        values: [
-          [
-            `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`,
-          ],
-          [new Date().toLocaleString()],
-        ],
-        range: "Whatsapp!A2:A3",
-      });
       new OnQR(repo).execute(qr);
     });
 
     app.on(EventsApp.READY, () => {
       console.log("App iniciado!!!");
+    });
+
+    app.on(EventsApp.FORWARD_MESSAGES, (params) => {
+      console.log("Forward messages: ", params);
+      repo.forwardMessages(params.to, params.msgs);
     });
 
     return true;

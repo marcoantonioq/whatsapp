@@ -1,7 +1,38 @@
-import { Module } from "@types";
+import { EventsApp, GOOGLE_SHEET_GET, Module } from "@types";
 import EventEmitter from "events";
 
-export class App extends EventEmitter {
+declare interface App {
+  on(
+    event: EventsApp.UPDATE,
+    listener: (event: { id: string; data: any }) => void
+  ): this;
+  on(event: string, listener: Function): this;
+  emit(
+    event: EventsApp.GOOGLE_SHEET_GET,
+    params: {
+      spreadsheetId: string;
+      range: string;
+      listener: Function;
+    }
+  ): boolean;
+  emit(
+    event: EventsApp.CONTACTS,
+    params: {
+      listener: (contacts: Contact[]) => void;
+      update?: Boolean;
+    }
+  ): boolean;
+  emit(
+    event: EventsApp.FORWARD_MESSAGES,
+    params: {
+      to: string;
+      msgs: Message[];
+    }
+  ): boolean;
+  emit(event: string, listener: any): boolean;
+}
+
+class App extends EventEmitter {
   readonly modules: Array<any> = [];
   private constructor() {
     super();
@@ -9,7 +40,6 @@ export class App extends EventEmitter {
   static create() {
     return new App();
   }
-
   add(module: Module) {
     try {
       module.initialize(this);
@@ -20,6 +50,8 @@ export class App extends EventEmitter {
   }
 }
 
+export default App;
+
 const app = App.create();
 
 import { module as Shell } from "@modules/shell";
@@ -29,10 +61,19 @@ import { module as Google } from "@modules/google";
 import { module as OpenAI } from "@modules/openai";
 import { module as Sonic } from "@modules/writesonic";
 import { module as SEND } from "@modules/send";
-// app.add(Messages);
-// app.add(Shell);
+import { Contact } from "@modules/contacts/core/Contacts";
+import { Message } from "@modules/messages/core/Message";
+app.add(Messages);
+app.add(Shell);
 app.add(Google);
 app.add(Contatos);
-// app.add(OpenAI);
-// app.add(Sonic);
-// app.add(SEND);
+app.add(OpenAI);
+app.add(Sonic);
+app.add(SEND);
+
+app.emit(EventsApp.CONTACTS, {
+  listener: (contatos) => {
+    // console.log(`Contatos recebidos::::::: `, contatos);
+  },
+  update: true,
+});

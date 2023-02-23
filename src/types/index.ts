@@ -9,18 +9,18 @@ export interface Module {
 export interface GOOGLE_SHEET_GET {
   spreadsheetId: string;
   range: string;
-  call: Function;
+  listener: Function;
 }
 
 export interface GOOGLE_SHEET_SAVE {
   spreadsheetId: string;
   range: string;
-  values: any[];
-  call: Function;
+  values: any[][];
+  listener?: Function;
 }
 
 export interface CONTACTS_GET {
-  call: Function;
+  listener: Function;
 }
 
 export enum EventsApp {
@@ -32,7 +32,7 @@ export enum EventsApp {
   MESSAGE_CREATE = "message_create",
   MESSAGE_SEND = "message_send",
   FORWARD_MESSAGES = "forward_messages",
-  CONTACTS = "contacts_get",
+  CONTACTS = "contacts",
   STATUS = "app_status",
   GOOGLE_SHEET_GET = "google_sheet_get",
   GOOGLE_SHEET_SAVE = "google_sheet_save",

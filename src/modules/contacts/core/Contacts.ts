@@ -60,6 +60,11 @@ export class Contact implements DSContatos {
       .join(", ");
   }
 
+  isGroup(grupo: string) {
+    if (!grupo || grupo === "") return false;
+    return !!this.grupos?.includes(grupo);
+  }
+
   getJSON() {
     return JSON.stringify({
       id: this.id,
@@ -79,7 +84,7 @@ export class Contact implements DSContatos {
 
 export interface InterfaceRepository {
   contacts(): Promise<Contact[]>;
-  add(contato: Contact): Promise<Boolean>;
+  save(contato: Contact): Promise<Boolean>;
   delete(contato: Contact): Promise<Boolean>;
   clean(): Promise<Boolean>;
 }

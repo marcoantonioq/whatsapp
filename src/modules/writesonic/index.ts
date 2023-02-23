@@ -26,9 +26,7 @@ export const module = <ModuleType>{
               })
             );
         }
-      } catch (e) {
-        console.log("Error writesonic:: ", e);
-      }
+      } catch (e) {}
     });
 
     return true;

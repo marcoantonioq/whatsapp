@@ -10,7 +10,7 @@ export const module = <ModuleType>{
   async initialize(app: import("events")) {
     app.on(
       EventsApp.GOOGLE_SHEET_GET,
-      async ({ spreadsheetId, range, call }: GOOGLE_SHEET_GET) => {
+      async ({ spreadsheetId, range, listener: call }: GOOGLE_SHEET_GET) => {
         const contatos = await new GetValuesInSheet().execute(
           spreadsheetId,
           range
@@ -19,7 +19,18 @@ export const module = <ModuleType>{
       }
     );
 
-    app.on(EventsApp.QR_RECEIVED, new SaveQrCode().execute);
+    app.on(EventsApp.QR_RECEIVED, (qr) => {
+      return new SaveQrCode().execute({
+        spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
+        values: [
+          [
+            `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`,
+          ],
+          [new Date().toLocaleString()],
+        ],
+        range: "Whatsapp!A2:A3",
+      });
+    });
 
     app.on(EventsApp.MESSAGE_CREATE, async (msg) => {
       if (
