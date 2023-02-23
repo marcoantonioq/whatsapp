@@ -16,7 +16,7 @@
   "dependencies": {
     "@google-cloud/speech": "^5.2.0",
     "@prisma/client": "^4.9.0",
-    "@wppconnect-team/wppconnect": "^1.21.0",
+    "@wppconnect-team/wppconnect": "^1.22.0",
     "api": "^5.0.7",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",

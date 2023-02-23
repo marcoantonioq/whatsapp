@@ -1,10 +1,7 @@
-// https://docs.orkestral.io/venom/#/
 import { EventsApp, EventsWhatsapp, Module as ModuleType } from "@types";
-import { Message } from "./core/Message";
 import Repository from "./infra/repository";
 import { configs } from "@config/index";
 
-import { Messages } from "@prisma/client";
 import Whatsapp from "./core/Whatsapp";
 
 export const module = <ModuleType>{

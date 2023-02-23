@@ -1,4 +1,5 @@
 import { Message, InterfaceRepository } from "../core/Message";
+// https://docs.orkestral.io/venom/#/
 export class Repository implements InterfaceRepository {
   constructor(private readonly data: Message[]) {}
   async messages(): Promise<Message[]> {

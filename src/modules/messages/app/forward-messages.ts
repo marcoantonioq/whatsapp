@@ -1,6 +1,6 @@
 interface params {
   number: string;
-  msgs_id: string[];
+  ids: string[];
 }
 
 export class ForwardMessages {
