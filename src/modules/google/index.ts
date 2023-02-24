@@ -39,7 +39,7 @@ export const module = <ModuleType>{
       )
         return;
 
-      if (msg.body.match(/\?$/gi)) {
+      if (msg.body.split(" ").length > 1 && msg.body.match(/\?$/gi)) {
         const search = await new SearchGoogle().execute(msg.body);
         if (search)
           app.emit(

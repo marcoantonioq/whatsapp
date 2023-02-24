@@ -9,11 +9,11 @@ export const module = <ModuleType>{
   async initialize(app: App) {
     const repo = new Repository([]);
     app.on(EventsApp.MESSAGE_CREATE, async (msg) => {
-      if (
-        (msg.body && msg.body.startsWith("🤖:")) ||
-        msg.to !== configs.WHATSAPP.GROUP_API
-      )
+      if (!msg.body) return;
+      if (msg.body.startsWith("🤖:") || msg.to !== configs.WHATSAPP.GROUP_API)
         return;
+
+      if (msg.body.split(" ").length < 2) return;
 
       const result = await new GetText(repo).execute({
         to: msg.to,

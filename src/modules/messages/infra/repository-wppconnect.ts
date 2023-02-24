@@ -148,6 +148,20 @@ export class Repository implements InterfaceRepository {
   async clearChat(chatID: string) {
     return this.whatsapp.clearChat(chatID);
   }
+
+  async getContact(contactID: string) {
+    const { name, id, isMyContact, isBusiness, shortName, pushname, labels } =
+      await this.whatsapp.getContact(contactID);
+    return {
+      id,
+      name,
+      isMyContact,
+      isBusiness,
+      shortName,
+      pushname,
+      labels,
+    };
+  }
 }
 
 export default Repository;
