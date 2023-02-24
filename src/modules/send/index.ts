@@ -44,6 +44,16 @@ export const module = <ModuleType>{
       );
     };
 
+    const sendSEND = (body: string) => {
+      app.emit(
+        EventsApp.MESSAGE_SEND,
+        Message.create({
+          to: configs.WHATSAPP.GROUP_SEND,
+          body,
+        })
+      );
+    };
+
     app.on(EventsApp.MESSAGE_CREATE, async (msg: Message) => {
       if (
         msg.body &&
@@ -53,15 +63,19 @@ export const module = <ModuleType>{
         if (msg.body?.match(/^(reboot|cancelar|sair|exit)$/gi)) {
           numbers = [];
           sending = false;
-          app.emit(
-            EventsApp.MESSAGE_SEND,
-            Message.create({
-              to: configs.WHATSAPP.GROUP_SEND,
-              body: `⏹️ Paramos encaminhar msg para os números citados!`,
-            })
+          sendSEND(`⏹️ Paramos encaminhar msg para os números citados!`);
+        } else if (msg.body.match(/^(iniciar|ok|enviar)$/gi)) {
+          sendSEND(
+            `Aguarde ⏱️... \n*Estamos preparando tudo*, em segundos iniciaremos o envio...\n\n🆗 Números registrados (${
+              numbers.length
+            }): ${numbers.join(", ")}!!`
           );
-        } else if (msg.body.match(/^(ok|enviar)$/gi)) {
-          sending = true;
+          setTimeout(() => {
+            sendSEND(
+              `Novas mensagens será encaminhadas para os números informados!`
+            );
+            sending = true;
+          }, 15000);
         } else if (msg.body.match(/(\d{4}-\d{4}|\d{8})+/gi)) {
           numbers = [
             ...new Set([
@@ -82,86 +96,32 @@ export const module = <ModuleType>{
             msgs: [msg],
           });
         } else {
-          try {
-            const groupSelect = grupos[+Number(msg.body)];
-            if (groupSelect) {
-              const contacts: Contact[] = await new Promise((resolve) => {
-                app.emit(EventsApp.CONTACTS, {
-                  listener: (contacts: any) => {
-                    resolve(contacts);
-                  },
+          const groupSelect = grupos[+Number(msg.body)];
+          if (groupSelect) {
+            const contacts: Contact[] = await new Promise((resolve) => {
+              app.emit(EventsApp.CONTACTS, {
+                listener: (contacts: any) => {
+                  resolve(contacts);
+                },
+              });
+            });
+            let nums: string[] = [];
+            contacts
+              .filter((contact) => contact.isGroup(groupSelect))
+              .forEach((contact) => {
+                contact.telefones.split(",").forEach((number) => {
+                  nums.push(number);
                 });
               });
-              let nums: string[] = [];
-              contacts
-                .filter((contact) => contact.isGroup(groupSelect))
-                .forEach((contact) => {
-                  contact.telefones.split(",").forEach((number) => {
-                    nums.push(number);
-                  });
-                });
-              numbers = [...new Set([...numbers, ...nums])];
-              showNumbers();
-            }
-          } catch (e) {
-            console.log("erro ao selecionar grupo: ", e);
+            numbers = [...new Set([...numbers, ...nums])];
+            showNumbers();
           }
 
-          app.emit(
-            EventsApp.MESSAGE_SEND,
-            Message.create({
-              to: configs.WHATSAPP.GROUP_SEND,
-              body: `Enviar mensagem para o grupo: 
-              ${grupos.map((el, id) => `\n${id} - ${el}`).join()}`,
-            })
+          sendSEND(
+            `Enviar mensagem para o grupo: ${grupos
+              .map((el, id) => `\n${id} - ${el}`)
+              .join()}`
           );
-          //           const match = /(^grupo |^send |^contatos )(.*)$/gi.exec(msg.body);
-          // if (match && match[2]) {
-          //   const informados = match[2].split(/,|;/).map((el) => el.trim());
-          //   const contacts: Contact[] = await new Promise((resolve) => {
-          //     app.emit(EventsApp.CONTACTS, {
-          //       listener: (contacts: any) => {
-          //         resolve(contacts)                  // console.log(`Contatos recebidos::::::: `, contatos);
-          //       },
-          //     });
-          //   });
-          //   contacts.filter()
-          //   const grupos = this.agenda.grupos.filter((grupo) =>
-          //     informados.some((gp) =>
-          //       grupo.toUpperCase().includes(gp.toUpperCase())
-          //     )
-          //   );
-
-          //   if (!grupos || grupos.length < 1) {
-          //     return `🤖: Grupo ${informados.join(
-          //       ", "
-          //     )} inválido! \nGrupos disponíveis: ${this.agenda.grupos.join(
-          //       ", "
-          //     )}`;
-          //   }
-
-          //   const contatos = this.agenda._contatos.filter((contato) => {
-          //     return grupos.some((grupo) => {
-          //       return contato.data.grupos
-          //         ?.toUpperCase()
-          //         .includes(grupo.toUpperCase());
-          //     });
-          //   });
-
-          //   if (contacts.length === 0) {
-          //     return `Nenhum contato para o grupo ${grupos.join(", ")}!`;
-          //   }
-
-          //   const ms = `🤖: Participantes (${
-          //     contacts.length
-          //   }) do grupo ${grupos.join(", ")}: \n${contacts
-          //     .map(
-          //       (contato) => `${contato.data.nome}:\t ${contato.data.telefones}`
-          //     )
-          //     .join("\n")}`;
-
-          //   numbers = [...new Set([...numbers, ...ms])];
-          // }
         }
       }
     });
