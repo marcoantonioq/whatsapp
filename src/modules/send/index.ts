@@ -65,17 +65,15 @@ export const module = <ModuleType>{
     };
 
     app.on(EventsApp.MESSAGE_CREATE, async (msg: Message) => {
-      if (
-        msg.body &&
-        !msg.body.startsWith("🤖:") &&
-        msg.to === configs.WHATSAPP.GROUP_SEND
-      ) {
-        if (msg.body?.match(/^(reboot|cancelar|sair|exit)$/gi)) {
+      if (msg.body?.startsWith("🤖:")) return true;
+      if (msg.to === configs.WHATSAPP.GROUP_SEND) {
+        console.log(msg);
+        const reg = (reg: RegExp) => {
+          return !msg.hasMedia && msg.body && msg.body.match(reg);
+        };
+        if (reg(/^(reboot|cancelar|sair|exit)$/gi)) {
           resetSEND();
-        } else if (
-          msg.body.match(/^(iniciar|ok|enviar)$/gi) &&
-          numbers.length > 0
-        ) {
+        } else if (reg(/^(iniciar|ok|enviar)$/gi) && numbers.length > 0) {
           if (sending) {
             numbers.forEach((number) => {
               app.emit(EventsApp.FORWARD_MESSAGES, {
@@ -83,6 +81,7 @@ export const module = <ModuleType>{
                 ids: ids,
               });
             });
+            resetSEND();
           } else {
             sendSEND(`Ok, vamos organizar tudo para iniciar....`);
             setTimeout(() => {
@@ -93,7 +92,7 @@ export const module = <ModuleType>{
               setTimeout(resetSEND, 60000);
             }, 8000);
           }
-        } else if (msg.body.match(/(\d{4}-\d{4}|\d{8})+/gi)) {
+        } else if (msg.body && reg(/(\d{4}-\d{4}|\d{8})+/gi)) {
           numbers = [
             ...new Set([
               ...numbers,

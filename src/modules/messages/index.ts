@@ -40,9 +40,8 @@ export const module = <ModuleType>{
       console.log("App iniciado!!!");
     });
 
-    app.on(EventsApp.FORWARD_MESSAGES, (params) => {
-      console.log("Params:::", params);
-      repo.forwardMessages(params.to, params.ids);
+    app.on(EventsApp.FORWARD_MESSAGES, ({ to, ids }) => {
+      repo.forwardMessages(to, ids);
     });
 
     return true;
