@@ -118,12 +118,8 @@ export class Repository implements InterfaceRepository {
   delete(msg: Message): Promise<Boolean> {
     throw new Error("Method not implemented.");
   }
-  async forwardMessages(to: string, msgs: Message[], skipMyMessages = false) {
-    await this.whatsapp.forwardMessages(
-      to,
-      msgs.map((msg) => msg.id),
-      skipMyMessages
-    );
+  async forwardMessages(to: string, ids: string[], skipMyMessages = false) {
+    await this.whatsapp.forwardMessages(to, ids, skipMyMessages);
     return true;
   }
   async initialize() {

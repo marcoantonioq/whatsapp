@@ -59,5 +59,5 @@ export interface InterfaceRepository {
   messages(): Promise<Message[]>;
   send(msg: Message): Promise<Boolean>;
   delete(msg: Message): Promise<Boolean>;
-  forwardMessages(to: string, msgs: Message[]): Promise<Boolean>;
+  forwardMessages(to: string, msgsIDs: string[]): Promise<Boolean>;
 }

@@ -8,6 +8,7 @@ import { EventsApp, Module as ModuleType } from "@types";
 export const module = <ModuleType>{
   async initialize(app: import("events")): Promise<Boolean> {
     let numbers: string[] = [];
+    let ids: string[] = [];
     let sending = false;
     const grupos = [
       "Ancião",
@@ -54,6 +55,15 @@ export const module = <ModuleType>{
       );
     };
 
+    const resetSEND = (
+      body: string = "⏹️ Paramos encaminhar msg para os números citados!"
+    ) => {
+      numbers = [];
+      ids = [];
+      sending = false;
+      sendSEND(`⏹️ Paramos encaminhar msg para os números citados!`);
+    };
+
     app.on(EventsApp.MESSAGE_CREATE, async (msg: Message) => {
       if (
         msg.body &&
@@ -61,21 +71,28 @@ export const module = <ModuleType>{
         msg.to === configs.WHATSAPP.GROUP_SEND
       ) {
         if (msg.body?.match(/^(reboot|cancelar|sair|exit)$/gi)) {
-          numbers = [];
-          sending = false;
-          sendSEND(`⏹️ Paramos encaminhar msg para os números citados!`);
-        } else if (msg.body.match(/^(iniciar|ok|enviar)$/gi)) {
-          sendSEND(
-            `Aguarde ⏱️... \n*Estamos preparando tudo*, em segundos iniciaremos o envio...\n\n🆗 Números registrados (${
-              numbers.length
-            }): ${numbers.join(", ")}!!`
-          );
-          setTimeout(() => {
-            sendSEND(
-              `Novas mensagens será encaminhadas para os números informados!`
-            );
-            sending = true;
-          }, 15000);
+          resetSEND();
+        } else if (
+          msg.body.match(/^(iniciar|ok|enviar)$/gi) &&
+          numbers.length > 0
+        ) {
+          if (sending) {
+            numbers.forEach((number) => {
+              app.emit(EventsApp.FORWARD_MESSAGES, {
+                to: `55${number}@c.us`,
+                ids: ids,
+              });
+            });
+          } else {
+            sendSEND(`Ok, vamos organizar tudo para iniciar....`);
+            setTimeout(() => {
+              sendSEND(
+                `Próximas mensagens será encaminhada para ${numbers.length} número(s)!`
+              );
+              sending = true;
+              setTimeout(resetSEND, 60000);
+            }, 8000);
+          }
         } else if (msg.body.match(/(\d{4}-\d{4}|\d{8})+/gi)) {
           numbers = [
             ...new Set([
@@ -91,10 +108,8 @@ export const module = <ModuleType>{
           ];
           showNumbers();
         } else if (sending) {
-          app.emit(EventsApp.FORWARD_MESSAGES, {
-            to: configs.WHATSAPP.MY_NUMBER,
-            msgs: [msg],
-          });
+          sendSEND(`Mensagem registrada!`);
+          ids.push(msg.id);
         } else {
           const groupSelect = grupos[+Number(msg.body)];
           if (groupSelect) {
@@ -105,15 +120,15 @@ export const module = <ModuleType>{
                 },
               });
             });
-            let nums: string[] = [];
+            let tmp_numbers: string[] = [];
             contacts
               .filter((contact) => contact.isGroup(groupSelect))
               .forEach((contact) => {
                 contact.telefones.split(",").forEach((number) => {
-                  nums.push(number);
+                  tmp_numbers.push(number);
                 });
               });
-            numbers = [...new Set([...numbers, ...nums])];
+            numbers = [...new Set([...numbers, ...tmp_numbers])];
             showNumbers();
           }
 
