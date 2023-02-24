@@ -8,8 +8,8 @@ export const configs = {
     KEY: parsed?.WRITESONIC_KEY,
   },
   OPENAI: {
-    KEY: parsed?.OPENAI_KEY,
-    ORGANIZATION: parsed?.OPENAI_ORGANIZATION,
+    KEY: parsed?.OPENAI_KEY || "",
+    ORGANIZATION: parsed?.OPENAI_ORGANIZATION || "",
   },
   WHATSAPP: {
     MY_NUMBER: parsed?.MY_NUMBER || "",

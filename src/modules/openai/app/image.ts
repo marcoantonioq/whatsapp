@@ -1,4 +1,4 @@
-import { OpenAI } from "../core/OpenAI";
+import { Dialog } from "../core/OpenAI";
 
 export class GetImage {
   constructor(private readonly repo?: any) {}
@@ -10,7 +10,7 @@ export class GetImage {
     };
 
     try {
-      const response = await OpenAI.createImage(request);
+      const response = await Dialog.createImage(request);
       return response.data.data[0].url;
     } catch (e: any) {
       return `❌ OpenAI Response Error: ${e.response.data.error.message}`;

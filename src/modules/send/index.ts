@@ -61,7 +61,7 @@ export const module = <ModuleType>{
       numbers = [];
       ids = [];
       sending = false;
-      sendSEND(`⏹️ Paramos encaminhar msg para os números citados!`);
+      sendSEND(body);
     };
 
     app.on(EventsApp.MESSAGE_CREATE, async (msg: Message) => {

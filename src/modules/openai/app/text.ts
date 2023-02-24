@@ -1,26 +1,10 @@
-import { OpenAI } from "../core/OpenAI";
+import { Repository, request } from "../infra/repo";
 
 export class GetText {
-  constructor(private readonly repo?: any) {}
+  constructor(private readonly repo: Repository) {}
 
-  async execute(text: string) {
-    const options = {
-      model: "text-davinci-003",
-      prompt: text,
-      temperature: 1,
-      max_tokens: 4000,
-    };
-
-    try {
-      const response = await OpenAI.createCompletion(options);
-      let botResponse = "";
-      response.data.choices.forEach(({ text }) => {
-        botResponse += text;
-      });
-      return `${botResponse.trim()}`;
-    } catch (e: any) {
-      return `❌ OpenAI Response Error: ${e.response.data.error.message}`;
-    }
+  async execute(text: request) {
+    return this.repo.request(text);
   }
 }
 
