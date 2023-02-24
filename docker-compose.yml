@@ -29,7 +29,8 @@ services:
       - ./:/app
     networks:
       - backend
-    command: npm run start
+    command: npm run dev
+    # command: npm run start
 networks:
   backend:
 volumes:

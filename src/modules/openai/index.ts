@@ -1,11 +1,12 @@
 import configs from "@config/index";
 import { Message } from "@modules/messages/core/Message";
 import { EventsApp, Module as ModuleType } from "@types";
+import App from "src/app";
 import GetText from "./app/text";
 import { Repository } from "./infra/repo";
 
 export const module = <ModuleType>{
-  async initialize(app: import("events")) {
+  async initialize(app: App) {
     const repo = new Repository([]);
     app.on(EventsApp.MESSAGE_CREATE, async (msg) => {
       if (
@@ -16,8 +17,8 @@ export const module = <ModuleType>{
 
       const result = await new GetText(repo).execute({
         to: msg.to,
-        from: msg.from,
-        body: msg.body,
+        from: msg.from || "",
+        body: msg.body || "",
         type: "text",
       });
 

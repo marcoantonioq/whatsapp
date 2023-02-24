@@ -2,6 +2,18 @@ import { EventsApp, GOOGLE_SHEET_GET, Module } from "@types";
 import EventEmitter from "events";
 
 declare interface App {
+  on(event: EventsApp.MESSAGE_CREATE, listener: (msg: Message) => void): this;
+  on(event: EventsApp.MESSAGE_SEND, listener: (msg: Message) => void): this;
+  on(
+    event: EventsApp.FORWARD_MESSAGES,
+    listener: (request: { to: string; ids: string[] }) => void
+  ): this;
+  on(event: EventsApp.MESSAGES, listener: (callback: Function) => void): this;
+  on(event: EventsApp.QR_RECEIVED, listener: (qr: string) => void): this;
+  on(
+    event: EventsApp.STATUS,
+    listener: (state: string, session: string) => void
+  ): this;
   on(
     event: EventsApp.UPDATE,
     listener: (event: { id: string; data: any }) => void

@@ -58,6 +58,6 @@ export class Message implements Messages {
 export interface InterfaceRepository {
   messages(): Promise<Message[]>;
   send(msg: Message): Promise<Boolean>;
-  delete(msg: Message): Promise<Boolean>;
+  deleteMessage(chatID: string, messageID: string): Promise<Boolean>;
   forwardMessages(to: string, msgsIDs: string[]): Promise<Boolean>;
 }

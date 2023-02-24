@@ -34,6 +34,7 @@ export enum EventsApp {
   FORWARD_MESSAGES = "forward_messages",
   CONTACTS = "contacts",
   STATUS = "app_status",
+  CLEAR = "clear_chat",
   GOOGLE_SHEET_GET = "google_sheet_get",
   GOOGLE_SHEET_SAVE = "google_sheet_save",
 }

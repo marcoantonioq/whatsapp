@@ -42,6 +42,7 @@ export class Repository implements InterfaceRepository {
           _attempts: any,
           urlCode: any
         ) => {
+          console.log("Novo qrCode::", urlCode);
           app.emit(EventsApp.QR_RECEIVED, urlCode);
         },
         statusFind: (statusSession: string, session: string) => {
@@ -84,7 +85,7 @@ export class Repository implements InterfaceRepository {
           executablePath: "/usr/bin/google-chrome-stable",
         },
         disableWelcome: true,
-        updatesLog: true,
+        updatesLog: false,
         autoClose: 0,
         tokenStore: "file",
         folderNameToken: "./out/tokens",
@@ -115,8 +116,9 @@ export class Repository implements InterfaceRepository {
 
     return true;
   }
-  delete(msg: Message): Promise<Boolean> {
-    throw new Error("Method not implemented.");
+
+  async deleteMessage(chatID: string, messageID: string): Promise<Boolean> {
+    return await this.whatsapp.deleteMessage(chatID, messageID);
   }
   async forwardMessages(to: string, ids: string[], skipMyMessages = false) {
     await this.whatsapp.forwardMessages(to, ids, skipMyMessages);
@@ -142,6 +144,9 @@ export class Repository implements InterfaceRepository {
       this.data.push(message);
       this.app.emit(EventsApp.MESSAGE_CREATE, message);
     });
+  }
+  async clearChat(chatID: string) {
+    return this.whatsapp.clearChat(chatID);
   }
 }
 

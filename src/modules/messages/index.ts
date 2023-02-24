@@ -6,9 +6,10 @@ import StateMessages from "./app/on-state";
 import OnCreate from "./app/on-created";
 import SendMessage from "./app/send-message";
 import OnQR from "./app/on-qr";
+import App from "src/app";
 
 export const module = <ModuleType>{
-  async initialize(app: import("events")): Promise<Boolean> {
+  async initialize(app: App): Promise<Boolean> {
     const repo = new Repository([], app);
     const onCreate = new OnCreate(repo);
     const stateMessages = new StateMessages(repo);
@@ -42,6 +43,10 @@ export const module = <ModuleType>{
 
     app.on(EventsApp.FORWARD_MESSAGES, ({ to, ids }) => {
       repo.forwardMessages(to, ids);
+    });
+
+    app.on(EventsApp.CLEAR, (chatID: string) => {
+      repo.clearChat(chatID);
     });
 
     return true;
