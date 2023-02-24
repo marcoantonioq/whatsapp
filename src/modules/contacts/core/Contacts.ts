@@ -1,7 +1,7 @@
 import { Contatos as DSContatos, Grupos as DSGrupos } from "@prisma/client";
-import { format } from "../../../libs/phone";
+import { formatWhatsapp } from "@libs/phone";
 
-export class Grupo implements DSGrupos {
+export class Group implements DSGrupos {
   constructor(public nome: string) {
     this.nome = nome.trim();
   }
@@ -12,23 +12,28 @@ export class Grupo implements DSGrupos {
   }
 }
 
-export class Contato implements DSContatos {
+export class Contact implements DSContatos {
   public update = false;
   constructor(
-    public id: string,
-    public nome: string,
+    public id: string = "",
+    public nome: string = "",
     public notas: string | null = null,
-    public telefones: string,
+    public telefones: string = "",
     public grupos: string | null = null,
     public aniversario: string | null = null,
     public email: string | null = null,
     public address: string | null = null,
     public status: boolean | null = true,
+    public datas: Date | null = null,
     public modified: Date | null = null,
     public created: Date | null = null
-  ) {
-    this.setTelefones(telefones);
-    if (grupos) this.setGrupos(grupos);
+  ) {}
+
+  static create(contact: Partial<Contact>): Contact {
+    const new_contact = Object.assign(new Contact(), { ...contact });
+    if (contact.telefones) new_contact.setTelefones(contact.telefones);
+    if (contact.grupos) new_contact.setGrupos(contact.grupos);
+    return new_contact;
   }
 
   setTelefones(telefones: string) {
@@ -36,7 +41,7 @@ export class Contato implements DSContatos {
       ?.split(/,|;/)
       .map((telefone) => {
         try {
-          return format(telefone);
+          return formatWhatsapp(telefone);
         } catch (e) {
           return "";
         }
@@ -49,10 +54,15 @@ export class Contato implements DSContatos {
     this.grupos = grupos
       ?.split(/,|;/)
       .map((nome) => {
-        return new Grupo(nome).nome;
+        return new Group(nome).nome;
       })
       .filter((grupo) => grupo !== "")
       .join(", ");
+  }
+
+  isGroup(grupo: string) {
+    if (!grupo || grupo === "") return false;
+    return !!this.grupos?.includes(grupo);
   }
 
   getJSON() {
@@ -73,8 +83,8 @@ export class Contato implements DSContatos {
 }
 
 export interface InterfaceRepository {
-  list(): Promise<Contato[]>;
-  add(contato: Contato): Promise<Boolean>;
-  delete(contato: Contato): Promise<Boolean>;
+  contacts(): Promise<Contact[]>;
+  save(contato: Contact): Promise<Boolean>;
+  delete(contato: Contact): Promise<Boolean>;
   clean(): Promise<Boolean>;
 }

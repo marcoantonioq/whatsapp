@@ -1,9 +1,9 @@
+import configs from "@config/index";
+import { InterfaceRepository, Message } from "../core/Message";
+
 export class OnCreate {
   constructor(private readonly repo: InterfaceRepository) {}
 
-  async execute(msg: any) {
-    console.log("Nova mensagem criada: ", msg);
-    this.repo.add(msg);
-  }
+  async execute(msg: Message) {}
 }
 export default OnCreate;

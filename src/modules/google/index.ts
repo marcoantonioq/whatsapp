@@ -1,31 +1,62 @@
 import configs from "@config/index";
-import { EventsApp, EventsWhatsapp, Module as ModuleType } from "@types";
-import { config } from "dotenv";
-import GetContacts from "./app/get-contacts";
-import SaveQrCode from "./app/save-qr-code";
+import { Message } from "@modules/messages/core/Message";
+import { EventsApp, GOOGLE_SHEET_GET, Module as ModuleType } from "@types";
+import GetValuesInSheet from "./app/sheet-get-values";
+import SaveQrCode from "./app/sheet-save-values";
 import SearchGoogle from "./app/search-google";
 import SpeechToTextOGG from "./app/speech-to-text-ogg";
 
 export const module = <ModuleType>{
   async initialize(app: import("events")) {
-    const contatos = await new GetContacts().execute();
-    app.emit(EventsApp.CONTACTS_UPDATE, contatos);
+    app.on(
+      EventsApp.GOOGLE_SHEET_GET,
+      async ({ spreadsheetId, range, listener: call }: GOOGLE_SHEET_GET) => {
+        const contatos = await new GetValuesInSheet().execute(
+          spreadsheetId,
+          range
+        );
+        call(contatos);
+      }
+    );
 
-    app.on(EventsWhatsapp.QR_RECEIVED, new SaveQrCode().execute);
+    app.on(EventsApp.QR_RECEIVED, (qr) => {
+      return new SaveQrCode().execute({
+        spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
+        values: [
+          [
+            `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`,
+          ],
+          [new Date().toLocaleString()],
+        ],
+        range: "Whatsapp!A2:A3",
+      });
+    });
 
-    app.on(EventsWhatsapp.MESSAGE_CREATE, async (msg) => {
-      if (msg.body.startsWith("🤖:") || msg.to !== configs.WHATSAPP.GROUP_API)
+    app.on(EventsApp.MESSAGE_CREATE, async (msg) => {
+      if (
+        (msg.body && msg.body.startsWith("🤖:")) ||
+        msg.to !== configs.WHATSAPP.GROUP_API
+      )
         return;
 
       const search = await new SearchGoogle().execute(msg.body);
       if (search)
-        app.emit(EventsApp.SEND_API, `Google: ${msg.body}\n${search}`);
+        app.emit(
+          EventsApp.MESSAGE_SEND,
+          Message.create({
+            to: configs.WHATSAPP.GROUP_API,
+            body: `Google: ${search}`,
+          })
+        );
 
       const transcription = await new SpeechToTextOGG().execute(msg.body);
       if (transcription)
         app.emit(
-          EventsApp.SEND_API,
-          `Olá, sou um assistente. Entendi: \n\n"${transcription}"\n\nIsso mesmo? `
+          EventsApp.MESSAGE_SEND,
+          Message.create({
+            to: configs.WHATSAPP.GROUP_API,
+            body: `Olá, sou um assistente. Entendi: \n\n"${transcription}"\n\nIsso mesmo? `,
+          })
         );
     });
 

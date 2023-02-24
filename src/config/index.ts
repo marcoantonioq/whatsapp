@@ -15,6 +15,7 @@ export const configs = {
     MY_NUMBER: parsed?.MY_NUMBER || "",
     GROUP_API: parsed?.GROUP_API || "",
     GROUP_SEND: parsed?.GROUP_SEND || "",
+    GROUP_NOTE: parsed?.GROUP_NOTE || "",
     clientId: "MARCO",
   },
   GOOGLE: <GOOGLE>{

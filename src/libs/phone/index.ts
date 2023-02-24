@@ -9,13 +9,13 @@ export function format(number: string) {
   return phone && phone.isValid() ? phone.formatNational() : "";
 }
 
-export function formatWhatsapp(number: string) {
-  let nm: string = number.replace(/[^0-9]+/g, "");
+export function formatWhatsapp(number: string): string {
+  let nm: string = number.replace(/\D/gim, "");
   if (nm.length < 8) return "";
   if ([8, 9].includes(nm.length)) {
     nm = `${DD.default}${nm}`;
   }
-  nm = format(nm).replace(/^\((\d+)\).*(\d{4})-(\d{4})$/g, "55$1$2$3@c.us");
-  nm = nm.replace(/^(\d+)(\d{8})$/g, "55$1$2@c.us");
+  nm = format(nm).replace(/^\((\d+)\).*(\d{4})-(\d{4})$/g, "$1$2$3");
+  nm = nm.replace(/^(\d+)(\d{8})$/g, "$1$2");
   return nm;
 }
