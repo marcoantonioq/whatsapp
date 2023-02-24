@@ -13,48 +13,24 @@ export const module = <ModuleType>{
 
     app.addListener(
       EventsApp.CONTACTS,
-      async (
-        params: {
-          update: Boolean;
-          action: "index" | "get";
-          number?: string;
-          listener?: Function;
-        } = {
-          update: false,
-          action: "index",
+      async (params = { update: false, listener: Function }) => {
+        let contacts: Contact[] = [];
+        if (params.update) {
+          contacts = await new Promise((resolve, reject) => {
+            app.emit(EventsApp.GOOGLE_SHEET_GET, <GOOGLE_SHEET_GET>{
+              spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
+              range: "Contatos",
+              listener: async (data: any) => {
+                const contacts = await extractValues.execute(data.values);
+                await updateValues.execute(contacts);
+                resolve(await repo.contacts());
+              },
+            });
+          });
+        } else {
+          contacts = await repo.contacts();
         }
-      ) => {
-        switch (params.action) {
-          case "index":
-            let contacts: Contact[] = [];
-            if (params.update) {
-              contacts = await new Promise((resolve, reject) => {
-                app.emit(EventsApp.GOOGLE_SHEET_GET, <GOOGLE_SHEET_GET>{
-                  spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
-                  range: "Contatos",
-                  listener: async (data: any) => {
-                    const contacts = await extractValues.execute(data.values);
-                    await updateValues.execute(contacts);
-                    resolve(await repo.contacts());
-                  },
-                });
-              });
-            } else {
-              contacts = await repo.contacts();
-            }
-            if (params.listener) params.listener(contacts);
-
-            break;
-          case "get":
-            if (params.listener && params.number) {
-              const contact = repo.getContactByPhone(params.number);
-              params.listener(contact);
-            }
-            break;
-
-          default:
-            break;
-        }
+        if (params.listener) params.listener(contacts);
       }
     );
 
