@@ -39,15 +39,17 @@ export const module = <ModuleType>{
       )
         return;
 
-      const search = await new SearchGoogle().execute(msg.body);
-      if (search)
-        app.emit(
-          EventsApp.MESSAGE_SEND,
-          Message.create({
-            to: configs.WHATSAPP.GROUP_API,
-            body: `Google: ${search}`,
-          })
-        );
+      if (msg.body.match(/\?$/gi)) {
+        const search = await new SearchGoogle().execute(msg.body);
+        if (search)
+          app.emit(
+            EventsApp.MESSAGE_SEND,
+            Message.create({
+              to: configs.WHATSAPP.GROUP_API,
+              body: `Google: ${search}`,
+            })
+          );
+      }
 
       const transcription = await new SpeechToTextOGG().execute(msg.body);
       if (transcription)

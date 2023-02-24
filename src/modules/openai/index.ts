@@ -30,7 +30,6 @@ export const module = <ModuleType>{
           })
         );
       }
-      console.log("Dialogs::::", await repo.dialogs());
     });
 
     return true;

@@ -67,7 +67,6 @@ export const module = <ModuleType>{
     app.on(EventsApp.MESSAGE_CREATE, async (msg: Message) => {
       if (msg.body?.startsWith("🤖:")) return true;
       if (msg.to === configs.WHATSAPP.GROUP_SEND) {
-        console.log(msg);
         const reg = (reg: RegExp) => {
           return !msg.hasMedia && msg.body && msg.body.match(reg);
         };
