@@ -16,6 +16,7 @@ export class SendMessage {
 
       this.repo.send(msg);
     }
+    return true;
   }
 }
 export default SendMessage;

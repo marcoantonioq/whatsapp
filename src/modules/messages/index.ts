@@ -1,6 +1,3 @@
-// https://docs.orkestral.io/venom/#/
-import { EventsApp } from "@types";
-
 import StateWhatsapp from "./app/on-state";
 import OnCreateMessage from "./app/on-created-message";
 import SendMessage from "./app/send-message";
@@ -9,10 +6,8 @@ import ClearChat from "./app/clear-chat";
 import EventEmitter from "events";
 import Repository from "./repo/repository-wppconnect";
 
-class ModuleMessages extends EventEmitter {
-  private constructor() {
-    super();
-  }
+class ModuleMessages {
+  private constructor() {}
 
   static create(): ModuleMessages {
     if (!ModuleMessages.instance) {
@@ -20,8 +15,9 @@ class ModuleMessages extends EventEmitter {
     }
     return ModuleMessages.instance;
   }
+  private event = new EventEmitter();
   private static instance: ModuleMessages;
-  private readonly repo: Repository = new Repository([], this);
+  private readonly repo: Repository = new Repository([], this.event);
   sendMessage = new SendMessage(this.repo).execute;
   stateMessages = new StateWhatsapp(this.repo).execute;
   clearChat = new ClearChat(this.repo).execute;
