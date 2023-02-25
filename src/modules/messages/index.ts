@@ -19,6 +19,7 @@ class ModuleMessages {
   private static instance: ModuleMessages;
   private readonly repo: Repository = new Repository([], this.event);
   sendMessage = new SendMessage(this.repo).execute;
+  forwardMessage = this.repo.forward;
   stateMessages = new StateWhatsapp(this.repo).execute;
   clearChat = new ClearChat(this.repo).execute;
   onMessageNew = new OnCreateMessage(this.repo).execute;
