@@ -1,40 +1,19 @@
-import configs from "@config/index";
-import { Message } from "@modules/messages/core/Message";
-import { EventsApp, Module as ModuleType } from "@types";
-import App from "src/app";
 import GetText from "./app/text";
 import { Repository } from "./repo/repo";
 
-export const module = <ModuleType>{
-  async create(app: App) {
-    const repo = new Repository([]);
-    app.on(EventsApp.MESSAGE_CREATE, async (msg) => {
-      if (!msg.body) return;
-      if (msg.body.startsWith("🤖:") || msg.to !== configs.WHATSAPP.GROUP_API)
-        return;
+export class ModuleOpenAI {
+  private constructor() {}
 
-      if (msg.body.split(" ").length < 2) return;
+  static create(): ModuleOpenAI {
+    if (!ModuleOpenAI.instance) {
+      ModuleOpenAI.instance = new ModuleOpenAI();
+    }
+    return ModuleOpenAI.instance;
+  }
+  // private event = new EventEmitter();
+  private static instance: ModuleOpenAI;
+  private readonly repo: Repository = new Repository([]);
+  text = new GetText(this.repo).execute;
+}
 
-      const result = await new GetText(repo).execute({
-        to: msg.to,
-        from: msg.from || "",
-        body: msg.body || "",
-        type: "text",
-      });
-
-      if (result.result) {
-        app.emit(
-          EventsApp.MESSAGE_SEND,
-          Message.create({
-            to: configs.WHATSAPP.GROUP_API,
-            body: `OpenIA: \n${result.result}`,
-          })
-        );
-      }
-    });
-
-    return true;
-  },
-};
-
-export default module;
+export default ModuleOpenAI;

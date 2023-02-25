@@ -1,10 +1,12 @@
 import ModuleMessages from "@modules/messages";
 import { ModuleGoogle } from "@modules/google";
+import { ModuleOpenAI } from "@modules/openai";
 import configs from "@config/index";
 import { Message } from "@modules/messages/core/Message";
 
 export const messages = ModuleMessages.create();
 export const google = ModuleGoogle.create();
+export const openAI = ModuleOpenAI.create();
 
 messages.onQR((qr) => {
   google.sheet.saveValues({
@@ -48,12 +50,27 @@ messages.onMessageNew(async (msg) => {
   //       body: `Olá, sou um assistente. Entendi: \n\n"${transcription}"\n\nIsso mesmo? `,
   //     })
   //   );
+
+  const result = await openAI.text({
+    to: msg.to,
+    from: msg.from || "",
+    body: msg.body || "",
+    type: "text",
+  });
+
+  if (msg.body.split(" ").length > 1 && result.result) {
+    messages.sendMessage(
+      Message.create({
+        to: configs.WHATSAPP.GROUP_API,
+        body: `OpenIA: \n${result.result}`,
+      })
+    );
+  }
 });
 
 // import { module as Shell } from "@modules/shell";
 // import { module as Contatos } from "@modules/contacts";
 // // import { module as Messages } from "@modules/messages";
-// import { module as OpenAI } from "@modules/openai";
 // import { module as Sonic } from "@modules/writesonic";
 // import { module as SEND } from "@modules/send";
 // import { Contact } from "@modules/contacts/core/Contacts";
