@@ -2,8 +2,8 @@ import EventEmitter from "events";
 import * as puppeteer from "puppeteer";
 
 export interface Module {
-  id: string;
-  initialize(app: EventEmitter): Promise<any>;
+  repo: any;
+  create(): Promise<Module>;
 }
 
 export interface GOOGLE_SHEET_GET {
@@ -34,6 +34,7 @@ export enum EventsApp {
   FORWARD_MESSAGES = "forward_messages",
   CONTACTS = "contacts",
   STATUS = "app_status",
+  CLEAR = "clear_chat",
   GOOGLE_SHEET_GET = "google_sheet_get",
   GOOGLE_SHEET_SAVE = "google_sheet_save",
 }

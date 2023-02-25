@@ -1,12 +1,12 @@
 import UpdateValues from "./app/update-values";
-import { Repository } from "./infra/repository";
+import { Repository } from "./repo/repository";
 import { EventsApp, GOOGLE_SHEET_GET, Module as ModuleType } from "@types";
 import configs from "@config/index";
 import { Contact } from "./core/Contacts";
 import ExtractValues from "./app/extract-values-to-contact";
 
 export const module = <ModuleType>{
-  async initialize(app: import("events")) {
+  async create(app: import("events")) {
     const repo = new Repository([]);
     const extractValues = new ExtractValues(repo);
     const updateValues = new UpdateValues(repo);

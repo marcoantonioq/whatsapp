@@ -1,11 +1,20 @@
-import configs from "@config/index";
-import { Configuration, OpenAIApi } from "openai";
+import { request } from "../repo/repo";
 
-const configuration = new Configuration({
-  organization: configs.OPENAI.ORGANIZATION,
-  apiKey: configs.OPENAI.KEY,
-});
+export class Dialog {
+  private constructor(
+    public id = "",
+    public from: string | null = "",
+    public to = "",
+    public type: string | null = "text",
+    public messages: request[] = [],
+    public error: string | null = ""
+  ) {}
+  static create(obj: Partial<Dialog>) {
+    return <Dialog>Object.assign(new Dialog(), { ...obj });
+  }
+}
 
-export const OpenAI = new OpenAIApi(configuration);
-
-export const imgResponse = async (text: string) => {};
+export interface InterfaceRepository {
+  requests(): Promise<any[]>;
+  request(msg: request): Promise<request>;
+}

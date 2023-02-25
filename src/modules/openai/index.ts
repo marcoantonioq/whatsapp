@@ -1,24 +1,33 @@
 import configs from "@config/index";
 import { Message } from "@modules/messages/core/Message";
 import { EventsApp, Module as ModuleType } from "@types";
+import App from "src/app";
 import GetText from "./app/text";
-
-const { GROUP_API, GROUP_SEND, GROUP_NOTE, MY_NUMBER } = configs.WHATSAPP;
+import { Repository } from "./repo/repo";
 
 export const module = <ModuleType>{
-  async initialize(app: import("events")) {
+  async create(app: App) {
+    const repo = new Repository([]);
     app.on(EventsApp.MESSAGE_CREATE, async (msg) => {
-      if ((msg.body && msg.body.startsWith("🤖:")) || msg.to !== GROUP_API)
+      if (!msg.body) return;
+      if (msg.body.startsWith("🤖:") || msg.to !== configs.WHATSAPP.GROUP_API)
         return;
 
-      const result = await new GetText().execute(msg.body);
+      if (msg.body.split(" ").length < 2) return;
 
-      if (result) {
+      const result = await new GetText(repo).execute({
+        to: msg.to,
+        from: msg.from || "",
+        body: msg.body || "",
+        type: "text",
+      });
+
+      if (result.result) {
         app.emit(
           EventsApp.MESSAGE_SEND,
           Message.create({
             to: configs.WHATSAPP.GROUP_API,
-            body: `OpenIA: \n${result}`,
+            body: `OpenIA: \n${result.result}`,
           })
         );
       }

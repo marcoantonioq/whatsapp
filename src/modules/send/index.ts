@@ -1,12 +1,12 @@
 // https://docs.orkestral.io/venom/#/
 import configs from "@config/index";
-import { formatWhatsapp } from "@libs/phone";
+import { formatWhatsapp } from "src/infra/phone";
 import { Contact } from "@modules/contacts/core/Contacts";
 import { Message } from "@modules/messages/core/Message";
 import { EventsApp, Module as ModuleType } from "@types";
 
 export const module = <ModuleType>{
-  async initialize(app: import("events")): Promise<Boolean> {
+  async create(app: import("events")): Promise<Boolean> {
     let numbers: string[] = [];
     let ids: string[] = [];
     let sending = false;
@@ -61,13 +61,12 @@ export const module = <ModuleType>{
       numbers = [];
       ids = [];
       sending = false;
-      sendSEND(`⏹️ Paramos encaminhar msg para os números citados!`);
+      sendSEND(body);
     };
 
     app.on(EventsApp.MESSAGE_CREATE, async (msg: Message) => {
       if (msg.body?.startsWith("🤖:")) return true;
       if (msg.to === configs.WHATSAPP.GROUP_SEND) {
-        console.log(msg);
         const reg = (reg: RegExp) => {
           return !msg.hasMedia && msg.body && msg.body.match(reg);
         };

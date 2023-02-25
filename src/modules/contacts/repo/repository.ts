@@ -9,6 +9,18 @@ export class Repository implements InterfaceRepository {
   async contacts(): Promise<Contact[]> {
     return this.data;
   }
+
+  async getContactByPhone(number: string) {
+    const id = this.data.findIndex((item) => item.telefones.includes(number));
+    if (id > -1) {
+      return this.data[id];
+    } else {
+      const contact = Contact.create({ telefones: number });
+      this.data.push(contact);
+      return contact;
+    }
+  }
+
   async save(contact: Contact): Promise<Boolean> {
     const id = this.data.findIndex((item) => item.id === contact.id);
     if (id > -1) this.data.splice(id, 1);

@@ -1,5 +1,5 @@
 import { Contatos as DSContatos, Grupos as DSGrupos } from "@prisma/client";
-import { formatWhatsapp } from "@libs/phone";
+import { formatWhatsapp } from "src/infra/phone";
 
 export class Group implements DSGrupos {
   constructor(public nome: string) {

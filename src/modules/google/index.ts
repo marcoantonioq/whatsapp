@@ -7,7 +7,7 @@ import SearchGoogle from "./app/search-google";
 import SpeechToTextOGG from "./app/speech-to-text-ogg";
 
 export const module = <ModuleType>{
-  async initialize(app: import("events")) {
+  async create(app: import("events")) {
     app.on(
       EventsApp.GOOGLE_SHEET_GET,
       async ({ spreadsheetId, range, listener: call }: GOOGLE_SHEET_GET) => {
@@ -39,15 +39,17 @@ export const module = <ModuleType>{
       )
         return;
 
-      const search = await new SearchGoogle().execute(msg.body);
-      if (search)
-        app.emit(
-          EventsApp.MESSAGE_SEND,
-          Message.create({
-            to: configs.WHATSAPP.GROUP_API,
-            body: `Google: ${search}`,
-          })
-        );
+      if (msg.body.split(" ").length > 1 && msg.body.match(/\?$/gi)) {
+        const search = await new SearchGoogle().execute(msg.body);
+        if (search)
+          app.emit(
+            EventsApp.MESSAGE_SEND,
+            Message.create({
+              to: configs.WHATSAPP.GROUP_API,
+              body: `Google: ${search}`,
+            })
+          );
+      }
 
       const transcription = await new SpeechToTextOGG().execute(msg.body);
       if (transcription)

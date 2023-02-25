@@ -17,7 +17,7 @@
     "outDir": "dist",
     "paths": {
       "@types": ["./src/types/index"],
-      "@libs/*": ["./src/libs/*"],
+      "@libs/*": ["src/infra/*"],
       "@config/*": ["./src/config/*"],
       "@modules/*": ["./src/modules/*"]
     }
