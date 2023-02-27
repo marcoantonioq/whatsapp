@@ -2,14 +2,13 @@ import { Message, InterfaceRepository } from "../core/Message";
 import settings from "@config/index";
 
 import * as wppconnect from "@wppconnect-team/wppconnect";
-import { Messages } from "@prisma/client";
+import EventEmitter from "events";
 
-export class Repository implements InterfaceRepository {
+export class RepositoryWPPConnect implements InterfaceRepository {
   private whatsapp!: wppconnect.Whatsapp;
-  constructor(
-    private readonly data: Message[],
-    readonly event: import("events")
-  ) {
+  public readonly event = new EventEmitter();
+  constructor(private readonly data: Message[]) {
+    const event = this.event;
     wppconnect
       .create({
         session: settings.WHATSAPP.clientId,
@@ -69,7 +68,7 @@ export class Repository implements InterfaceRepository {
       .then(async (client) => {
         this.whatsapp = client;
         this.whatsapp.onAnyMessage(async (msg) => {
-          const payload = <Messages>{
+          const payload = <Message>{
             id: msg.id,
             from: msg.from,
             to: msg.to,
@@ -77,6 +76,7 @@ export class Repository implements InterfaceRepository {
             type: msg.type,
             hasMedia: msg.isMedia,
             notifyName: msg.notifyName,
+            isBot: false,
           };
           if (msg.isMedia) {
             payload.body = "";
@@ -85,9 +85,11 @@ export class Repository implements InterfaceRepository {
           }
           const message = Message.create(payload);
           this.data.push(message);
-          this.event.emit("message_create", message);
+          if (!message.isBot) {
+            event.emit("message_create", message);
+          }
         });
-        this.event.emit("ready", this.whatsapp);
+        event.emit("ready", this.whatsapp);
       })
       .catch((error) => {
         console.log("Erro ao iniciar o whatsapp:::", error);
@@ -97,18 +99,23 @@ export class Repository implements InterfaceRepository {
     return this.data;
   }
   async send(msg: Message): Promise<Boolean> {
-    switch (msg.type) {
-      case "image":
-        break;
-      default:
-        if (msg.body) {
-          const result = await this.whatsapp.sendText(msg.to, msg.body);
-          msg.id = result.id;
-        }
-        break;
-    }
+    try {
+      switch (msg.type) {
+        case "image":
+          break;
+        default:
+          if (msg.body) {
+            const result = await this.whatsapp.sendText(msg.to, msg.body);
+            msg.id = result.id;
+          }
+          break;
+      }
+      return true;
+    } catch (e) {
+      console.log("Erro repo::", e);
 
-    return true;
+      return false;
+    }
   }
 
   async delete(chatID: string, messageID: string): Promise<Boolean> {
@@ -126,7 +133,7 @@ export class Repository implements InterfaceRepository {
     const { name, id, isMyContact, isBusiness, shortName, pushname, labels } =
       await this.whatsapp.getContact(contactID);
     return {
-      id,
+      id: id._serialized,
       name,
       isMyContact,
       isBusiness,
@@ -136,5 +143,3 @@ export class Repository implements InterfaceRepository {
     };
   }
 }
-
-export default Repository;

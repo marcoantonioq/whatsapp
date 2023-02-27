@@ -1,32 +1,32 @@
-import ModuleMessages from "@modules/messages";
+import { ModuleMessages } from "@modules/messages";
+import configs from "@config/index";
 import { ModuleGoogle } from "@modules/google";
 import { ModuleOpenAI } from "@modules/openai";
-import configs from "@config/index";
-import { Message } from "@modules/messages/core/Message";
-import { formatWhatsapp } from "@libs/phone";
-import ModuleContacts from "@modules/contacts";
+import { ModuleContacts } from "@modules/contacts";
+import { Sends } from "src/entity/Sends";
 
-// export const messages = ModuleMessages.create();
-// export const google = ModuleGoogle.create();
-// export const openAI = ModuleOpenAI.create();
-
+export const messages = ModuleMessages.create();
+export const google = ModuleGoogle.create();
+export const openAI = ModuleOpenAI.create();
 export const contatos = ModuleContacts.create();
-contatos.contacts().then((contacts) => {
-  console.log("Contatos::", contacts);
-});
 
-// messages.onQR((qr) => {
-//   google.sheet.saveValues({
-//     spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
-//     values: [
-//       [
-//         `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`,
-//       ],
-//       [new Date().toLocaleString()],
-//     ],
-//     range: "Whatsapp!A2:A3",
-//   });
-// });
+const G_SEND = configs.WHATSAPP.GROUP_SEND;
+
+contatos.update().then(async (contacts) => {
+  console.log("Contatos::", (await contatos.contacts()).length);
+});
+/**
+ * Salvar QRCode Google Sheet
+ */
+messages.onQR((qr) => {
+  const generate = `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`;
+  const payload = {
+    spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
+    values: [[generate], [new Date().toLocaleString()]],
+    range: "Whatsapp!A2:A3",
+  };
+  google.sheet.saveValues(payload);
+});
 
 // messages.onMessageNew(async (msg) => {
 //   console.log("Nova mensagem:::", msg);
@@ -40,7 +40,7 @@ contatos.contacts().then((contacts) => {
 
 //   if (msg.body.split(" ").length > 1 && msg.body.match(/\?$/gi)) {
 //     const search = await google.search.text(msg.body);
-//     if (search)
+//     if (search  msg.
 //       messages.sendMessage(
 //         Message.create({
 //           to: configs.WHATSAPP.GROUP_API,
@@ -75,135 +75,32 @@ contatos.contacts().then((contacts) => {
 //   }
 // });
 
-// let numbers: string[] = [];
-// let msg_ids: string[] = [];
-// let sending = false;
-// const grupos = [
-//   "Irmandade Goiás",
-//   "Irmandade Mirandópolis",
-//   "Irmandade Mossâmedes",
-//   "Irmandade Uvá",
-//   "Ministério Cidade de Goiás",
-//   "Jovens Goiás",
-//   "Músicos Goiás",
-//   "Voluntários",
-//   "Testemunhado",
-//   // "TempoNovo",
-//   "Ânimo",
-//   // "Irmão",
-//   // "Piedade",
-//   // "Porteiros",
-//   // "IFG",
-//   "Teste1",
-//   "Teste2",
-//   // "Família",
-//   // "Cooperador",
-//   // "Ancião",
-// ];
-
-// const showNumbers = () => {
-//   messages.sendMessage(
-//     Message.create({
-//       to: configs.WHATSAPP.GROUP_SEND,
-//       body: `▶️ Enviaremos novas mensagens para: \n\n⏹️ Sair / Cancelar\n📤 Enviar / Ok\n\nNúmeros citados (${
-//         numbers.length
-//       }): ${numbers.join(", ")}`,
-//     })
-//   );
-// };
-
-// const sendSEND = (body: string) => {
-//   messages.sendMessage(
-//     Message.create({
-//       to: configs.WHATSAPP.GROUP_SEND,
-//       body,
-//     })
-//   );
-// };
-
-// const resetSEND = (
-//   body: string = "⏹️ Paramos encaminhar msg para os números citados!"
-// ) => {
-//   numbers = [];
-//   msg_ids = [];
-//   sending = false;
-//   sendSEND(body);
-// };
-
-// messages.onMessageNew(async (msg) => {
-//   if (msg.body?.startsWith("🤖:")) return true;
-//   if (msg.to === configs.WHATSAPP.GROUP_SEND) {
-//     const reg = (reg: RegExp) => {
-//       return !msg.hasMedia && msg.body && msg.body.match(reg);
-//     };
-//     if (reg(/^(reboot|cancelar|sair|exit)$/gi)) {
-//       resetSEND();
-//     } else if (reg(/^(iniciar|ok|enviar)$/gi) && numbers.length > 0) {
-//       if (sending) {
-//         for (const number of numbers) {
-//           // await messages.forwardMessage(`55${number}@c.us`, msg_ids);
-//         }
-
-//         resetSEND();
-//       } else {
-//         sendSEND(`Ok, vamos organizar tudo para iniciar....`);
-//         setTimeout(() => {
-//           sendSEND(
-//             `Próximas mensagens será encaminhada para ${numbers.length} número(s)!`
-//           );
-//           sending = true;
-//           setTimeout(resetSEND, 15 * 60 * 1000);
-//         }, 8000);
-//       }
-//     } else if (
-//       msg.body &&
-//       msg.type === "chat" &&
-//       reg(/(\d{4}-\d{4}|\d{8})+/gi)
-//     ) {
-//       console.log("MSG::: ", msg);
-//       numbers = [
-//         ...new Set([
-//           ...numbers,
-//           ...msg.body
-//             .split(/(\n|\r|\t|,|;)/gi)
-//             .map((el) => el.replace(/\D/gim, ""))
-//             .filter((el) => el.match(/(\d{4}-\d{4}|\d{8})+/gi))
-//             .map(formatWhatsapp)
-//             .filter((el) => el && el !== "")
-//             .map((el) => String(el)),
-//         ]),
-//       ];
-//       showNumbers();
-//     } else if (sending) {
-//       sendSEND(`Mensagem registrada!`);
-//       msg_ids.push(msg.id);
-//     } else {
-//       const groupSelect = grupos[+Number(msg.body)];
-//       if (groupSelect) {
-//         // const contacts: Contact[] = await new Promise((resolve) => {
-//         //   app.emit(EventsApp.CONTACTS, {
-//         //     listener: (contacts: any) => {
-//         //       resolve(contacts);
-//         //     },
-//         //   });
-//         // });
-//         // let tmp_numbers: string[] = [];
-//         // contacts
-//         //   .filter((contact) => contact.isGroup(groupSelect))
-//         //   .forEach((contact) => {
-//         //     contact.telefones.split(",").forEach((number) => {
-//         //       tmp_numbers.push(number);
-//         //     });
-//         //   });
-//         // numbers = [...new Set([...numbers, ...tmp_numbers])];
-//         showNumbers();
-//       }
-
-//       sendSEND(
-//         `Enviar mensagem para o grupo: ${grupos
-//           .map((el, id) => `\n${id} - ${el}`)
-//           .join()}`
-//       );
-//     }
-//   }
-// });
+const sends = Sends.create({
+  contatos: contatos,
+});
+messages.onMessageNew(async (msg) => {
+  if (!msg.isBot && msg.to === G_SEND) {
+    if (msg.body?.match(/^(iniciar|enviar)$/gi)) {
+      try {
+        for (const number of sends.numbers) {
+          if (!sends.cancel) await messages.forwardMessage(number, sends.ids);
+        }
+      } catch (e) {
+        console.log("Erro no envio: ", e);
+      }
+    } else if (!sends.loggingNewMessages && !msg.hasMedia && msg.body) {
+      const result = await sends.toAnalyzeAddNumber(msg.body);
+      if (result)
+        messages.sendMessage({
+          to: G_SEND,
+          body: result.msg,
+        });
+    } else {
+      sends.ids.push(msg.id);
+      messages.sendMessage({
+        to: G_SEND,
+        body: "Mensagem registrada!",
+      });
+    }
+  }
+});

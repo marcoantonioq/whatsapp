@@ -1,5 +1,7 @@
+import { InterfaceRepository } from "../core/Message";
+
 export class StateWhatsapp {
-  constructor(private readonly repo?: any) {}
+  constructor(private readonly repo: InterfaceRepository) {}
 
   async execute(state: string, session?: string) {
     //return isLogged || notLogged || browserClose || qrReadSuccess || qrReadFail || autocloseCalled || desconnectedMobile || deleteToken

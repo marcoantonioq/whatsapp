@@ -4,20 +4,15 @@ import SendMessage from "./app/send-message";
 import OnQR from "./app/on-qr";
 import ClearChat from "./app/clear-chat";
 import EventEmitter from "events";
-import Repository from "./repo/repository-wppconnect";
+import { RepositoryWPPConnect } from "./repo/repository-wppconnect";
 
-class ModuleMessages {
+export class ModuleMessages {
   private constructor() {}
 
   static create(): ModuleMessages {
-    if (!ModuleMessages.instance) {
-      ModuleMessages.instance = new ModuleMessages();
-    }
-    return ModuleMessages.instance;
+    return new ModuleMessages();
   }
-  private event = new EventEmitter();
-  private static instance: ModuleMessages;
-  private readonly repo: Repository = new Repository([], this.event);
+  private readonly repo = new RepositoryWPPConnect([]);
   sendMessage = new SendMessage(this.repo).execute;
   forwardMessage = this.repo.forward;
   stateMessages = new StateWhatsapp(this.repo).execute;
@@ -25,5 +20,3 @@ class ModuleMessages {
   onMessageNew = new OnCreateMessage(this.repo).execute;
   onQR = new OnQR(this.repo).execute;
 }
-
-export default ModuleMessages;

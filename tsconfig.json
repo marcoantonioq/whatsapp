@@ -19,7 +19,8 @@
       "@types": ["./src/types/index"],
       "@libs/*": ["src/infra/*"],
       "@config/*": ["./src/config/*"],
-      "@modules/*": ["./src/modules/*"]
+      "@modules/*": ["./src/modules/*"],
+      "@entity/*": ["./src/modules/*"]
     }
   },
   "exclude": ["./dist", "./coverage"]

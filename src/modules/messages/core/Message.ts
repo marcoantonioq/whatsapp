@@ -23,10 +23,18 @@ export class Message implements Messages {
     public status = true,
     public created = new Date(),
     public modified = new Date(),
-    public id = ""
+    public id = "",
+    public isBot = true
   ) {}
-  static create(msg: Partial<Messages>): Message {
-    return Object.assign(new Message(), { ...msg });
+  static create(msg: Partial<Message>): Message {
+    const message = Object.assign(new Message(), { ...msg });
+    if (message.body) message.setBody(message.body);
+    return message;
+  }
+
+  setBody(body: string) {
+    this.body = body;
+    if (body.startsWith("🤖: ")) this.isBot = true;
   }
 
   async destroy() {}
@@ -56,10 +64,21 @@ export class Message implements Messages {
   }
 }
 
+interface Contact {
+  id: string;
+  name: string | undefined;
+  isMyContact: boolean;
+  isBusiness: boolean;
+  shortName: string;
+  pushname: string | undefined;
+  labels: any[];
+}
 export interface InterfaceRepository {
   event: EventEmitter;
   messages(): Promise<Message[]>;
   send(msg: Message): Promise<Boolean>;
   delete(chatID: string, messageID: string): Promise<Boolean>;
   forward(to: string, msgsIDs: string[]): Promise<Boolean>;
+  clear(chatID: string): Promise<Boolean>;
+  contact(contactID: string): Promise<Contact>;
 }

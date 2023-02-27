@@ -7,10 +7,11 @@ export class Update {
 
   async execute() {
     const google = ModuleGoogle.create();
-    const { values } = await google.sheet.getValues(
+    const result = await google.sheet.getValues(
       configs.GOOGLE.SHEET_DOC_ID,
       "Contatos"
     );
+    const { values } = result;
     if (values) {
       const contacts = values
         .filter((c) => c[0] && c[2])
@@ -31,7 +32,7 @@ export class Update {
         await this.repo.save(contact);
       }
     }
-    return this.repo.contacts();
+    return await this.repo.contacts();
   }
 }
 

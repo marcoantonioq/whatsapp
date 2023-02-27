@@ -1,15 +1,15 @@
-import { Message } from "../core/Message";
+import { InterfaceRepository, Message } from "../core/Message";
 
 interface params {
   to: string;
-  msgs: Message[];
+  msgs: string[];
 }
 
 export class ForwardMessages {
-  constructor(private readonly repo?: any) {}
+  constructor(private readonly repo: InterfaceRepository) {}
 
   async execute({ to, msgs }: params) {
-    this.repo.forwardMessages(to, msgs);
+    this.repo.forward(to, msgs);
   }
 }
 export default ForwardMessages;
