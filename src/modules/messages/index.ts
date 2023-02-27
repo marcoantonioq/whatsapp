@@ -1,54 +1,29 @@
-// https://docs.orkestral.io/venom/#/
-import { EventsApp, Module as ModuleType } from "@types";
-import Repository from "./infra/repository-wppconnect";
-
-import StateMessages from "./app/on-state";
-import OnCreate from "./app/on-created";
+import StateWhatsapp from "./app/on-state";
+import OnCreateMessage from "./app/on-created-message";
 import SendMessage from "./app/send-message";
 import OnQR from "./app/on-qr";
-import App from "src/app";
+import ClearChat from "./app/clear-chat";
+import EventEmitter from "events";
+import Repository from "./repo/repository-wppconnect";
 
-export const module = <ModuleType>{
-  async initialize(app: App): Promise<Boolean> {
-    const repo = new Repository([], app);
-    const onCreate = new OnCreate(repo);
-    const stateMessages = new StateMessages(repo);
-    const sendMessage = new SendMessage(repo);
+class ModuleMessages {
+  private constructor() {}
 
-    // enviar
-    app.on(EventsApp.MESSAGE_SEND, (msg) => {
-      sendMessage.execute(msg);
-    });
-    // create message
-    app.on(EventsApp.MESSAGE_CREATE, async (msg) => {
-      onCreate.execute(msg);
-    });
-    // status
-    app.on(EventsApp.STATUS, async (state, session) => {
-      stateMessages.execute(state, session);
-    });
-    // lista de mensagens
-    app.on(EventsApp.MESSAGES, async (callback: Function) => {
-      if (callback) callback(repo);
-      return repo.messages;
-    });
+  static create(): ModuleMessages {
+    if (!ModuleMessages.instance) {
+      ModuleMessages.instance = new ModuleMessages();
+    }
+    return ModuleMessages.instance;
+  }
+  private event = new EventEmitter();
+  private static instance: ModuleMessages;
+  private readonly repo: Repository = new Repository([], this.event);
+  sendMessage = new SendMessage(this.repo).execute;
+  forwardMessage = this.repo.forward;
+  stateMessages = new StateWhatsapp(this.repo).execute;
+  clearChat = new ClearChat(this.repo).execute;
+  onMessageNew = new OnCreateMessage(this.repo).execute;
+  onQR = new OnQR(this.repo).execute;
+}
 
-    app.on(EventsApp.QR_RECEIVED, async (qr) => {
-      new OnQR(repo).execute(qr);
-    });
-
-    app.on(EventsApp.READY, () => {
-      console.log("App iniciado!!!");
-    });
-
-    app.on(EventsApp.FORWARD_MESSAGES, ({ to, ids }) => {
-      repo.forwardMessages(to, ids);
-    });
-
-    app.on(EventsApp.CLEAR, (chatID: string) => {
-      repo.clearChat(chatID);
-    });
-
-    return true;
-  },
-};
+export default ModuleMessages;

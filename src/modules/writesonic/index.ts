@@ -4,7 +4,7 @@ import { EventsApp, Module as ModuleType } from "@types";
 import { auth, text } from "./core/WriteSonic";
 
 export const module = <ModuleType>{
-  async initialize(app: import("events")) {
+  async create(app: import("events")) {
     app.on(EventsApp.MESSAGE_CREATE, async (msg) => {
       try {
         if (configs.WRITESONIC.KEY && msg.body) {

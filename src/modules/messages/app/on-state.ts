@@ -1,4 +1,4 @@
-export class StateMessages {
+export class StateWhatsapp {
   constructor(private readonly repo?: any) {}
 
   async execute(state: string, session?: string) {
@@ -15,4 +15,4 @@ export class StateMessages {
     }
   }
 }
-export default StateMessages;
+export default StateWhatsapp;

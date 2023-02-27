@@ -1,91 +1,209 @@
-import { EventsApp, GOOGLE_SHEET_GET, Module } from "@types";
-import EventEmitter from "events";
-
-declare interface App {
-  on(event: EventsApp.MESSAGE_CREATE, listener: (msg: Message) => void): this;
-  on(event: EventsApp.MESSAGE_SEND, listener: (msg: Message) => void): this;
-  on(
-    event: EventsApp.FORWARD_MESSAGES,
-    listener: (request: { to: string; ids: string[] }) => void
-  ): this;
-  on(event: EventsApp.MESSAGES, listener: (callback: Function) => void): this;
-  on(event: EventsApp.QR_RECEIVED, listener: (qr: string) => void): this;
-  on(
-    event: EventsApp.STATUS,
-    listener: (state: string, session: string) => void
-  ): this;
-  on(
-    event: EventsApp.UPDATE,
-    listener: (event: { id: string; data: any }) => void
-  ): this;
-  on(event: string, listener: Function): this;
-  emit(
-    event: EventsApp.GOOGLE_SHEET_GET,
-    params: {
-      spreadsheetId: string;
-      range: string;
-      listener: Function;
-    }
-  ): boolean;
-  emit(
-    event: EventsApp.CONTACTS,
-    params: {
-      listener: (contacts: Contact[]) => void;
-      update?: Boolean;
-    }
-  ): boolean;
-  emit(
-    event: EventsApp.FORWARD_MESSAGES,
-    params: {
-      to: string;
-      msgs: Message[];
-    }
-  ): boolean;
-  emit(event: string, listener: any): boolean;
-}
-
-class App extends EventEmitter {
-  readonly modules: Array<any> = [];
-  private constructor() {
-    super();
-  }
-  static create() {
-    return new App();
-  }
-  add(module: Module) {
-    try {
-      module.initialize(this);
-      this.modules.push(module);
-    } catch (e) {
-      console.log("Erro module:::", e);
-    }
-  }
-}
-
-export default App;
-
-const app = App.create();
-
-import { module as Shell } from "@modules/shell";
-import { module as Contatos } from "@modules/contacts";
-import { module as Messages } from "@modules/messages";
-import { module as Google } from "@modules/google";
-import { module as OpenAI } from "@modules/openai";
-import { module as Sonic } from "@modules/writesonic";
-import { module as SEND } from "@modules/send";
-import { Contact } from "@modules/contacts/core/Contacts";
+import ModuleMessages from "@modules/messages";
+import { ModuleGoogle } from "@modules/google";
+import { ModuleOpenAI } from "@modules/openai";
+import configs from "@config/index";
 import { Message } from "@modules/messages/core/Message";
-app.add(Messages);
-app.add(Shell);
-app.add(Google);
-app.add(Contatos);
-app.add(OpenAI);
-app.add(Sonic);
-app.add(SEND);
+import { formatWhatsapp } from "@libs/phone";
+import ModuleContacts from "@modules/contacts";
 
-app.emit(EventsApp.CONTACTS, {
-  listener: (contatos) => {
-    // console.log(`Contatos recebidos::::::: `, contatos);
-  },
-  update: true,
+// export const messages = ModuleMessages.create();
+// export const google = ModuleGoogle.create();
+// export const openAI = ModuleOpenAI.create();
+
+export const contatos = ModuleContacts.create();
+contatos.contacts().then((contacts) => {
+  console.log("Contatos::", contacts);
 });
+
+// messages.onQR((qr) => {
+//   google.sheet.saveValues({
+//     spreadsheetId: configs.GOOGLE.SHEET_DOC_ID,
+//     values: [
+//       [
+//         `=image("https://image-charts.com/chart?chs=500x500&cht=qr&choe=UTF-8&chl="&ENCODEURL("${qr}"))`,
+//       ],
+//       [new Date().toLocaleString()],
+//     ],
+//     range: "Whatsapp!A2:A3",
+//   });
+// });
+
+// messages.onMessageNew(async (msg) => {
+//   console.log("Nova mensagem:::", msg);
+//   if (
+//     (msg.body && msg.body.startsWith("🤖:")) ||
+//     msg.to !== configs.WHATSAPP.GROUP_API
+//   )
+//     return;
+
+//   if (!msg.body) return;
+
+//   if (msg.body.split(" ").length > 1 && msg.body.match(/\?$/gi)) {
+//     const search = await google.search.text(msg.body);
+//     if (search)
+//       messages.sendMessage(
+//         Message.create({
+//           to: configs.WHATSAPP.GROUP_API,
+//           body: `Google: ${search}`,
+//         })
+//       );
+//   }
+
+//   // const transcription = await google.speech.oggToText(msg.body);
+//   // if (transcription)
+//   //   messages.sendMessage(
+//   //     Message.create({
+//   //       to: configs.WHATSAPP.GROUP_API,
+//   //       body: `Olá, sou um assistente. Entendi: \n\n"${transcription}"\n\nIsso mesmo? `,
+//   //     })
+//   //   );
+
+//   const result = await openAI.text({
+//     to: msg.to,
+//     from: msg.from || "",
+//     body: msg.body || "",
+//     type: "text",
+//   });
+
+//   if (msg.body.split(" ").length > 1 && result.result) {
+//     messages.sendMessage(
+//       Message.create({
+//         to: configs.WHATSAPP.GROUP_API,
+//         body: `OpenIA: \n${result.result}`,
+//       })
+//     );
+//   }
+// });
+
+// let numbers: string[] = [];
+// let msg_ids: string[] = [];
+// let sending = false;
+// const grupos = [
+//   "Irmandade Goiás",
+//   "Irmandade Mirandópolis",
+//   "Irmandade Mossâmedes",
+//   "Irmandade Uvá",
+//   "Ministério Cidade de Goiás",
+//   "Jovens Goiás",
+//   "Músicos Goiás",
+//   "Voluntários",
+//   "Testemunhado",
+//   // "TempoNovo",
+//   "Ânimo",
+//   // "Irmão",
+//   // "Piedade",
+//   // "Porteiros",
+//   // "IFG",
+//   "Teste1",
+//   "Teste2",
+//   // "Família",
+//   // "Cooperador",
+//   // "Ancião",
+// ];
+
+// const showNumbers = () => {
+//   messages.sendMessage(
+//     Message.create({
+//       to: configs.WHATSAPP.GROUP_SEND,
+//       body: `▶️ Enviaremos novas mensagens para: \n\n⏹️ Sair / Cancelar\n📤 Enviar / Ok\n\nNúmeros citados (${
+//         numbers.length
+//       }): ${numbers.join(", ")}`,
+//     })
+//   );
+// };
+
+// const sendSEND = (body: string) => {
+//   messages.sendMessage(
+//     Message.create({
+//       to: configs.WHATSAPP.GROUP_SEND,
+//       body,
+//     })
+//   );
+// };
+
+// const resetSEND = (
+//   body: string = "⏹️ Paramos encaminhar msg para os números citados!"
+// ) => {
+//   numbers = [];
+//   msg_ids = [];
+//   sending = false;
+//   sendSEND(body);
+// };
+
+// messages.onMessageNew(async (msg) => {
+//   if (msg.body?.startsWith("🤖:")) return true;
+//   if (msg.to === configs.WHATSAPP.GROUP_SEND) {
+//     const reg = (reg: RegExp) => {
+//       return !msg.hasMedia && msg.body && msg.body.match(reg);
+//     };
+//     if (reg(/^(reboot|cancelar|sair|exit)$/gi)) {
+//       resetSEND();
+//     } else if (reg(/^(iniciar|ok|enviar)$/gi) && numbers.length > 0) {
+//       if (sending) {
+//         for (const number of numbers) {
+//           // await messages.forwardMessage(`55${number}@c.us`, msg_ids);
+//         }
+
+//         resetSEND();
+//       } else {
+//         sendSEND(`Ok, vamos organizar tudo para iniciar....`);
+//         setTimeout(() => {
+//           sendSEND(
+//             `Próximas mensagens será encaminhada para ${numbers.length} número(s)!`
+//           );
+//           sending = true;
+//           setTimeout(resetSEND, 15 * 60 * 1000);
+//         }, 8000);
+//       }
+//     } else if (
+//       msg.body &&
+//       msg.type === "chat" &&
+//       reg(/(\d{4}-\d{4}|\d{8})+/gi)
+//     ) {
+//       console.log("MSG::: ", msg);
+//       numbers = [
+//         ...new Set([
+//           ...numbers,
+//           ...msg.body
+//             .split(/(\n|\r|\t|,|;)/gi)
+//             .map((el) => el.replace(/\D/gim, ""))
+//             .filter((el) => el.match(/(\d{4}-\d{4}|\d{8})+/gi))
+//             .map(formatWhatsapp)
+//             .filter((el) => el && el !== "")
+//             .map((el) => String(el)),
+//         ]),
+//       ];
+//       showNumbers();
+//     } else if (sending) {
+//       sendSEND(`Mensagem registrada!`);
+//       msg_ids.push(msg.id);
+//     } else {
+//       const groupSelect = grupos[+Number(msg.body)];
+//       if (groupSelect) {
+//         // const contacts: Contact[] = await new Promise((resolve) => {
+//         //   app.emit(EventsApp.CONTACTS, {
+//         //     listener: (contacts: any) => {
+//         //       resolve(contacts);
+//         //     },
+//         //   });
+//         // });
+//         // let tmp_numbers: string[] = [];
+//         // contacts
+//         //   .filter((contact) => contact.isGroup(groupSelect))
+//         //   .forEach((contact) => {
+//         //     contact.telefones.split(",").forEach((number) => {
+//         //       tmp_numbers.push(number);
+//         //     });
+//         //   });
+//         // numbers = [...new Set([...numbers, ...tmp_numbers])];
+//         showNumbers();
+//       }
+
+//       sendSEND(
+//         `Enviar mensagem para o grupo: ${grupos
+//           .map((el, id) => `\n${id} - ${el}`)
+//           .join()}`
+//       );
+//     }
+//   }
+// });

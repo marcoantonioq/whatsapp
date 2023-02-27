@@ -1,4 +1,5 @@
 import { Group, Messages } from "@prisma/client";
+import EventEmitter from "events";
 
 export class Message implements Messages {
   messageOptions = {};
@@ -56,8 +57,9 @@ export class Message implements Messages {
 }
 
 export interface InterfaceRepository {
+  event: EventEmitter;
   messages(): Promise<Message[]>;
   send(msg: Message): Promise<Boolean>;
-  deleteMessage(chatID: string, messageID: string): Promise<Boolean>;
-  forwardMessages(to: string, msgsIDs: string[]): Promise<Boolean>;
+  delete(chatID: string, messageID: string): Promise<Boolean>;
+  forward(to: string, msgsIDs: string[]): Promise<Boolean>;
 }

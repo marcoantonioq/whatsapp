@@ -1,4 +1,4 @@
-import { Repository, request } from "../infra/repo";
+import { Repository, request } from "../repo/repo";
 
 export class GetText {
   constructor(private readonly repo: Repository) {}

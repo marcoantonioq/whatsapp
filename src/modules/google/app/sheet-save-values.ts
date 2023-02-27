@@ -2,7 +2,7 @@ import configs from "@config/index";
 import Google from "../core/Google";
 import { GOOGLE_SHEET_SAVE } from "@types";
 
-export class SaveQrCode {
+export class SaveValues {
   constructor(private readonly repo?: any) {}
 
   async execute({ range, values, spreadsheetId }: GOOGLE_SHEET_SAVE) {
@@ -24,4 +24,4 @@ export class SaveQrCode {
   }
 }
 
-export default SaveQrCode;
+export default SaveValues;

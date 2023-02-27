@@ -1,5 +1,5 @@
 import { Agenda } from "../../contacts/core/Contacts";
-import { app } from "../../../libs/whatsapp";
+import { app } from "../../../infra/whatsapp";
 import API from "../../../modules/api/core/API";
 
 export const agenda = new Agenda();

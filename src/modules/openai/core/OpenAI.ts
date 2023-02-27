@@ -1,4 +1,4 @@
-import { request } from "../infra/repo";
+import { request } from "../repo/repo";
 
 export class Dialog {
   private constructor(

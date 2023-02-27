@@ -1,37 +1,14 @@
-import { EventsApp } from "@types";
 import { Message, InterfaceRepository } from "../core/Message";
 import settings from "@config/index";
 
 import * as wppconnect from "@wppconnect-team/wppconnect";
 import { Messages } from "@prisma/client";
 
-export enum EventsWhatsapp {
-  AUTHENTICATED = "authenticated",
-  AUTHENTICATION_FAILURE = "auth_failure",
-  READY = "ready",
-  MESSAGE_RECEIVED = "message",
-  MESSAGE_CREATE = "message_create",
-  MESSAGE_REVOKED_EVERYONE = "message_revoke_everyone",
-  MESSAGE_REVOKED_ME = "message_revoke_me",
-  MESSAGE_ACK = "message_ack",
-  MEDIA_UPLOADED = "media_uploaded",
-  GROUP_JOIN = "group_join",
-  GROUP_LEAVE = "group_leave",
-  GROUP_UPDATE = "group_update",
-  QR_RECEIVED = "qr",
-  LOADING_SCREEN = "loading_screen",
-  DISCONNECTED = "disconnected",
-  STATE_CHANGED = "change_state",
-  BATTERY_CHANGED = "change_battery",
-  REMOTE_SESSION_SAVED = "remote_session_saved",
-  CALL = "call",
-}
-
 export class Repository implements InterfaceRepository {
   private whatsapp!: wppconnect.Whatsapp;
   constructor(
     private readonly data: Message[],
-    private readonly app: import("events")
+    readonly event: import("events")
   ) {
     wppconnect
       .create({
@@ -42,11 +19,10 @@ export class Repository implements InterfaceRepository {
           _attempts: any,
           urlCode: any
         ) => {
-          console.log("Novo qrCode::", urlCode);
-          app.emit(EventsApp.QR_RECEIVED, urlCode);
+          event.emit("qr", urlCode);
         },
         statusFind: (statusSession: string, session: string) => {
-          app.emit(EventsApp.STATUS, statusSession, session);
+          event.emit("status", statusSession, session);
         },
         headless: true,
         devtools: false,
@@ -92,8 +68,26 @@ export class Repository implements InterfaceRepository {
       })
       .then(async (client) => {
         this.whatsapp = client;
-        await this.initialize();
-        this.app.emit(EventsApp.READY);
+        this.whatsapp.onAnyMessage(async (msg) => {
+          const payload = <Messages>{
+            id: msg.id,
+            from: msg.from,
+            to: msg.to,
+            body: msg.body,
+            type: msg.type,
+            hasMedia: msg.isMedia,
+            notifyName: msg.notifyName,
+          };
+          if (msg.isMedia) {
+            payload.body = "";
+            payload.caption = "";
+            payload.mimetype = msg.mimetype;
+          }
+          const message = Message.create(payload);
+          this.data.push(message);
+          this.event.emit("message_create", message);
+        });
+        this.event.emit("ready", this.whatsapp);
       })
       .catch((error) => {
         console.log("Erro ao iniciar o whatsapp:::", error);
@@ -117,39 +111,18 @@ export class Repository implements InterfaceRepository {
     return true;
   }
 
-  async deleteMessage(chatID: string, messageID: string): Promise<Boolean> {
+  async delete(chatID: string, messageID: string): Promise<Boolean> {
     return await this.whatsapp.deleteMessage(chatID, messageID);
   }
-  async forwardMessages(to: string, ids: string[], skipMyMessages = false) {
+  async forward(to: string, ids: string[], skipMyMessages = false) {
     await this.whatsapp.forwardMessages(to, ids, skipMyMessages);
     return true;
   }
-  async initialize() {
-    this.whatsapp.onAnyMessage(async (msg) => {
-      const payload = <Messages>{
-        id: msg.id,
-        from: msg.from,
-        to: msg.to,
-        body: msg.body,
-        type: msg.type,
-        hasMedia: msg.isMedia,
-        notifyName: msg.notifyName,
-      };
-      if (msg.isMedia) {
-        payload.body = "";
-        payload.caption = "";
-        payload.mimetype = msg.mimetype;
-      }
-      const message = Message.create(payload);
-      this.data.push(message);
-      this.app.emit(EventsApp.MESSAGE_CREATE, message);
-    });
-  }
-  async clearChat(chatID: string) {
+  async clear(chatID: string) {
     return this.whatsapp.clearChat(chatID);
   }
 
-  async getContact(contactID: string) {
+  async contact(contactID: string) {
     const { name, id, isMyContact, isBusiness, shortName, pushname, labels } =
       await this.whatsapp.getContact(contactID);
     return {
