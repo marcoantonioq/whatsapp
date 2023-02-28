@@ -78,29 +78,53 @@ messages.onQR((qr) => {
 const sends = Sends.create({
   contatos: contatos,
 });
+
 messages.onMessageNew(async (msg) => {
   if (!msg.isBot && msg.to === G_SEND) {
-    if (msg.body?.match(/^(iniciar|enviar)$/gi)) {
-      try {
-        for (const number of sends.numbers) {
-          if (!sends.cancel) await messages.forwardMessage(number, sends.ids);
-        }
-      } catch (e) {
-        console.log("Erro no envio: ", e);
-      }
-    } else if (!sends.loggingNewMessages && !msg.hasMedia && msg.body) {
-      const result = await sends.toAnalyzeAddNumber(msg.body);
-      if (result)
-        messages.sendMessage({
-          to: G_SEND,
-          body: result.msg,
-        });
-    } else {
-      sends.ids.push(msg.id);
+    const result = await sends.toAnalyzeAddNumber(msg.body || "");
+
+    const sendText = (text: string) => {
       messages.sendMessage({
         to: G_SEND,
-        body: "Mensagem registrada!",
+        body: text,
       });
+    };
+
+    switch (result.action) {
+      case "Enviando mensagens!":
+        sendText(result.action);
+        const { messagesID, numbers, cancel } = sends;
+        for (const number of numbers) {
+          if (cancel) break;
+          const payload = {
+            number,
+            messagesID,
+          };
+          await messages.forwardMessages(payload);
+        }
+        sends.reset();
+        sendText("Todas mensagens enviadas!");
+        break;
+      case "Ok, operação cancelada!":
+        sends.cancel = true;
+        sends.reset();
+        break;
+      case "Ok, informe as mensagens para envio!":
+        sendText(result.action);
+        break;
+      case "Novos números!":
+        sendText(result.msg);
+        break;
+      case "Números!":
+        sendText(result.numbers.join(", "));
+        break;
+      case "Mensagem registrada!":
+        sends.addMsg(msg.id);
+        sendText(result.action);
+        break;
+      default:
+        sendText(sends.groups);
+        break;
     }
   }
 });

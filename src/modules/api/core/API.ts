@@ -2,7 +2,7 @@ import { Agenda } from "../../contacts/core/Contacts";
 import { Message } from "../../messages/core/Message-bkp";
 import { Client, Message as msg } from "whatsapp-web.js";
 import Events from "events";
-import { formatWhatsapp } from "../../../infra/phone";
+import { format } from "../../../infra/phone";
 import { filterAsync } from "../../../infra/util/ArrayFunction";
 import { api } from "./MAIN";
 import { textResponse as gptSearch } from "../../../infra/openai/core/OpenAI";
@@ -44,7 +44,7 @@ export class API extends Events {
           .split(/(\n|\r|\t|,|;|\|)/gi)
           .map((el) => el.replace(/\D/gim, ""))
           .filter((el) => el.match(/(\d{8})+/gi))
-          .map((el) => formatWhatsapp(el))
+          .map((el) => format(el))
           .filter((el) => el && el !== "")
           .map((el) => String(el)),
       ]),

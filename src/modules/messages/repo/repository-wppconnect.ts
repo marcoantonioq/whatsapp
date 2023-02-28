@@ -95,10 +95,23 @@ export class RepositoryWPPConnect implements InterfaceRepository {
         console.log("Erro ao iniciar o whatsapp:::", error);
       });
   }
+  async forwardMessages(
+    to: string,
+    ids: string[],
+    skipMyMessages: boolean = false
+  ): Promise<boolean> {
+    try {
+      await this.whatsapp.forwardMessages(to, ids, skipMyMessages);
+      return true;
+    } catch (e) {
+      console.log("Erro no encaminhamento::", e);
+      return false;
+    }
+  }
   async messages(): Promise<Message[]> {
     return this.data;
   }
-  async send(msg: Message): Promise<Boolean> {
+  async send(msg: Message): Promise<boolean> {
     try {
       switch (msg.type) {
         case "image":
@@ -118,13 +131,10 @@ export class RepositoryWPPConnect implements InterfaceRepository {
     }
   }
 
-  async delete(chatID: string, messageID: string): Promise<Boolean> {
+  async delete(chatID: string, messageID: string): Promise<boolean> {
     return await this.whatsapp.deleteMessage(chatID, messageID);
   }
-  async forward(to: string, ids: string[], skipMyMessages = false) {
-    await this.whatsapp.forwardMessages(to, ids, skipMyMessages);
-    return true;
-  }
+
   async clear(chatID: string) {
     return this.whatsapp.clearChat(chatID);
   }

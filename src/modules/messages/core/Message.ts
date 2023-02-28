@@ -76,9 +76,13 @@ interface Contact {
 export interface InterfaceRepository {
   event: EventEmitter;
   messages(): Promise<Message[]>;
-  send(msg: Message): Promise<Boolean>;
-  delete(chatID: string, messageID: string): Promise<Boolean>;
-  forward(to: string, msgsIDs: string[]): Promise<Boolean>;
-  clear(chatID: string): Promise<Boolean>;
+  send(msg: Message): Promise<boolean>;
+  delete(chatID: string, messageID: string): Promise<boolean>;
+  forwardMessages(
+    to: string,
+    ids: string[],
+    skipMyMessages?: boolean
+  ): Promise<boolean>;
+  clear(chatID: string): Promise<boolean>;
   contact(contactID: string): Promise<Contact>;
 }
