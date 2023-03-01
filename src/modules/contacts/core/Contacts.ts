@@ -1,5 +1,5 @@
 import { Contatos as DSContatos, Grupos as DSGrupos } from "@prisma/client";
-import { formatWhatsapp } from "src/infra/phone";
+import { format } from "src/infra/phone";
 
 export class Group implements DSGrupos {
   constructor(public nome: string) {
@@ -41,7 +41,7 @@ export class Contact implements DSContatos {
       ?.split(/,|;/)
       .map((telefone) => {
         try {
-          return formatWhatsapp(telefone);
+          return format(telefone);
         } catch (e) {
           return "";
         }

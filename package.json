@@ -62,6 +62,6 @@
     "exec": "ts-node ./src/index.ts"
   },
   "prisma": {
-    "schema": "src/libs/data/prisma/schema.prisma"
+    "schema": "src/infra/data/prisma/schema.prisma"
   }
 }
