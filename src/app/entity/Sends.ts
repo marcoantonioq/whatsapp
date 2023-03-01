@@ -1,11 +1,22 @@
 import { format } from "@libs/phone";
 import { ModuleContacts } from "@modules/contacts";
+import EventEmitter from "events";
 
+export interface Contact {
+  id?: string;
+  name: string;
+  number: string;
+  isWhatsapp?: boolean;
+  isMyContact?: boolean;
+  icons?: string;
+}
 /**
  * Enviar mensagens para grupos
  */
-export class Sends {
-  private constructor(private contatos: ModuleContacts) {}
+export class Sends extends EventEmitter {
+  private constructor(private contatos: ModuleContacts) {
+    super();
+  }
   static create({ contatos }: { contatos: ModuleContacts }) {
     return new Sends(contatos);
   }
@@ -24,11 +35,11 @@ export class Sends {
         setTimeout(() => {
           this.cancel = false;
         }, 120000);
-      } else if (reg(/^(listar|lista|números|telefones)$/gi)) {
-        this.action = `Números!`;
+      } else if (reg(/^(list|l|listar|lista|números|telefones)$/gi)) {
+        this.action = `Lista de números:`;
       } else if (
         reg(/^(ok|cadastrar)$/gi) &&
-        this.numbers.length > 0 &&
+        this.contacts.length > 0 &&
         !this.loggingNewMessages
       ) {
         this.action = `Ok, informe as mensagens para envio!`;
@@ -46,11 +57,7 @@ export class Sends {
             contact.isGroup(groupSelect)
           );
 
-          this.msg = `${this.msg}\n\nGrupo selecionando: ${groupSelect} com ${
-            contatos.length
-          } contatos!\n\n${contatos
-            .map((c) => `${c.nome} (${c.telefones})`)
-            .join("\n")}`;
+          this.msg = `${this.msg}\n\nGrupo selecionando: ${groupSelect} com ${contatos.length} contatos!`;
           this.addNumber(contatos.map((c) => c.telefones).join(", "));
         }
       } else {
@@ -73,11 +80,16 @@ export class Sends {
         .map(format)
         .filter((el) => el !== "");
 
-      citados.forEach((number) => {
-        if (this.numbers.indexOf(number) === -1) {
-          this.numbers.push(number);
-        }
-      });
+      const contacts = citados
+        .map((num) => {
+          const id = this.contacts.findIndex(({ number }) => number === num);
+          if (id < 0) {
+            return <Contact>{ name: "", number: num };
+          }
+          return false;
+        })
+        .filter((contact) => contact);
+      this.contacts = <Contact[]>contacts;
       if (citados.length)
         msg = `\nNúmeros citados (${citados.length}): ${citados.join(", ")}`;
     }
@@ -92,7 +104,7 @@ export class Sends {
   async reset(
     msg: string = "⏹️ Paramos encaminhar msg para os números citados!"
   ) {
-    this.numbers = [];
+    this._contacts = [];
     this.messagesID = [];
     this.error = "";
     this.msg = "";
@@ -107,17 +119,62 @@ export class Sends {
   }
 
   get response() {
-    const { msg, action, error, messagesID, numbers } = this;
+    const { msg, action, error, messagesID, _contacts: contacts } = this;
     return {
       msg,
       action,
       error,
       messagesID,
-      numbers,
+      contacts,
     };
   }
 
-  numbers: string[] = [];
+  onCreateContact(listener: (contact: Contact) => void) {
+    this.on("contact_create", listener);
+  }
+
+  contactsToString() {
+    return this.contacts
+      .map((el) => {
+        return `${el.name} - (${el.number})${el.icons}`;
+      })
+      .join("\n");
+  }
+
+  get contacts() {
+    return this._contacts;
+  }
+
+  set contacts(contacts: Contact[]) {
+    contacts.forEach((contact) => {
+      const id = this._contacts.findIndex(
+        ({ number }) => number === contact.number
+      );
+      if (id > -1) {
+        const old = this._contacts[id];
+        const value = <Contact>{
+          name: contact.name || old.name,
+          number: contact.number || old.number,
+          isMyContact: contact.name || old.isMyContact,
+          isWhatsapp: contact.isMyContact || old.isMyContact,
+        };
+        const isTrue = (value: boolean | undefined, icon: string) => {
+          return value ? icon : "";
+        };
+        value.icons = `${isTrue(value.isWhatsapp, "🆗")} ${isTrue(
+          value.isMyContact,
+          "💾"
+        )}`;
+
+        this._contacts[id] = value;
+      } else {
+        this._contacts.push(contact);
+        this.emit("contact_create", contact);
+      }
+    });
+  }
+
+  _contacts: Contact[] = [];
   messagesID: string[] = [];
   action = "";
   msg = "";

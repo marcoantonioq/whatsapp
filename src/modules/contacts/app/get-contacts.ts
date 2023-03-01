@@ -1,11 +1,12 @@
 import { InterfaceRepository } from "../core/Contacts";
 
-export class Contatos {
+export class Contacts {
   constructor(private readonly repo: InterfaceRepository) {}
 
   async execute() {
-    return await this.repo.contacts();
+    const contacts = await this.repo.contacts();
+    return contacts;
   }
 }
 
-export default Contatos;
+export default Contacts;
