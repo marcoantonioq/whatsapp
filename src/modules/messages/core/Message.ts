@@ -64,13 +64,14 @@ export class Message implements Messages {
   }
 }
 
-interface Contact {
+export interface Contact {
   id: string;
-  name: string | undefined;
+  formattedName: string | undefined;
   isMyContact: boolean;
   isBusiness: boolean;
   shortName: string;
   pushname: string | undefined;
+  isUser: boolean;
   labels: any[];
 }
 export interface InterfaceRepository {
@@ -84,5 +85,6 @@ export interface InterfaceRepository {
     skipMyMessages?: boolean
   ): Promise<boolean>;
   clear(chatID: string): Promise<boolean>;
-  contact(contactID: string): Promise<Contact>;
+  getContact(contactID: string): Promise<Contact>;
+  initialize(): Promise<boolean>;
 }

@@ -1,5 +1,9 @@
-# whatsapp
+# start
 
 chmod +x shell/init.sh
 
-docker-compose up --build
+docker-compose up
+
+# update
+
+git pull --ff-only

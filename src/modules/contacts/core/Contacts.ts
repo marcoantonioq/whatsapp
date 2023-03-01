@@ -1,5 +1,6 @@
 import { Contatos as DSContatos, Grupos as DSGrupos } from "@prisma/client";
 import { format } from "src/infra/phone";
+import { EventEmitter } from "stream";
 
 export class Group implements DSGrupos {
   constructor(public nome: string) {
@@ -83,6 +84,7 @@ export class Contact implements DSContatos {
 }
 
 export interface InterfaceRepository {
+  event: EventEmitter;
   contacts(): Promise<Contact[]>;
   save(contato: Contact): Promise<Boolean>;
   delete(contato: Contact): Promise<Boolean>;

@@ -5,6 +5,9 @@ import OnQR from "./app/on-qr";
 import ClearChat from "./app/clear-chat";
 import { RepositoryWPPConnect } from "./repo/repository-wppconnect";
 import ForwardMessages from "./app/forward-messages";
+import GetContact from "./app/get-contact";
+import OnReady from "./app/on-ready";
+import Initialize from "./app/initialize-services";
 
 export class ModuleMessages {
   private constructor() {}
@@ -13,10 +16,13 @@ export class ModuleMessages {
     return new ModuleMessages();
   }
   private readonly repo = new RepositoryWPPConnect([]);
-  sendMessage = new SendMessage(this.repo).execute;
-  forwardMessages = new ForwardMessages(this.repo).execute;
-  stateMessages = new StateWhatsapp(this.repo).execute;
   clearChat = new ClearChat(this.repo).execute;
+  forwardMessages = new ForwardMessages(this.repo).execute;
+  getContact = new GetContact(this.repo).execute;
+  initialize = new Initialize(this.repo).execute;
   onMessageNew = new OnCreateMessage(this.repo).execute;
   onQR = new OnQR(this.repo).execute;
+  onReady = new OnReady(this.repo).execute;
+  sendMessage = new SendMessage(this.repo).execute;
+  stateMessages = new StateWhatsapp(this.repo).execute;
 }
