@@ -139,7 +139,7 @@ async function init() {
       }
     }
   });
-  console.log("::: Módulos carregados!");
+  console.log("::: Módulos iniciados!");
 }
 
 init().then(async () => {
