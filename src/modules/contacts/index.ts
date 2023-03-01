@@ -1,6 +1,6 @@
 import { Repository } from "./repo/repository";
 import GetGoogleSheet from "./app/get-google-sheet";
-import Contatos from "./app/contatos";
+import Contacts from "./app/get-contacts";
 import OnCreateMessage from "./app/on-created-contact";
 
 export class ModuleContacts {
@@ -11,6 +11,6 @@ export class ModuleContacts {
   }
   private readonly repo: Repository = new Repository([]);
   getGoogleSheetToRepo = new GetGoogleSheet(this.repo).execute;
-  contacts = new Contatos(this.repo).execute;
+  contacts = new Contacts(this.repo).execute;
   onCreate = new OnCreateMessage(this.repo).execute;
 }

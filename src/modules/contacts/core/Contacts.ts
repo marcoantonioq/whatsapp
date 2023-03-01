@@ -1,6 +1,6 @@
 import { Contatos as DSContatos, Grupos as DSGrupos } from "@prisma/client";
+import EventEmitter from "events";
 import { format } from "src/infra/phone";
-import { EventEmitter } from "stream";
 
 export class Group implements DSGrupos {
   constructor(public nome: string) {
@@ -19,7 +19,7 @@ export class Contact implements DSContatos {
     public id: string = "",
     public nome: string = "",
     public notas: string | null = null,
-    public telefones: string = "",
+    private _telefones: string = "",
     public grupos: string | null = null,
     public aniversario: string | null = null,
     public email: string | null = null,
@@ -27,18 +27,23 @@ export class Contact implements DSContatos {
     public status: boolean | null = true,
     public datas: Date | null = null,
     public modified: Date | null = null,
-    public created: Date | null = null
+    public created: Date | null = null,
+    public selected: boolean = false
   ) {}
 
   static create(contact: Partial<Contact>): Contact {
     const new_contact = Object.assign(new Contact(), { ...contact });
-    if (contact.telefones) new_contact.setTelefones(contact.telefones);
+    if (contact.telefones) new_contact.telefones = contact.telefones;
     if (contact.grupos) new_contact.setGrupos(contact.grupos);
     return new_contact;
   }
 
-  setTelefones(telefones: string) {
-    this.telefones = telefones
+  get telefones() {
+    return this._telefones;
+  }
+
+  set telefones(telefones) {
+    this._telefones = telefones
       ?.split(/,|;/)
       .map((telefone) => {
         try {

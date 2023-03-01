@@ -1,4 +1,4 @@
-import { Message, InterfaceRepository } from "../core/Message";
+import { Message, InterfaceRepository, Contact } from "../core/Message";
 import settings from "@config/index";
 
 import * as wppconnect from "@wppconnect-team/wppconnect";
@@ -56,30 +56,33 @@ export class RepositoryWPPConnect implements InterfaceRepository {
     return this.whatsapp.clearChat(chatID);
   }
 
-  async getContact(contactID: string) {
+  async getContact(contactID: string): Promise<Contact | undefined> {
     if (!this.whatsapp) throw "Whatsapp não inicializado!";
-    const contact = await this.whatsapp.getContact(contactID);
-    console.log("Contato:::", contact);
-    const {
-      formattedName,
-      id,
-      isBusiness,
-      isMyContact,
-      labels,
-      pushname,
-      shortName,
-      isUser,
-    } = contact;
-    return {
-      formattedName,
-      id: id._serialized,
-      isBusiness,
-      isMyContact,
-      labels,
-      pushname,
-      shortName,
-      isUser,
-    };
+    try {
+      const contact = await this.whatsapp.getContact(contactID);
+      const {
+        id,
+        isBusiness,
+        isMyContact,
+        labels,
+        pushname,
+        shortName,
+        isUser,
+        isWAContact,
+      } = contact;
+      return {
+        id: id._serialized,
+        isBusiness,
+        isMyContact,
+        labels,
+        pushname,
+        shortName,
+        isUser,
+        isWAContact,
+      };
+    } catch (e) {
+      console.log("Error GetContact:::", e);
+    }
   }
 
   async initialize() {
