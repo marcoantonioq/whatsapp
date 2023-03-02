@@ -56,6 +56,11 @@ export class RepositoryWPPConnect implements InterfaceRepository {
     return this.whatsapp.clearChat(chatID);
   }
 
+  async download(messageID: string): Promise<string> {
+    if (!this.whatsapp) throw "Whatsapp não inicializado!";
+    return this.whatsapp.downloadMedia(messageID);
+  }
+
   async getContact(contactID: string): Promise<Contact | undefined> {
     if (!this.whatsapp) throw "Whatsapp não inicializado!";
     try {
@@ -157,6 +162,7 @@ export class RepositoryWPPConnect implements InterfaceRepository {
           hasMedia: msg.isMedia,
           notifyName: msg.notifyName,
           isBot: false,
+          isGroup: msg.isGroupMsg,
         };
         if (msg.isMedia) {
           payload.body = "";
@@ -166,6 +172,8 @@ export class RepositoryWPPConnect implements InterfaceRepository {
         const message = Message.create(payload);
         this.data.push(message);
         if (!message.isBot) {
+          // console.log("Nova mensagem:: ", message);
+          // console.log("Nova mensagem whatsapp:: ", msg);
           event.emit("message_create", message);
         }
       });

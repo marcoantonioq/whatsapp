@@ -56,6 +56,14 @@ class Google extends EventEmitter {
       auth: this.client,
     }).cse;
   }
+
+  get storage() {
+    return GoogleApis.storage({ version: "v1", auth: this.client });
+  }
 }
+
+const google = Google.create();
+
+console.log("BUCKETS::::", google.storage.buckets);
 
 export default Google;

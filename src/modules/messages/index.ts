@@ -8,6 +8,7 @@ import ForwardMessages from "./app/forward-messages";
 import GetContactWhatsapp from "./app/get-contact-whatsapp";
 import OnReady from "./app/on-ready";
 import Initialize from "./app/initialize-services";
+import DownloadMedia from "./app/download-media";
 
 export class ModuleMessages {
   private constructor() {}
@@ -25,4 +26,5 @@ export class ModuleMessages {
   onReady = new OnReady(this.repo).execute;
   sendMessage = new SendMessage(this.repo).execute;
   stateMessages = new StateWhatsapp(this.repo).execute;
+  downloadMedia = new DownloadMedia(this.repo).execute;
 }
