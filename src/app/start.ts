@@ -1,14 +1,14 @@
 import { ModuleMessages } from "@modules/messages";
 import configs from "@config/index";
 import { ModuleGoogle } from "@modules/google";
-import { ModuleRequest } from "@modules/requests";
+import { ModuleChatsAI } from "@modules/chats-ia";
 import { ModuleContacts } from "@modules/contacts";
 import { Sends } from "./entity/Sends";
 
 export const messages = ModuleMessages.create();
 export const google = ModuleGoogle.create();
-export const openAI = ModuleRequest.create("openAI");
-export const writeSonic = ModuleRequest.create("writeSonic");
+export const openAI = ModuleChatsAI.create("openAI");
+export const writeSonic = ModuleChatsAI.create("writeSonic");
 export const contatos = ModuleContacts.create();
 
 const G_SEND = configs.WHATSAPP.GROUP_SEND;

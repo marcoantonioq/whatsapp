@@ -5,18 +5,18 @@ import { Repository as RepoWrite } from "./repo/repo-write-sonic";
 
 type repos = "openAI" | "writeSonic";
 
-export class ModuleRequest {
+export class ModuleChatsAI {
   private constructor(private readonly repo: InterfaceRepository) {}
 
-  static create(repo: repos): ModuleRequest {
+  static create(repo: repos): ModuleChatsAI {
     switch (repo) {
       case "openAI":
-        return new ModuleRequest(new RepoOpenAI([]));
+        return new ModuleChatsAI(new RepoOpenAI([]));
       default:
-        return new ModuleRequest(new RepoWrite([]));
+        return new ModuleChatsAI(new RepoWrite([]));
     }
   }
   text = new GetText(this.repo).execute;
 }
 
-export default ModuleRequest;
+export default ModuleChatsAI;
