@@ -62,8 +62,4 @@ class Google extends EventEmitter {
   }
 }
 
-const google = Google.create();
-
-console.log("BUCKETS::::", google.storage.buckets);
-
 export default Google;

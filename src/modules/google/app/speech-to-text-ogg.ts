@@ -17,7 +17,6 @@ export class SpeechToTextOGG {
       requestBody: {
         audio: {
           content: data,
-          // uri: "gs://audios-whatsapp",
         },
         config: {
           encoding: "OGG_OPUS",
