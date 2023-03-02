@@ -1,16 +1,25 @@
-import nodeHtmlToImage from "node-html-to-image";
-import { promises } from "fs";
+import puppeteer from "puppeteer";
+import { promises as fs } from "fs";
 
-const init = async () => {
-  const html = await promises.readFile(
-    "src/modules/template/index.html",
-    "utf-8"
-  );
-  nodeHtmlToImage({
-    output: "./out/image.png",
-    html: html,
-    content: { name: "Marco Antônio" },
-  }).then(() => console.log("Imagem criada com sucesso!"));
+const init = async (output: string, values: any) => {
+  let html = await fs.readFile("src/modules/template/index.html", "utf-8");
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  const keys = Object.keys(values);
+  for (const key of keys) {
+    html = html.replaceAll(`{{${key}}}`, values[key]);
+  }
+  await page.setContent(html);
+  const content = await page.$("body");
+  if (content) {
+    const imageBuffer = await content.screenshot();
+    await page.close();
+    await browser.close();
+    await fs.writeFile("./out/image.png", imageBuffer);
+    return imageBuffer;
+  }
 };
 
-init();
+init("./out/image.png", { name: "Marco Antônio" }).then(() =>
+  console.log("Imagem criada com sucesso!")
+);
