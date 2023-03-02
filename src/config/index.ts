@@ -5,7 +5,7 @@ const parsed = env().parsed;
 
 export const configs = {
   WRITESONIC: {
-    KEY: parsed?.WRITESONIC_KEY,
+    KEY: parsed?.WRITESONIC_KEY || "",
   },
   OPENAI: {
     KEY: parsed?.OPENAI_KEY || "",

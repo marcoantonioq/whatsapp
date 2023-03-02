@@ -24,7 +24,8 @@ export class Message implements Messages {
     public created = new Date(),
     public modified = new Date(),
     public id = "",
-    public isBot = true
+    public isBot = true,
+    public isGroup = false
   ) {}
   static create(msg: Partial<Message>): Message {
     const message = Object.assign(new Message(), { ...msg });
@@ -85,6 +86,7 @@ export interface InterfaceRepository {
     skipMyMessages?: boolean
   ): Promise<boolean>;
   clear(chatID: string): Promise<boolean>;
+  download(messageID: string): Promise<string>;
   getContact(contactID: string): Promise<Contact | undefined>;
   initialize(): Promise<boolean>;
 }
