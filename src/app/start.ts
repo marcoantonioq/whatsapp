@@ -1,23 +1,23 @@
 import { ModuleMessages } from "@modules/messages";
 import configs from "@config/index";
 import { ModuleGoogle } from "@modules/google";
-import { ModuleRequest } from "@modules/requests";
+import { ModuleChatsAI } from "@modules/chats-ia";
 import { ModuleContacts } from "@modules/contacts";
 import { Sends } from "./entity/Sends";
 
 export const messages = ModuleMessages.create();
 export const google = ModuleGoogle.create();
-export const openAI = ModuleRequest.create("openAI");
-export const writeSonic = ModuleRequest.create("writeSonic");
+export const openAI = ModuleChatsAI.create("openAI");
+export const writeSonic = ModuleChatsAI.create("writeSonic");
 export const contatos = ModuleContacts.create();
 
 const G_SEND = configs.WHATSAPP.GROUP_SEND;
 
 async function init() {
-  // const contacts = await contatos.getGoogleSheetToRepo();
-  // contatos.onCreate(async (contact) => {
-  //   console.log("Novo contato criado::", contact);
-  // });
+  await contatos.getGoogleSheetToRepo();
+  contatos.onCreate(async (contact) => {
+    console.log("Novos contato::", contact);
+  });
 
   /**
    * Mensagens Whatsapp iniciado!
@@ -51,59 +51,66 @@ async function init() {
       if (msg.type && msg.hasMedia && ["audio", "ptt"].includes(msg.type)) {
         const media = await messages.downloadMedia(msg.id);
         const transcription = await google.speech.oggToText(media.data);
-        if (transcription)
+        if (transcription) {
           messages.sendMessage({
             to: configs.WHATSAPP.GROUP_API,
-            body: `Olá, sou um assistente. Entendi: \n\n"${transcription}"\n\nIsso mesmo? `,
+            body: `Transcrição: \n\n"${transcription}"`,
           });
+          resolve(transcription);
+        }
       }
-      resolve(true);
     });
 
-    // if (msg.body.split(" ").length > 1 && msg.body.match(/\?$/gi)) {
-    //   const search = await google.search.text(msg.body);
-    //   if (search)
-    //     messages.sendMessage({
-    //       to: configs.WHATSAPP.GROUP_API,
-    //       body: `Google: ${search}`,
-    //     });
-    // }
+    if (msg.body) {
+      if (msg.body.split(" ").length > 1) {
+        new Promise(async (resolve) => {
+          if (msg.body && msg.body.match(/\?$/gi)) {
+            const search = await google.search.text(msg.body);
+            if (search) {
+              messages.sendMessage({
+                to: configs.WHATSAPP.GROUP_API,
+                body: `Google: ${search}`,
+              });
+              resolve(search);
+            }
+          }
+        });
 
-    // if (msg.body.split(" ").length > 1) {
-    //   new Promise(async (resolve) => {
-    //     const result = await writeSonic.text({
-    //       to: msg.to,
-    //       from: msg.from || "",
-    //       body: msg.body || "",
-    //       type: "text",
-    //     });
+        new Promise(async (resolve) => {
+          const result = await writeSonic.text({
+            to: msg.to,
+            from: msg.from || "",
+            body: msg.body || "",
+            type: "text",
+          });
 
-    //     if (result.result) {
-    //       messages.sendMessage({
-    //         to: configs.WHATSAPP.GROUP_API,
-    //         body: `WriteSonic: \n${result.result}`,
-    //       });
-    //     }
-    //     resolve(result);
-    //   });
+          if (result.result) {
+            messages.sendMessage({
+              to: configs.WHATSAPP.GROUP_API,
+              body: `WriteSonic: \n${result.result}`,
+            });
+          }
+          resolve(result);
+        });
 
-    //   new Promise(async (resolve) => {
-    //     const result = await openAI.text({
-    //       to: msg.to,
-    //       from: msg.from || "",
-    //       body: msg.body || "",
-    //       type: "text",
-    //     });
+        new Promise(async (resolve) => {
+          const result = await openAI.text({
+            to: msg.to,
+            from: msg.from || "",
+            body: msg.body || "",
+            type: "text",
+          });
 
-    //     if (result.result) {
-    //       messages.sendMessage({
-    //         to: configs.WHATSAPP.GROUP_API,
-    //         body: `OpenIA: \n${result.result}`,
-    //       });
-    //     }
-    //     resolve(result);
-    //   });
-    // }
+          if (result.result) {
+            messages.sendMessage({
+              to: configs.WHATSAPP.GROUP_API,
+              body: `OpenIA: \n${result.result}`,
+            });
+          }
+          resolve(result);
+        });
+      }
+    }
   });
 
   const sends = Sends.create({
@@ -120,8 +127,6 @@ async function init() {
         isWhatsapp: wc.isMyContact,
       };
       sends.contacts = [payload];
-      console.log("Novo contato do whatsapp:::", wc);
-      console.log("Novo contato:::::::", payload);
     }
   });
 
@@ -177,12 +182,11 @@ async function init() {
       }
     }
   });
-  console.log("::: Módulos iniciados!");
 }
 
 init().then(async () => {
-  const start = await messages.initialize();
-  if (start) {
+  console.log("::: Módulos iniciados!");
+  if (await messages.initialize()) {
     console.log("::: Whatsapp iniciado!");
   } else {
     console.log("::: Whatsapp não iniciado!");
