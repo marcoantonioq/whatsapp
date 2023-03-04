@@ -31,7 +31,20 @@ services:
       - backend
     # command: npm run dev
     command: npm run start
+  botpress:
+    image: botpress/server
+    container_name: botpress
+    user: botpress
+    ports:
+      - 3020:3000
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - ./dist/botpress:/botpress/data
 networks:
   backend:
 volumes:
   database:
+  botpress:
