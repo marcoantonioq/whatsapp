@@ -12,7 +12,7 @@ export class RepositoryPuppeteer implements InterfaceRepository {
     return page;
   }
 
-  async printScreen(page: Page): Promise<string | Buffer> {
+  async printScreenBase64Data(page: Page): Promise<string> {
     const browser = await puppeteer.launch({
       headless: true,
       executablePath: "/usr/bin/google-chrome-stable",
@@ -55,7 +55,7 @@ export class RepositoryPuppeteer implements InterfaceRepository {
       const imageBuffer = await content.screenshot();
       await pagePuppet.close();
       await browser.close();
-      return imageBuffer;
+      return `data:image/png;base64,${imageBuffer.toString("base64")}`;
     }
     throw "Página inválida!";
   }

@@ -22,25 +22,16 @@ import { ModuleScrapy } from "../index";
  */
 export const scrapy = ModuleScrapy.create();
 (async () => {
-  const html = await scrapy.createPageTemplate("aviso", [
-    [
-      "content",
-      `
-<h1>REUNIÃO DE EVANGELIZAÇÃO</h1>
-<h2>HOJE - 19H30</h2>
-<span class="center"><b>Casa do Ir. Walter & Ir. Simone</b>Região da Barra</span>
-<cite>
-Vinde a mim, todos os que estais cansados e oprimidos, e eu vos aliviarei.
-<br />- Mateus 11:28
-</cite>
-<small>
-  <b>Próxima reunião:</b>
-  07/03 às 19h30 Ir. Cristina
-  Portal da Serra
-</small>
-  `,
-    ],
-  ]);
+  const msg = ` `
+    .trim()
+    .split("\n")
+    .map((el) => el.trim())
+    .map((el, id) => (el.match(/^\</gi) && !id ? el : `<br>${el}</br>`))
+    .join("");
+
+  console.log(msg);
+
+  const html = await scrapy.createPageTemplate("aviso", [["content", msg]]);
 
   scrapy.printScreenPage({ templateHTML: html }, "./out/image.png");
 })();

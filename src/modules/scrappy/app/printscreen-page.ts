@@ -13,9 +13,10 @@ export class PrintScreenPage {
       page.templateHTML = layout.replaceAll("{{content}}", page.templateHTML);
     const newPage = Page.create(page);
     try {
-      const imgBuffer = await this.repo.printScreen(newPage);
-      if (out) await fs.writeFile(out, imgBuffer);
-      return imgBuffer;
+      const imageBase64 = await this.repo.printScreenBase64Data(newPage);
+      const data = imageBase64.split(";base64,")[1];
+      if (out) await fs.writeFile(out, data, "base64");
+      return imageBase64;
     } catch (e) {
       console.log("Erro ao baixar imagem::", e);
     }

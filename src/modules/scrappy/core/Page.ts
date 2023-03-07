@@ -11,5 +11,5 @@ export class Page {
 export interface InterfaceRepository {
   pages(): Promise<Page[]>;
   create(page: Page): Promise<Page>;
-  printScreen(page: Page): Promise<string | Buffer>;
+  printScreenBase64Data(page: Page): Promise<string>;
 }

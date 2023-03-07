@@ -2,10 +2,10 @@
   "name": "whatsapp",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app/start.ts",
+  "main": "src/app/index.ts",
   "scripts": {
-    "dev": "npm run upgrade ; npm run reset ; ts-node-dev -r tsconfig-paths/register src/app/start.ts",
-    "start": "npm run upgrade ; npm run gdb ; ts-node -r tsconfig-paths/register src/app/start.ts",
+    "dev": "npm run upgrade ; npm run reset ; ts-node-dev -r tsconfig-paths/register src/app/index.ts",
+    "start": "npm run upgrade ; npm run gdb ; ts-node -r tsconfig-paths/register src/app/index.ts",
     "clear": "npm cache clean --force",
     "upgrade": "npx npm-check-updates -u @wppconnect-team/wppconnect; npm install",
     "gdb": "npx prisma migrate dev --name create_db",

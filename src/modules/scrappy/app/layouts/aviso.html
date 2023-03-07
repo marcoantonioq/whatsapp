@@ -37,38 +37,36 @@
 
     html {
       background: #6c6c6c;
-      font-size: 20px;
+      font-size: 25px;
+      font-family: Verdana, Tahoma, sans-serif;
+      line-height: 1.45;
     }
 
     body {
       background: #f3f3f3;
-      color: #252525;
-      font-family: Verdana, Tahoma, sans-serif;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-      text-align: justify;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      text-align: center;
       width: 400px;
-      height: 750px;
+      height: 720px;
       padding: 15px;
     }
 
     h1 {
       font-size: 1.8rem;
-      font-weight: bold;
-      text-align: left;
     }
 
     h2 {
       font-size: 1.4rem;
-      font-weight: bold;
+      border-bottom: 1px solid
     }
 
     cite {
-      font-size: 0.9rem;
+      font-size: 0.63rem;
       padding: 10px 10px;
     }
 
     small {
-      font-size: 0.8rem;
+      font-size: 0.65rem;
     }
 
     .center {
@@ -105,13 +103,16 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+
     }
   </style>
 </head>
 
 <body>
   <section class="grid">
-    {{content}}
+    <section class="grid">
+      {{content}}
+    </section>
   </section>
 </body>
 
