@@ -4,7 +4,7 @@ import Google from "../core/Google";
 export class SpeechToTextOGG {
   constructor(private readonly repo?: any) {}
 
-  async execute(data: string) {
+  async execute(mediaBase64: string) {
     let transcription = "";
     const google = Google.create();
     await google.auth({
@@ -16,7 +16,7 @@ export class SpeechToTextOGG {
       auth: configs.GOOGLE.GOOGLE_KEY,
       requestBody: {
         audio: {
-          content: data,
+          content: mediaBase64.split(";base64,")[1],
         },
         config: {
           encoding: "OGG_OPUS",
