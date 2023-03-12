@@ -54,7 +54,7 @@ export class Sends extends EventEmitter {
         const groupSelect = this.listGroups[+Number(msg)];
         if (groupSelect) {
           const contatos = (await this.contatos.contacts()).filter((contact) =>
-            contact.isGroup(groupSelect)
+            contact.isInTheGroup(groupSelect)
           );
 
           this.msg = `${this.msg}\n\nGrupo selecionando: ${groupSelect} com ${contatos.length} contatos!`;

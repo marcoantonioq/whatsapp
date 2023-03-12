@@ -28,7 +28,13 @@ export class Contact implements DSContatos {
     public datas: Date | null = null,
     public modified: Date | null = null,
     public created: Date | null = null,
-    public selected: boolean = false
+    public selected: boolean = false,
+    public isSaved: boolean = false,
+    public isUser: boolean = false,
+    public isGroup: boolean = false,
+    public isWhatsapp: boolean = false,
+    public isContact: boolean = false,
+    public isBusiness: boolean = false
   ) {}
 
   static create(contact: Partial<Contact>): Contact {
@@ -66,7 +72,7 @@ export class Contact implements DSContatos {
       .join(", ");
   }
 
-  isGroup(grupo: string) {
+  isInTheGroup(grupo: string) {
     if (!grupo || grupo === "") return false;
     return !!this.grupos?.includes(grupo);
   }

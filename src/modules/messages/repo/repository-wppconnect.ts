@@ -27,13 +27,23 @@ export class RepositoryWPPConnect implements InterfaceRepository {
   }
   async send(msg: Message): Promise<boolean> {
     if (!this.whatsapp) throw "Whatsapp não inicializado!";
+    let result: any;
     try {
       switch (msg.type) {
         case "image":
+          if (msg.data) {
+            result = await this.whatsapp.sendImageFromBase64(
+              msg.to,
+              msg.data,
+              msg.body || "Imagem.png",
+              msg.caption
+            );
+            msg.id = result.id;
+          }
           break;
         default:
           if (msg.body) {
-            const result = await this.whatsapp.sendText(msg.to, msg.body);
+            result = await this.whatsapp.sendText(msg.to, msg.body);
             msg.id = result.id;
           }
           break;
@@ -171,7 +181,9 @@ export class RepositoryWPPConnect implements InterfaceRepository {
         }
         const message = Message.create(payload);
         this.data.push(message);
-        if (!message.isBot) {
+        if (message.body?.startsWith("🤖:")) {
+          message.isBot = true;
+        } else {
           // console.log("Nova mensagem:: ", message);
           // console.log("Nova mensagem whatsapp:: ", msg);
           event.emit("message_create", message);

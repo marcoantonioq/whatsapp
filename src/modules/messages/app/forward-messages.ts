@@ -15,7 +15,6 @@ export class ForwardMessages {
       status: true,
       error: "",
     };
-    console.log("Mensagem para envio: ", number, messagesID);
     if (number && messagesID.length) {
       try {
         const num = number.match(/@(g|c)\.us$/gi)

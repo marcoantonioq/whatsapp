@@ -2,7 +2,7 @@ import configs from "@config/index";
 import ModuleGoogle from "@modules/google";
 import { Contact, InterfaceRepository } from "../core/Contacts";
 
-export class GetGoogleSheet {
+export class UpGoogleSheetToContact {
   constructor(private readonly repo: InterfaceRepository) {}
 
   async execute() {
@@ -36,4 +36,4 @@ export class GetGoogleSheet {
   }
 }
 
-export default GetGoogleSheet;
+export default UpGoogleSheetToContact;

@@ -1,5 +1,5 @@
 import { Repository } from "./repo/repository";
-import GetGoogleSheet from "./app/get-google-sheet";
+import UpGoogleSheetToContact from "./app/update-google-sheet-to-contact";
 import Contacts from "./app/get-contacts";
 import OnCreateMessage from "./app/on-created-contact";
 
@@ -10,7 +10,7 @@ export class ModuleContacts {
     return new ModuleContacts();
   }
   private readonly repo: Repository = new Repository([]);
-  getGoogleSheetToRepo = new GetGoogleSheet(this.repo).execute;
+  upGoogleSheetToContact = new UpGoogleSheetToContact(this.repo).execute;
   contacts = new Contacts(this.repo).execute;
   onCreate = new OnCreateMessage(this.repo).execute;
 }
