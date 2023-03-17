@@ -1,5 +1,6 @@
-import EventEmitter from "events";
-import * as puppeteer from "puppeteer";
+export interface PageUseCase {
+  execute(): Promise<any>;
+}
 
 export interface Module {
   repo: any;

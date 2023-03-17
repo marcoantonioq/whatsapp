@@ -1,10 +1,9 @@
 import { InterfaceRepository, Page } from "../core/Page";
 import { promises as fs } from "fs";
 
-const layouts = {
+export const layouts = {
   default: "src/modules/scrappy/app/layouts/default.html",
   aviso: "src/modules/scrappy/app/layouts/aviso.html",
-  comunicado: "src/modules/scrappy/app/layouts/comunicado.html",
 };
 export type templates = keyof typeof layouts;
 

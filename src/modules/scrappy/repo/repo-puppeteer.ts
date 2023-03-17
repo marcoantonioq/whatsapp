@@ -1,19 +1,28 @@
-import puppeteer from "puppeteer";
+import puppeteer, { Browser } from "puppeteer";
 import { InterfaceRepository, Page } from "../core/Page";
 
 export class RepositoryPuppeteer implements InterfaceRepository {
-  constructor(public readonly data: Page[]) {}
+  static _browser: Browser | undefined = undefined;
+  constructor(public readonly data: Page[]) {
+    this.initialize();
+  }
 
   async pages() {
     return this.data;
+  }
+
+  get browser() {
+    return RepositoryPuppeteer._browser;
   }
 
   async create(page: Page) {
     return page;
   }
 
-  async printScreenBase64Data(page: Page): Promise<string> {
-    const browser = await puppeteer.launch({
+  private async initialize() {
+    if (RepositoryPuppeteer._browser) return;
+    RepositoryPuppeteer._browser = await puppeteer.launch({
+      userDataDir: "out/puppeteer-data",
       headless: true,
       executablePath: "/usr/bin/google-chrome-stable",
       args: [
@@ -44,7 +53,15 @@ export class RepositoryPuppeteer implements InterfaceRepository {
         "--disable-webgl",
       ],
     });
-    const pagePuppet = await browser.newPage();
+  }
+
+  async close() {
+    this.browser?.close();
+  }
+
+  async printScreenBase64Data(page: Page): Promise<string> {
+    if (!this.browser) throw "Browser não iniciado!";
+    const pagePuppet = await this.browser.newPage();
     if (page.templateHTML) {
       await pagePuppet.setContent(page.templateHTML);
     } else {
@@ -54,7 +71,7 @@ export class RepositoryPuppeteer implements InterfaceRepository {
     if (content) {
       const imageBuffer = await content.screenshot();
       await pagePuppet.close();
-      await browser.close();
+      await this.browser.close();
       return `data:image/png;base64,${imageBuffer.toString("base64")}`;
     }
     throw "Página inválida!";

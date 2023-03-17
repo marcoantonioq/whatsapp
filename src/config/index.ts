@@ -1,9 +1,12 @@
 import { GOOGLE } from "@types";
 import { config as env } from "dotenv";
-import { config } from "process";
 const parsed = env().parsed;
 
 export const configs = {
+  SUAP: {
+    user: parsed?.SUAP_USER || "",
+    pass: parsed?.SUAP_PASS || "",
+  },
   WRITESONIC: {
     KEY: parsed?.WRITESONIC_KEY || "",
   },

@@ -1,3 +1,5 @@
+import { Browser } from "puppeteer";
+
 export class Page {
   private constructor(
     public url: string = "",
@@ -9,6 +11,7 @@ export class Page {
 }
 
 export interface InterfaceRepository {
+  browser: Browser | undefined;
   pages(): Promise<Page[]>;
   create(page: Page): Promise<Page>;
   printScreenBase64Data(page: Page): Promise<string>;

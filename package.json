@@ -16,7 +16,7 @@
   "dependencies": {
     "@google-cloud/speech": "^5.2.0",
     "@prisma/client": "^4.10.1",
-    "@wppconnect-team/wppconnect": "^1.22.0",
+    "@wppconnect-team/wppconnect": "^1.23.0",
     "api": "^5.0.7",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
@@ -34,6 +34,7 @@
     "@types/jest": "^29.4.0",
     "@types/node": "^18.11.18",
     "@types/nodemon": "^1.19.2",
+    "@types/puppeteer": "^7.0.4",
     "@types/qrcode-terminal": "^0.12.0",
     "@typescript-eslint/eslint-plugin": "^5.48.2",
     "eslint": "^8.32.0",

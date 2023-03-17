@@ -5,6 +5,9 @@ import { ModuleChatsAI } from "@modules/chats-ia";
 import { ModuleContacts } from "@modules/contacts";
 import { Chats } from "@modules/messages/core/Chats";
 import { ModuleScrapy } from "@modules/scrappy";
+import { format } from "@libs/phone";
+import { Contact as ContactWhatsapp } from "@modules/messages/core/Message";
+import { Contact } from "@modules/contacts/core/Contacts";
 
 export const messages = ModuleMessages.create();
 export const google = ModuleGoogle.create();
@@ -13,6 +16,18 @@ export const writeSonic = ModuleChatsAI.create("writeSonic");
 export const contatos = ModuleContacts.create();
 export const chats = Chats.create(messages);
 export const scrapy = ModuleScrapy.create();
+
+/**
+ * Mensagens Whatsapp iniciado!
+ */
+messages.onReady(async () => {
+  contatos.onCreate(async (contact) => {});
+  contatos.upGoogleSheetToContact();
+});
+
+messages.onQR((qr) => {
+  saveQrCodeToSheet(qr);
+});
 
 export const questionAPI = async (text: string) =>
   await chats.question(text, configs.WHATSAPP.GROUP_API);
@@ -78,4 +93,50 @@ export async function pesquisarWriteSonic(search: string) {
     to: "",
     from: "",
   });
+}
+
+export function removeDuplicates(strings: string[]): string[] {
+  return [...new Set(strings)];
+}
+
+export async function extractNumber(numbers: string) {
+  if (numbers.match(/(\d{4}-\d{4}|\d{8})+/gi)) {
+    return numbers
+      .split(/(\n|\r|\t|,|;)/gi)
+      .map((el) => el.replace(/\D/gim, ""))
+      .filter((el) => el.match(/(\d{8,13})+/gi))
+      .map(format)
+      .filter((el) => el !== "");
+  }
+  return [];
+}
+
+export async function contactWhatsappToContact(
+  contact: ContactWhatsapp
+): Promise<Contact | undefined> {
+  if (contact) {
+    return Contact.create({
+      id: contact.id,
+      nome: contact.shortName || contact.pushname || "",
+      telefones: contact.id,
+      isContact: contact.isMyContact,
+      isWhatsapp: contact.isMyContact,
+      isBusiness: contact.isBusiness,
+      isUser: contact.isUser,
+    });
+  }
+  return undefined;
+}
+
+export function whatsappToHtml(input: string): string {
+  // Converte quebras de linha em <br>
+  let output = input.replace(/\n/g, "<br>");
+  // Converte negrito (*bold*) em <b>
+  output = output.replace(/\*([^\*]+)\*/g, "<b>$1</b>");
+  // Converte itálico (_italics_) em <i>
+  output = output.replace(/_([^_]+)_/g, "<i>$1</i>");
+  // Converte links (http://www.example.com) em <a href="http://www.example.com">http://www.example.com</a>
+  output = output.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1">$1</a>');
+
+  return output;
 }
