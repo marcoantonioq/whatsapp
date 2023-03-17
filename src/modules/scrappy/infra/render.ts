@@ -14,24 +14,3 @@
 //   const value: string = match[2].trim();
 //   meuArray.push({ action, key, value });
 // }
-
-import { ModuleScrapy } from "../index";
-
-/**
- * demo
- */
-export const scrapy = ModuleScrapy.create();
-(async () => {
-  const msg = ` `
-    .trim()
-    .split("\n")
-    .map((el) => el.trim())
-    .map((el, id) => (el.match(/^\</gi) && !id ? el : `<br>${el}</br>`))
-    .join("");
-
-  console.log(msg);
-
-  const html = await scrapy.createPageTemplate("aviso", [["content", msg]]);
-
-  scrapy.printScreenPage({ templateHTML: html }, "./out/image.png");
-})();

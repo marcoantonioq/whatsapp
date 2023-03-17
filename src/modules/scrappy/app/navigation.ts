@@ -1,15 +1,18 @@
-import { InterfaceRepository } from "../core/Page";
-import { Browser } from "puppeteer";
+import Page from "../infra/Page";
 
 export class Navigation {
-  constructor(private readonly repo: InterfaceRepository) {}
+  constructor(private readonly repo: any) {}
 
-  async execute(callback: (browser: Browser) => Promise<string | undefined>) {
-    if (this.repo.browser) {
-      return await callback(this.repo.browser);
-    } else {
-      console.log("Navegador não iniciado: ", this.repo.browser);
+  async execute(callback: (page: Page) => Promise<string>) {
+    let result: string = "";
+    try {
+      const page = await Page.create();
+      result = await callback(page);
+      await page.close;
+    } catch (error) {
+      console.log("Erro ao navegar in page: ", error);
     }
+    return result;
   }
 }
 export default Navigation;

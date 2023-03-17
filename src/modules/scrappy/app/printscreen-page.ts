@@ -13,7 +13,7 @@ export class PrintScreenPage {
       page.templateHTML = layout.replaceAll("{{content}}", page.templateHTML);
     const newPage = Page.create(page);
     try {
-      const imageBase64 = await this.repo.printScreenBase64Data(newPage);
+      const imageBase64 = await this.repo.closePage(newPage);
       const data = imageBase64.split(";base64,")[1];
       if (out) await fs.writeFile(out, data, "base64");
       return imageBase64;

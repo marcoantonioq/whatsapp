@@ -2,6 +2,9 @@ import puppeteer, {
   Page as PagePuppeteer,
   Browser as BrowserPuppeteer,
   PuppeteerLaunchOptions,
+  ElementHandle,
+  ScreenshotOptions,
+  Viewport,
 } from "puppeteer";
 
 class Browser {
@@ -14,6 +17,9 @@ class Browser {
     if (!Browser.instance) {
       Browser.instance = await puppeteer.launch({
         ...{
+          userDataDir: "out/puppeteer-data",
+          headless: true,
+          executablePath: "/usr/bin/google-chrome-stable",
           args: [
             "--no-sandbox",
             "--disable-default-apps",
@@ -91,6 +97,10 @@ export class Page {
     );
   }
 
+  setDefaultNavigationTimeout(time: number) {
+    this.page.setDefaultNavigationTimeout(time);
+  }
+
   async navigate(url: string): Promise<void> {
     await this.page?.goto(url);
   }
@@ -111,17 +121,26 @@ export class Page {
     await this.page?.type(selector, text);
   }
 
-  async screenshot(path: string): Promise<void> {
-    await this.page?.screenshot({ path });
+  async screenshot(options?: ScreenshotOptions): Promise<Buffer | string> {
+    return await this.page?.screenshot(options);
   }
 
-  async screenshotBase64(): Promise<string> {
-    const imageBuffer = await this.page?.screenshot();
+  async screenshotBase64(options?: ScreenshotOptions): Promise<string> {
+    const imageBuffer = await this.screenshot(options);
     return `data:image/png;base64,${imageBuffer?.toString("base64")}`;
   }
 
   async setContent(html: string) {
     await this.page?.setContent(html);
+  }
+
+  async $(selector: string): Promise<ElementHandle<Element> | null> {
+    return await this.page.$(selector);
+  }
+
+  async evaluate<T>(fn: (args: any[]) => T, ...args: any[]): Promise<T> {
+    const data = await this.page?.evaluate(fn, ...args);
+    return data;
   }
 
   async insertHTML(selector: string, html: string): Promise<void> {
@@ -133,6 +152,12 @@ export class Page {
       selector,
       html
     );
+  }
+
+  async setViewport(viewport: Viewport) {
+    if (this.page) {
+      await this.page.setViewport(viewport);
+    }
   }
 
   async close(): Promise<void> {

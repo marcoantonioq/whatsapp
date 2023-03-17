@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Exemplo de efeitos de papel e borda</title>
+  <style>
+    .container {
+      background-color: #f8f8f8;
+      padding: 20px;
+      margin: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 2px 2px 5px #ccc;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
+      transform: rotate(5deg);
+      z-index: -1;
+    }
+
+    .container::after {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: 100%;
+      height: 100%;
+      background-color: #fff;
+      transform: rotate(-5deg);
+      z-index: -1;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      /* text-shadow: 1px 1px 1px #ccc; */
+    }
+
+    p {
+      line-height: 1.5;
+      /* text-indent: 20px; */
+      text-align: justify;
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Exemplo de efeitos de papel e borda</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Nam rhoncus metus sed massa posuere, in
+      consequat eros auctor. Fusce feugiat a arcu eu sagittis. Aenean eget tristique magna. Duis euismod auctor velit,
+      sed pellentesque arcu dignissim vitae. Nam luctus tellus id elit pretium dapibus. Proin euismod, libero vel varius
+      interdum, nulla lorem aliquam massa, eget faucibus quam dolor eget magna. Duis nec nisl bibendum, bibendum risus
+      in, accumsan odio. In tempor eleifend lacus eu ultrices. Fusce vel erat eget nisl tempor gravida ut nec arcu.
+      Fusce suscipit suscipit tincidunt. Pellentesque ut pulvinar nulla. Donec auctor leo et nunc vestibulum commodo.
+      Donec id vestibulum velit. Nam ullamcorper nunc id lectus tincidunt, in euismod mauris consectetur. Duis vel
+      tellus vel augue tincidunt volutpat non non nunc.</p>
+  </div>
+</body>
+
+</html>

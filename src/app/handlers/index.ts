@@ -37,6 +37,7 @@ export async function sendTextAPI(body: string) {
     to: configs.WHATSAPP.GROUP_API,
     body,
   });
+  whatsappToHtml;
 }
 
 export async function sendImgToAPI(dataBase64: string, caption?: string) {
@@ -45,7 +46,7 @@ export async function sendImgToAPI(dataBase64: string, caption?: string) {
     data: dataBase64,
     type: "image",
     body: "Image.png",
-    caption: caption || "Imagem",
+    caption: caption || undefined,
   });
 }
 
@@ -61,25 +62,6 @@ export function saveQrCodeToSheet(qr: string) {
 
 export async function transcreverAudio(mediaBase64: string) {
   return await google.speech.oggToText(mediaBase64);
-}
-
-export async function criarAviso(aviso: string) {
-  const html = await scrapy.createPageTemplate("aviso", [
-    [
-      "content",
-      aviso
-        .trim()
-        .split("\n")
-        .map((el) => el.trim())
-        .map((el, id) => (el.match(/^\</gi) && !id ? el : `<br>${el}</br>`))
-        .join(""),
-    ],
-  ]);
-
-  return await scrapy.printScreenPage(
-    { templateHTML: html },
-    "./out/image.png"
-  );
 }
 
 export async function pesquisarGoogle(search: string) {

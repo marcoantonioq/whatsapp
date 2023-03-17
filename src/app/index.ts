@@ -33,7 +33,7 @@ messages.onMessageNew(async (msg) => {
   if (msg.isBot) return;
   if (msg.body && msg.from) {
     const contacts = ["556284972385@c.us", "556281779439@c.us"];
-    if (contacts.includes(msg.from) || contacts.includes(msg.to)) {
+    if (msg.to === "556284972385@c.us" && contacts.includes(msg.from)) {
       const result = await MenuSUAP.selectOption("/" + msg.body);
       if (result && result.trim() !== "")
         messages.sendMessage({ to: msg.from, body: result });
