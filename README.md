@@ -1,9 +1,9 @@
-# start
+# APP
 
-chmod +x shell/init.sh
+```sh
+$ npm run dev
+```
 
-docker-compose up
+# Docker 
 
-# update
-
-git pull --ff-only
+...
