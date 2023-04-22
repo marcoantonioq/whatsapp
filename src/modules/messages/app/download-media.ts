@@ -1,4 +1,4 @@
-import { InterfaceRepository, Message } from "../core/Message";
+import { InterfaceRepository } from "../interfaces/InterfaceRepository";
 
 export class DownloadMedia {
   constructor(private readonly repo: InterfaceRepository) {}

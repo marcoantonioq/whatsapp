@@ -1,4 +1,4 @@
-import { InterfaceRepository } from "../core/Message";
+import { InterfaceRepository } from "../interfaces/InterfaceRepository";
 
 export class StateWhatsapp {
   constructor(private readonly repo: InterfaceRepository) {}

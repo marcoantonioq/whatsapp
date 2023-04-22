@@ -1,27 +1,30 @@
 import EventEmitter from "events";
-import { ModuleMessages } from "..";
+import { Whatsapp } from "..";
 import { Message } from "./Message";
 
 export class Chats {
   private events = new EventEmitter();
-  private constructor(private io: ModuleMessages) {
-    io.onMessageNew((msg) => {
-      if (!msg.isBot) {
-        this.events.emit(`response_${msg.to}`, msg);
-      }
+  private constructor(private messages: Whatsapp) {
+    messages.onMessage((msg) => {
+      this.events.emit(`response_${msg.to}`, msg);
     });
   }
 
-  static create(io: ModuleMessages) {
-    return new Chats(io);
+  static create(messages: Whatsapp) {
+    return new Chats(messages);
   }
 
   question(text: string, chatID: string): Promise<Message> {
     return new Promise(async (resolve) => {
       this.events.on(`response_${chatID}`, (msg: Message) => {
+        console.log("Mensagem respondida::: ", msg);
         resolve(msg);
       });
-      this.io.sendMessage({ body: text, to: chatID });
+      // this.messages.sendMessage({
+      //   message: text,
+      //   phone: chatID,
+      //   isGroup: false,
+      // });
     });
   }
 }

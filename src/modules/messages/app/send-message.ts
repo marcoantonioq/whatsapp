@@ -1,25 +1,17 @@
-import { InterfaceRepository, Message } from "../core/Message";
+import { Message } from "../core/Message";
+import {
+  InterfaceRepository,
+  SendMessageRequest,
+} from "../interfaces/InterfaceRepository";
 
 export class SendMessage {
   constructor(private readonly repo: InterfaceRepository) {}
 
-  async execute(msg: Partial<Message>) {
-    const message = Message.create(msg);
-    if (message.to) {
-      if (message.body?.startsWith("🤖: ")) {
-        message.isBot = true;
-      }
-      if (message.isBot) {
-        message.body = `🤖: ${message.body}`;
-      }
-
-      try {
-        await this.repo.send(message);
-      } catch (e) {
-        console.log("Erro ao enviar mensagem:::", e, this.repo);
-      }
+  async execute(request: SendMessageRequest): Promise<Message> {
+    if (request.phone && request.message?.startsWith("🤖: ")) {
+      request.message = `🤖: ${request.message}`;
     }
-    return true;
+    const message = this.repo.sendMessage(request);
+    return message;
   }
 }
-export default SendMessage;

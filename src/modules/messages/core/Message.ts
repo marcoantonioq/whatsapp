@@ -1,5 +1,7 @@
-import { Group, Messages } from "@prisma/client";
 import EventEmitter from "events";
+
+type Messages = {};
+type Group = "SENDING" | null;
 
 export class Message implements Messages {
   messageOptions = {};
@@ -9,7 +11,7 @@ export class Message implements Messages {
     public to = "",
     public body: string | null = "",
     public type: string | null = "text",
-    public group = <Group | null>"SENDING",
+    public group = <Group>"SENDING",
     public hasMedia: boolean | null = false,
     public mimetype: string | null = "",
     public data: string | null = "",
@@ -25,12 +27,32 @@ export class Message implements Messages {
     public modified = new Date(),
     public id = "",
     public isBot = true,
-    public isGroup = false
+    public isGroup = false,
+    public author = "",
+    public isMe = false,
+    public isMyContact = false
   ) {}
   static create(msg: Partial<Message>): Message {
     const message = Object.assign(new Message(), { ...msg });
     if (message.body) message.setBody(message.body);
     return message;
+  }
+
+  static createRecord(msg: any): Message {
+    const message = Message.create({}) as any;
+    const sender: any = msg.sender;
+    for (const [key, value] of Object.entries(msg)) {
+      if (value && message.hasOwnProperty(key)) {
+        message[key as keyof Message] = msg[key];
+      }
+    }
+    // console.log(">>>>", msg);
+    message.isGroup = msg?.isGroupMsg;
+    message.hasMedia = msg?.isMedia;
+    message.displayName = sender?.name || "";
+    message.isMe = sender?.isMe;
+    message.isMyContact = sender?.isMyContact;
+    return <Message>message;
   }
 
   setBody(body: string) {
@@ -74,19 +96,4 @@ export interface Contact {
   labels: any[];
   pushname: string | undefined;
   shortName: string;
-}
-export interface InterfaceRepository {
-  event: EventEmitter;
-  messages(): Promise<Message[]>;
-  send(msg: Message): Promise<boolean>;
-  delete(chatID: string, messageID: string): Promise<boolean>;
-  forwardMessages(
-    to: string,
-    ids: string[],
-    skipMyMessages?: boolean
-  ): Promise<boolean>;
-  clear(chatID: string): Promise<boolean>;
-  download(messageID: string): Promise<string>;
-  getContact(contactID: string): Promise<Contact | undefined>;
-  initialize(): Promise<boolean>;
 }

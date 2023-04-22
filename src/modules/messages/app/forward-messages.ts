@@ -1,5 +1,4 @@
-import { format } from "@libs/phone";
-import { InterfaceRepository } from "../core/Message";
+import { InterfaceRepository } from "../interfaces/InterfaceRepository";
 
 export interface payload {
   number: string;
@@ -17,9 +16,7 @@ export class ForwardMessages {
     };
     if (number && messagesID.length) {
       try {
-        const num = number.match(/@(g|c)\.us$/gi)
-          ? number
-          : `55${format(number)}@c.us`;
+        const num = number.match(/@(g|c)\.us$/gi) ? number : `55${number}@c.us`;
         await this.repo.forwardMessages(num, messagesID);
       } catch (e) {
         result.error = String(e);

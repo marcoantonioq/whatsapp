@@ -1,201 +1,64 @@
-import { Message, InterfaceRepository, Contact } from "../core/Message";
-import settings from "@config/index";
-
-import * as wppconnect from "@wppconnect-team/wppconnect";
+import config from "@config/index";
 import EventEmitter from "events";
+import { Message } from "../core/Message";
+import { io } from "socket.io-client";
+import {
+  InterfaceRepository,
+  SendMessageRequest,
+} from "../interfaces/InterfaceRepository";
+import axios from "axios";
+
+const server = `${config.session.server}/api/${config.session.name}`;
+const headers = {
+  headers: { Authorization: `Bearer ${config.session.token}` },
+};
 
 export class RepositoryWPPConnect implements InterfaceRepository {
-  private whatsapp!: wppconnect.Whatsapp | void;
+  private socket = io(config.session.server);
+  constructor(private readonly data: Message[]) {
+    const session = config.session.name;
+    this.socket.on("connect", () => {
+      console.log(`Whatsapp connected: ${session}`);
+    });
+
+    this.socket.on("disconnect", () => {
+      console.log(`Whatsapp disconnected: ${session}`);
+    });
+
+    this.socket.on(`mensagem-${session}`, (msg) => {
+      this.event.emit("message", msg);
+    });
+  }
   public readonly event = new EventEmitter();
-  constructor(private readonly data: Message[]) {}
-  async forwardMessages(
+  messages(): Promise<Message[]> {
+    throw new Error("Method not implemented.");
+  }
+  async sendMessage(request: SendMessageRequest) {
+    const results = await axios.post(
+      `${server}/send-message`,
+      request,
+      headers
+    );
+    return Message.createRecord(results.data.response[0]);
+  }
+  delete(chatID: string, messageID: string): Promise<boolean> {
+    throw new Error("Method not implemented.");
+  }
+  forwardMessages(
     to: string,
     ids: string[],
-    skipMyMessages: boolean = false
+    skipMyMessages?: boolean | undefined
   ): Promise<boolean> {
-    if (!this.whatsapp) throw "Whatsapp não inicializado!";
-    try {
-      await this.whatsapp.forwardMessages(to, ids, skipMyMessages);
-      return true;
-    } catch (e) {
-      console.log("Erro no encaminhamento::", e);
-      return false;
-    }
+    throw new Error("Method not implemented.");
   }
-  async messages(): Promise<Message[]> {
-    return this.data;
+  clear(chatID: string): Promise<boolean> {
+    throw new Error("Method not implemented.");
   }
-  async send(msg: Message): Promise<boolean> {
-    if (!this.whatsapp) throw "Whatsapp não inicializado!";
-    let result: any;
-    try {
-      switch (msg.type) {
-        case "image":
-          if (msg.data) {
-            result = await this.whatsapp.sendImageFromBase64(
-              msg.to,
-              msg.data,
-              msg.body || "Imagem.png",
-              msg.caption
-            );
-            msg.id = result.id;
-          }
-          break;
-        default:
-          if (msg.body) {
-            result = await this.whatsapp.sendText(msg.to, msg.body);
-            msg.id = result.id;
-          }
-          break;
-      }
-      return true;
-    } catch (e) {
-      console.log("Erro repo::", e);
-
-      return false;
-    }
+  download(messageID: string): Promise<string> {
+    throw new Error("Method not implemented.");
   }
 
-  async delete(chatID: string, messageID: string): Promise<boolean> {
-    if (!this.whatsapp) throw "Whatsapp não inicializado!";
-    return await this.whatsapp.deleteMessage(chatID, messageID);
-  }
-
-  async clear(chatID: string) {
-    if (!this.whatsapp) throw "Whatsapp não inicializado!";
-    return this.whatsapp.clearChat(chatID);
-  }
-
-  async download(messageID: string): Promise<string> {
-    if (!this.whatsapp) throw "Whatsapp não inicializado!";
-    return this.whatsapp.downloadMedia(messageID);
-  }
-
-  async getContact(contactID: string): Promise<Contact | undefined> {
-    if (!this.whatsapp) throw "Whatsapp não inicializado!";
-    try {
-      const contact = await this.whatsapp.getContact(contactID);
-      const {
-        id,
-        isBusiness,
-        isMyContact,
-        labels,
-        pushname,
-        shortName,
-        isUser,
-        isWAContact,
-      } = contact;
-      return {
-        id: id._serialized,
-        isBusiness,
-        isMyContact,
-        labels,
-        pushname,
-        shortName,
-        isUser,
-        isWAContact,
-      };
-    } catch (e) {
-      console.log("Error GetContact:::", e);
-    }
-  }
-
-  async initialize() {
-    try {
-      if (this.whatsapp) {
-        throw "já inicializado!";
-      }
-      const event = this.event;
-      this.whatsapp = await wppconnect.create({
-        session: settings.WHATSAPP.clientId,
-        catchQR: async (
-          _base64Qr: any,
-          _asciiQR: any,
-          _attempts: any,
-          urlCode: any
-        ) => {
-          event.emit("qr", urlCode);
-        },
-        statusFind: (statusSession: string, session: string) => {
-          event.emit("status", statusSession, session);
-        },
-        headless: true,
-        devtools: false,
-        useChrome: true,
-        debug: false,
-        logQR: true,
-        browserWS: "",
-        browserArgs: [
-          "--disable-default-apps",
-          "--disable-extensions",
-          "--disable-setuid-sandbox",
-          "--enable-features=NetworkService",
-          "--ignore-certificate-errors",
-          "--ignore-certificate-errors-spki-list",
-          "--no-default-browser-check",
-          "--no-experiments",
-          "--no-sandbox",
-          "--disable-3d-apis",
-          "--disable-accelerated-2d-canvas",
-          "--disable-accelerated-jpeg-decoding",
-          "--disable-accelerated-mjpeg-decode",
-          "--disable-accelerated-video-decode",
-          "--disable-app-list-dismiss-on-blur",
-          "--disable-canvas-aa",
-          "--disable-composited-antialiasing",
-          "--disable-gl-extensions",
-          "--disable-gpu",
-          "--disable-histogram-customizer",
-          "--disable-in-process-stack-traces",
-          "--disable-site-isolation-trials",
-          "--disable-threaded-animation",
-          "--disable-threaded-scrolling",
-          "--disable-webgl",
-        ],
-        puppeteerOptions: {
-          executablePath: "/usr/bin/google-chrome-stable",
-        },
-        disableWelcome: true,
-        updatesLog: false,
-        autoClose: 0,
-        tokenStore: "file",
-        folderNameToken: "./out/tokens",
-      });
-
-      this.whatsapp.onAnyMessage(async (msg) => {
-        const payload = <Message>{
-          id: msg.id,
-          from: msg.from,
-          to: msg.to,
-          body: msg.body,
-          type: msg.type,
-          hasMedia: msg.isMedia,
-          notifyName: msg.notifyName,
-          isBot: false,
-          isGroup: msg.isGroupMsg,
-        };
-        if (msg.isMedia) {
-          payload.body = "";
-          payload.caption = "";
-          payload.mimetype = msg.mimetype;
-        }
-        const message = Message.create(payload);
-        this.data.push(message);
-        if (message.body?.startsWith("🤖:")) {
-          message.isBot = true;
-        } else {
-          // console.log("Nova mensagem:: ", message);
-          // console.log("Nova mensagem whatsapp:: ", msg);
-          event.emit("message_create", message);
-        }
-      });
-      setTimeout(() => {
-        event.emit("ready");
-      }, 2000);
-      return true;
-    } catch (error) {
-      console.log("Erro ao iniciar o whatsapp:::", error);
-      return false;
-    }
+  initialize(): Promise<boolean> {
+    throw new Error("Method not implemented.");
   }
 }
